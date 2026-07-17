@@ -1,6 +1,10 @@
+"use client";
+
+import { MarketStrip } from "@/components/LiveMarket";
+import { GradeSeal } from "@/components/GradeSeal";
+import { useMarket } from "@/hooks/useMarket";
 import type { Asset } from "@/lib/types";
 import { FIELD_LABELS } from "@/lib/types";
-import { GradeSeal } from "./GradeSeal";
 
 const FIELD_ORDER: (keyof Asset["fields"])[] = [
   "issuer",
@@ -18,8 +22,11 @@ interface ClaimLabelProps {
 }
 
 export function ClaimLabel({ asset }: ClaimLabelProps) {
+  const { quotes, loading } = useMarket();
+  const quote = quotes[asset.slug];
+
   return (
-    <article className="w-full max-w-[720px]">
+    <article className="w-full max-w-[720px] animate-fade-up">
       <header className="mb-6 flex items-start justify-between gap-4">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.14em] text-mute">
@@ -36,6 +43,10 @@ export function ClaimLabel({ asset }: ClaimLabelProps) {
         <GradeSeal grade={asset.grade} size="lg" />
       </header>
 
+      <div className="mb-8">
+        <MarketStrip quote={quote} loading={loading} mint={asset.mint} />
+      </div>
+
       {/* Nutrition-label card */}
       <div className="border-t-[3px] border-b border-ink bg-paper">
         <div className="border-b border-ink px-4 py-2.5">
@@ -51,7 +62,7 @@ export function ClaimLabel({ asset }: ClaimLabelProps) {
             return (
               <div
                 key={key}
-                className={`flex items-baseline justify-between gap-6 px-4 py-3 ${
+                className={`flex items-baseline justify-between gap-6 px-4 py-3 transition-colors duration-300 hover:bg-haze/50 ${
                   isLast ? "" : "border-b border-rule"
                 }`}
               >
@@ -90,7 +101,6 @@ export function ClaimLabel({ asset }: ClaimLabelProps) {
         </div>
       </div>
 
-      {/* Sources */}
       <section className="mt-8" aria-labelledby="sources-heading">
         <h2
           id="sources-heading"
@@ -109,7 +119,7 @@ export function ClaimLabel({ asset }: ClaimLabelProps) {
                   href={source.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-ink underline decoration-rule underline-offset-2 transition-opacity duration-150 hover:opacity-60"
+                  className="text-ink underline decoration-rule underline-offset-2 transition-opacity duration-200 hover:opacity-60"
                 >
                   {source.label}
                 </a>
@@ -124,7 +134,6 @@ export function ClaimLabel({ asset }: ClaimLabelProps) {
         </ol>
       </section>
 
-      {/* Plain-English summary */}
       <section
         className="mt-8 border-t border-rule pt-6"
         aria-labelledby="summary-heading"

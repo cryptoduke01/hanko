@@ -20,13 +20,13 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Hanko — Claim records for tokenized assets on Solana",
+    default: "Hanko, claim records for tokenized assets on Solana",
     template: "%s · Hanko",
   },
   description:
-    "Every tokenized stock has a price, a chart, a ticker, and a legal structure. Your wallet shows you three. Hanko is the claim record for the fourth.",
+    "Every tokenized stock has a price, a chart, a ticker, and a legal structure. Your wallet shows you three. Hanko is the claim record for the fourth, with live market data.",
   openGraph: {
-    title: "Hanko — Claim records for tokenized assets on Solana",
+    title: "Hanko, claim records for tokenized assets on Solana",
     description:
       "What does this token legally entitle you to, and who says so?",
     type: "website",

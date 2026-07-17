@@ -16,11 +16,12 @@ export function GradeSeal({ grade, size = "md" }: GradeSealProps) {
 
   return (
     <span
-      className={`inline-flex items-center justify-center border font-mono font-semibold tracking-tight ${sizeClasses[size]} ${
+      className={`inline-flex items-center justify-center border font-mono font-semibold tracking-tight transition-transform duration-300 hover:scale-105 ${sizeClasses[size]} ${
         isFail
           ? "border-fail bg-fail text-white"
           : "border-ink bg-paper text-ink"
       }`}
+      style={{ borderRadius: 2 }}
       aria-label={`Grade ${grade}`}
       title={`Grade ${grade}`}
     >

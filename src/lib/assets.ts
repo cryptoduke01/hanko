@@ -3,7 +3,8 @@ import type { Asset } from "./types";
 /**
  * Seed claim records for Hanko v1.
  * Every field without a primary source is NOT DISCLOSED.
- * Do not invent values — absence is the product.
+ * Do not invent values. Absence is the product.
+ * Mint addresses power live market enrichment via DexScreener.
  */
 export const assets: Asset[] = [
   {
@@ -14,6 +15,7 @@ export const assets: Asset[] = [
     network: "Solana",
     grade: "A",
     category: "Registered",
+    mint: "SPCXxcqXj6e5dJDVNovHN8744zkbhM2bYudU45BimGb",
     fields: {
       issuer: {
         value: "Backpack Securities",
@@ -31,12 +33,12 @@ export const assets: Asset[] = [
         disclosed: true,
       },
       authorizedByCompany: {
-        value: "Yes — issuer-sponsored via Backpack Securities",
+        value: "Yes, issuer-sponsored via Backpack Securities",
         sourceIds: [1, 2],
         disclosed: true,
       },
       redeemableIntoRealShare: {
-        value: "Yes — via ACATS to a brokerage account",
+        value: "Yes, via ACATS to a brokerage account",
         sourceIds: [1, 2],
         disclosed: true,
       },
@@ -59,17 +61,17 @@ export const assets: Asset[] = [
     sources: [
       {
         id: 1,
-        label: "Backpack Securities — SpaceX tokenized equity announcement",
+        label: "Backpack Securities, SpaceX tokenized equity announcement",
         url: "https://backpack.exchange",
       },
       {
         id: 2,
-        label: "Backpack — 1:1 real shares, redeemable via ACATS (public thesis)",
+        label: "Backpack, 1:1 real shares, redeemable via ACATS (public thesis)",
         url: "https://x.com/Backpack",
       },
     ],
     summary:
-      "You hold a claim on a real SpaceX share held in regulated custody, redeemable into a standard brokerage account through ACATS — not a synthetic tracker.",
+      "You hold a claim on a real SpaceX share held in regulated custody, redeemable into a standard brokerage account through ACATS, not a synthetic tracker.",
   },
   {
     ticker: "SECZ",
@@ -79,6 +81,7 @@ export const assets: Asset[] = [
     network: "Solana",
     grade: "A",
     category: "Registered",
+    mint: null,
     fields: {
       issuer: {
         value: "Securitize",
@@ -96,12 +99,12 @@ export const assets: Asset[] = [
         disclosed: true,
       },
       authorizedByCompany: {
-        value: "Yes — issuer-sponsored tokenized stock",
+        value: "Yes, issuer-sponsored tokenized stock",
         sourceIds: [1],
         disclosed: true,
       },
       redeemableIntoRealShare: {
-        value: "Yes — registered equity structure",
+        value: "Yes, registered equity structure",
         sourceIds: [1],
         disclosed: true,
       },
@@ -124,17 +127,17 @@ export const assets: Asset[] = [
     sources: [
       {
         id: 1,
-        label: "Securitize — tokenized NYSE-listed stock on Solana (July 2025)",
+        label: "Securitize, tokenized NYSE-listed stock on Solana",
         url: "https://securitize.io",
       },
       {
         id: 2,
-        label: "Computershare — transfer agent role for registered shares",
+        label: "Computershare, transfer agent role for registered shares",
         url: "https://www.computershare.com",
       },
     ],
     summary:
-      "You hold an issuer-sponsored tokenized claim on NYSE-listed equity, with share records managed through Computershare — not an offshore synthetic.",
+      "You hold an issuer-sponsored tokenized claim on NYSE-listed equity, with share records managed through Computershare, not an offshore synthetic.",
   },
   {
     ticker: "NVDAx",
@@ -144,6 +147,7 @@ export const assets: Asset[] = [
     network: "Solana",
     grade: "B",
     category: "Custodial",
+    mint: "Xsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh",
     fields: {
       issuer: {
         value: "Backed Finance (xStocks)",
@@ -161,12 +165,12 @@ export const assets: Asset[] = [
         disclosed: true,
       },
       authorizedByCompany: {
-        value: "No — not NVIDIA-sponsored",
+        value: "No, not NVIDIA-sponsored",
         sourceIds: [1],
         disclosed: true,
       },
       redeemableIntoRealShare: {
-        value: "No — economic exposure only",
+        value: "No, economic exposure only",
         sourceIds: [1, 2],
         disclosed: true,
       },
@@ -189,13 +193,13 @@ export const assets: Asset[] = [
     sources: [
       {
         id: 1,
-        label: "xStocks / Backed Finance — product disclosures",
+        label: "xStocks / Backed Finance, product disclosures",
         url: "https://assets.backed.fi",
       },
       {
         id: 2,
         label:
-          "xStocks disclosures — collateral may be substituted (cash or other assets)",
+          "xStocks disclosures, collateral may be substituted (cash or other assets)",
         url: "https://xstocks.fi",
       },
     ],
@@ -210,6 +214,7 @@ export const assets: Asset[] = [
     network: "Solana",
     grade: "B",
     category: "Custodial",
+    mint: "XsDoVfqeBukxuZHWhdvWHBhgEHjGNst4MLodqsJHzoB",
     fields: {
       issuer: {
         value: "Backed Finance (xStocks)",
@@ -227,12 +232,12 @@ export const assets: Asset[] = [
         disclosed: true,
       },
       authorizedByCompany: {
-        value: "No — not Tesla-sponsored",
+        value: "No, not Tesla-sponsored",
         sourceIds: [1],
         disclosed: true,
       },
       redeemableIntoRealShare: {
-        value: "No — economic exposure only",
+        value: "No, economic exposure only",
         sourceIds: [1],
         disclosed: true,
       },
@@ -255,7 +260,7 @@ export const assets: Asset[] = [
     sources: [
       {
         id: 1,
-        label: "xStocks / Backed Finance — product disclosures",
+        label: "xStocks / Backed Finance, product disclosures",
         url: "https://assets.backed.fi",
       },
     ],
@@ -270,6 +275,7 @@ export const assets: Asset[] = [
     network: "Solana",
     grade: "B",
     category: "Custodial",
+    mint: "XsueG8BtpquVJX9LVLLEGuViXUungE6WmK5YZ3p3bd1",
     fields: {
       issuer: {
         value: "Backed Finance (xStocks)",
@@ -287,12 +293,12 @@ export const assets: Asset[] = [
         disclosed: true,
       },
       authorizedByCompany: {
-        value: "No — not Circle-sponsored",
+        value: "No, not Circle-sponsored",
         sourceIds: [1],
         disclosed: true,
       },
       redeemableIntoRealShare: {
-        value: "No — economic exposure only",
+        value: "No, economic exposure only",
         sourceIds: [1],
         disclosed: true,
       },
@@ -315,7 +321,7 @@ export const assets: Asset[] = [
     sources: [
       {
         id: 1,
-        label: "xStocks / Backed Finance — product disclosures",
+        label: "xStocks / Backed Finance, product disclosures",
         url: "https://assets.backed.fi",
       },
     ],
@@ -330,6 +336,7 @@ export const assets: Asset[] = [
     network: "Solana",
     grade: "F",
     category: "Synthetic",
+    mint: "Pren1FvFX6J3E4kXhJuCiAD5aDmGEb7qJRncwA8Lkhw",
     fields: {
       issuer: {
         value: "PreStocks",
@@ -347,12 +354,12 @@ export const assets: Asset[] = [
         disclosed: false,
       },
       authorizedByCompany: {
-        value: "No — Anthropic states unauthorized transfers are void",
+        value: "No, Anthropic states unauthorized transfers are void",
         sourceIds: [3],
         disclosed: true,
       },
       redeemableIntoRealShare: {
-        value: "No — issuer states transfers to SPVs are void under bylaws",
+        value: "No, issuer states transfers to SPVs are void under bylaws",
         sourceIds: [3],
         disclosed: true,
       },
@@ -368,7 +375,7 @@ export const assets: Asset[] = [
       },
       whoMayLegallyHold: {
         value:
-          "Unclear — third-party tokenized sales may have no legal value per issuer",
+          "Unclear, third-party tokenized sales may have no legal value per issuer",
         sourceIds: [3],
         disclosed: true,
       },
@@ -381,13 +388,13 @@ export const assets: Asset[] = [
       },
       {
         id: 2,
-        label: "CoinGecko — synthetic asset listing description",
+        label: "CoinGecko, synthetic asset listing description",
         url: "https://www.coingecko.com",
       },
       {
         id: 3,
         label:
-          "Anthropic public statement — unauthorized transfers void; third-party tokenized sales may have no value (May 2025)",
+          "Anthropic public statement, unauthorized transfers void; third-party tokenized sales may have no value",
         url: "https://www.anthropic.com",
       },
     ],
@@ -402,6 +409,7 @@ export const assets: Asset[] = [
     network: "Solana",
     grade: "F",
     category: "Synthetic",
+    mint: "PreweJYECqtQwBtpxHL171nL2K6umo692gTm7Q3rpgF",
     fields: {
       issuer: {
         value: "PreStocks",
@@ -424,7 +432,7 @@ export const assets: Asset[] = [
         disclosed: true,
       },
       redeemableIntoRealShare: {
-        value: "No — transfers void per issuer posture (same PreStocks class)",
+        value: "No, transfers void per issuer posture (same PreStocks class)",
         sourceIds: [1, 2],
         disclosed: true,
       },
@@ -439,7 +447,7 @@ export const assets: Asset[] = [
         disclosed: true,
       },
       whoMayLegallyHold: {
-        value: "Unclear — same structural class as disputed PreStocks",
+        value: "Unclear, same structural class as disputed PreStocks",
         sourceIds: [1, 2],
         disclosed: true,
       },
@@ -468,6 +476,7 @@ export const assets: Asset[] = [
     network: "Solana",
     grade: "F",
     category: "Unbacked",
+    mint: null,
     fields: {
       issuer: {
         value: "Perpetual futures venue (no equity issuer)",
@@ -480,17 +489,17 @@ export const assets: Asset[] = [
         disclosed: false,
       },
       custodian: {
-        value: "None — no shares held",
+        value: "None, no shares held",
         sourceIds: [1],
         disclosed: true,
       },
       authorizedByCompany: {
-        value: "No — pure derivative, not equity",
+        value: "No, pure derivative, not equity",
         sourceIds: [1],
         disclosed: true,
       },
       redeemableIntoRealShare: {
-        value: "No — zero equity backing",
+        value: "No, zero equity backing",
         sourceIds: [1],
         disclosed: true,
       },
@@ -514,21 +523,29 @@ export const assets: Asset[] = [
       {
         id: 1,
         label:
-          "Market structure observation — perpetual NVDA markets hold no shares; price only",
+          "Market structure observation, perpetual NVDA markets hold no shares; price only",
         url: null,
       },
     ],
     summary:
-      "You are trading a perpetual futures contract that references NVIDIA’s price. No shares sit behind the position. It is not stock under any legal structure.",
+      "You are trading a perpetual futures contract that references NVIDIA's price. No shares sit behind the position. It is not stock under any legal structure.",
   },
 ];
 
 export function getAssetBySlug(slug: string): Asset | undefined {
   return assets.find(
-    (a) => a.slug === slug.toLowerCase() || a.ticker.toLowerCase() === slug.toLowerCase()
+    (a) =>
+      a.slug === slug.toLowerCase() ||
+      a.ticker.toLowerCase() === slug.toLowerCase()
   );
 }
 
 export function getAllSlugs(): string[] {
   return assets.map((a) => a.slug);
+}
+
+export function getTrackedMints(): { slug: string; ticker: string; mint: string }[] {
+  return assets
+    .filter((a): a is Asset & { mint: string } => Boolean(a.mint))
+    .map((a) => ({ slug: a.slug, ticker: a.ticker, mint: a.mint }));
 }

@@ -28,6 +28,8 @@ export interface Asset {
   network: string;
   grade: Grade;
   category: StructureCategory;
+  /** Solana mint address when known. Used for live market enrichment. */
+  mint: string | null;
   fields: {
     issuer: ClaimField;
     jurisdiction: ClaimField;
@@ -41,6 +43,23 @@ export interface Asset {
   sources: Source[];
   /** Plain-English, one sentence, for someone new to crypto. */
   summary: string;
+}
+
+export interface MarketQuote {
+  mint: string;
+  ticker: string;
+  priceUsd: number | null;
+  change24h: number | null;
+  volume24h: number | null;
+  liquidityUsd: number | null;
+  pairUrl: string | null;
+  updatedAt: string;
+}
+
+export interface MarketResponse {
+  quotes: Record<string, MarketQuote>;
+  fetchedAt: string;
+  source: string;
 }
 
 export const FIELD_LABELS: Record<keyof Asset["fields"], string> = {

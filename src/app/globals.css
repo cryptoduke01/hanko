@@ -7,6 +7,8 @@
   --rule: #d4d4d4;
   --haze: #f0f0f0;
   --fail: #b91c1c;
+  --up: #0f766e;
+  --down: #b91c1c;
 }
 
 @theme inline {
@@ -16,17 +18,16 @@
   --color-rule: var(--rule);
   --color-haze: var(--haze);
   --color-fail: var(--fail);
+  --color-up: var(--up);
+  --color-down: var(--down);
   --font-sans: var(--font-display);
   --font-mono: var(--font-mono);
-}
-
-* {
-  border-radius: 0;
 }
 
 html {
   background: var(--paper);
   color: var(--ink);
+  scroll-behavior: smooth;
 }
 
 body {
@@ -43,19 +44,213 @@ body {
   color: var(--paper);
 }
 
-/* Grain overlay for full-bleed surfaces */
+/* —— Liquid motion —— */
+@keyframes liquid-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(2%, -3%, 0) scale(1.03);
+  }
+  66% {
+    transform: translate3d(-2%, 2%, 0) scale(0.98);
+  }
+}
+
+@keyframes liquid-morph {
+  0%,
+  100% {
+    border-radius: 42% 58% 55% 45% / 48% 42% 58% 52%;
+  }
+  25% {
+    border-radius: 55% 45% 42% 58% / 52% 58% 42% 48%;
+  }
+  50% {
+    border-radius: 48% 52% 60% 40% / 45% 55% 45% 55%;
+  }
+  75% {
+    border-radius: 58% 42% 48% 52% / 58% 45% 55% 42%;
+  }
+}
+
+@keyframes grain-drift {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-8%, 6%);
+  }
+}
+
+@keyframes pulse-live {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes nav-underline {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-up-delay-1 {
+  animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+}
+
+.animate-fade-up-delay-2 {
+  animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.16s both;
+}
+
+.animate-fade-up-delay-3 {
+  animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both;
+}
+
+.animate-fade-up-delay-4 {
+  animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both;
+}
+
+.liquid-sphere {
+  animation: liquid-float 14s ease-in-out infinite,
+    liquid-morph 18s ease-in-out infinite;
+  will-change: transform, border-radius;
+}
+
+.liquid-sphere-inner {
+  animation: liquid-morph 12s ease-in-out infinite reverse;
+}
+
+.live-dot {
+  animation: pulse-live 1.8s ease-in-out infinite;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #ececec 25%, #f7f7f7 50%, #ececec 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* Grain on dark panels */
 .grain-overlay {
   position: relative;
+  overflow: hidden;
 }
 
 .grain-overlay::after {
   content: "";
   pointer-events: none;
   position: absolute;
-  inset: 0;
-  opacity: 0.04;
+  inset: -20%;
+  opacity: 0.055;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 180px 180px;
-  mix-blend-mode: multiply;
+  mix-blend-mode: overlay;
+  animation: grain-drift 8s steps(6) infinite alternate;
+}
+
+/* Nav link liquid underline */
+.nav-link {
+  position: relative;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-link:hover::after,
+.nav-link[data-active="true"]::after {
+  transform: scaleX(1);
+}
+
+/* Premium button liquid border feel */
+.btn-liquid {
+  position: relative;
+  overflow: hidden;
+  transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease,
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.btn-liquid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.14),
+    transparent 55%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.btn-liquid:hover::before {
+  opacity: 1;
+}
+
+.btn-liquid:hover {
+  transform: translateY(-1px);
+}
+
+/* Prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .liquid-sphere,
+  .liquid-sphere-inner,
+  .live-dot,
+  .grain-overlay::after,
+  .animate-fade-up,
+  .animate-fade-up-delay-1,
+  .animate-fade-up-delay-2,
+  .animate-fade-up-delay-3,
+  .animate-fade-up-delay-4,
+  .skeleton {
+    animation: none !important;
+  }
+
+  .btn-liquid:hover {
+    transform: none;
+  }
 }
