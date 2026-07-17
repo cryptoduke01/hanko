@@ -246,7 +246,7 @@ body {
   transform: translateY(-1px);
 }
 
-/* Hero right panel adapts in dark mode */
+/* Hero right panel + monochrome seal plate */
 .hero-right {
   background: var(--paper);
 }
@@ -255,8 +255,62 @@ html.dark .hero-right {
   background: #0c0c0c;
 }
 
-html.dark .hero-right-glow {
-  background: radial-gradient(ellipse at 72% 78%, #1a1a1a 0%, #0c0c0c 58%);
+.hero-seals-field {
+  background:
+    radial-gradient(ellipse at 60% 45%, var(--haze) 0%, transparent 62%),
+    var(--paper);
+}
+
+html.dark .hero-seals-field {
+  background:
+    radial-gradient(ellipse at 60% 45%, #161616 0%, transparent 62%),
+    #0c0c0c;
+}
+
+/* Red ink → charcoal stamps, soft blend into paper */
+.hero-seals-img {
+  filter: grayscale(1) contrast(1.25) brightness(0.55);
+  opacity: 0.38;
+  mix-blend-mode: multiply;
+  transition: opacity 0.5s ease, filter 0.5s ease;
+}
+
+html.dark .hero-seals-img {
+  /* Light gray impressions on black, still monochrome */
+  filter: grayscale(1) contrast(1.15) brightness(1.4) invert(1);
+  opacity: 0.16;
+  mix-blend-mode: screen;
+}
+
+/* Left panel watermark (already on ink) */
+.hero-seals-img--on-ink {
+  filter: grayscale(1) contrast(1.2) brightness(2) invert(1);
+  opacity: 1;
+  mix-blend-mode: screen;
+}
+
+html.dark .hero-seals-img--on-ink {
+  filter: grayscale(1) contrast(1.15) brightness(1.5) invert(1);
+  opacity: 0.85;
+  mix-blend-mode: screen;
+}
+
+.hero-seals-vignette {
+  background:
+    linear-gradient(to right, var(--paper) 0%, transparent 18%, transparent 82%, var(--paper) 100%),
+    linear-gradient(to bottom, var(--paper) 0%, transparent 14%, transparent 78%, var(--paper) 100%);
+  pointer-events: none;
+}
+
+html.dark .hero-seals-vignette {
+  background:
+    linear-gradient(to right, #0c0c0c 0%, transparent 18%, transparent 82%, #0c0c0c 100%),
+    linear-gradient(to bottom, #0c0c0c 0%, transparent 14%, transparent 78%, #0c0c0c 100%);
+}
+
+.hero-seals-float {
+  animation: liquid-float 18s ease-in-out infinite;
+  will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {

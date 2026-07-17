@@ -1,11 +1,29 @@
+import Image from "next/image";
 import Link from "next/link";
-import { GrainSphere } from "@/components/GrainSphere";
+import { HeroSeals } from "@/components/HeroSeals";
 
 export default function HomePage() {
   return (
     <section className="relative flex min-h-[calc(100dvh-7.5rem)] flex-1 flex-col lg:flex-row">
-      {/* Left, black */}
+      {/* Left, ink */}
       <div className="grain-overlay relative flex flex-1 flex-col justify-center bg-ink px-6 py-16 text-paper sm:px-10 lg:w-1/2 lg:px-14 lg:py-24">
+        {/* Faint seal watermark on dark half */}
+        <div
+          className="pointer-events-none absolute inset-0 overflow-hidden"
+          aria-hidden
+        >
+          <div className="hero-seals-float absolute -right-[10%] bottom-[-8%] top-[-8%] w-[95%] opacity-[0.09]">
+            <Image
+              src="/hanko-seals.jpg"
+              alt=""
+              fill
+              priority
+              sizes="50vw"
+              className="hero-seals-img hero-seals-img--on-ink object-contain object-right"
+            />
+          </div>
+        </div>
+
         <div className="relative z-10 max-w-xl">
           <p className="animate-fade-up mb-6 font-mono text-[11px] uppercase tracking-[0.18em] text-white/45">
             Claim records · Solana · Live market
@@ -37,10 +55,9 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Right, paper + liquid sphere */}
+      {/* Right, seals hero */}
       <div className="hero-right relative flex min-h-[48vh] flex-1 items-end justify-end overflow-hidden lg:w-1/2 lg:min-h-0">
-        <div className="hero-right-glow absolute inset-0 bg-[radial-gradient(ellipse_at_72%_78%,#ebebeb_0%,#fafafa_58%)]" />
-        <GrainSphere className="absolute -bottom-[22%] -right-[18%] h-[min(100vw,580px)] w-[min(100vw,580px)] sm:h-[620px] sm:w-[620px] lg:-bottom-[26%] lg:-right-[20%] lg:h-[720px] lg:w-[720px]" />
+        <HeroSeals />
         <div className="relative z-10 w-full p-6 sm:p-10 lg:p-14">
           <p className="animate-fade-up-delay-4 max-w-[15rem] font-mono text-[11px] leading-relaxed text-mute">
             判子 · The seal a Japanese company presses onto a document to make
