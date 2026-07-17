@@ -38,8 +38,8 @@ export default function HomePage() {
       </div>
 
       {/* Right, paper + liquid sphere */}
-      <div className="relative flex min-h-[48vh] flex-1 items-end justify-end overflow-hidden bg-paper lg:w-1/2 lg:min-h-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_72%_78%,#ebebeb_0%,#fafafa_58%)]" />
+      <div className="hero-right relative flex min-h-[48vh] flex-1 items-end justify-end overflow-hidden lg:w-1/2 lg:min-h-0">
+        <div className="hero-right-glow absolute inset-0 bg-[radial-gradient(ellipse_at_72%_78%,#ebebeb_0%,#fafafa_58%)]" />
         <GrainSphere className="absolute -bottom-[22%] -right-[18%] h-[min(100vw,580px)] w-[min(100vw,580px)] sm:h-[620px] sm:w-[620px] lg:-bottom-[26%] lg:-right-[20%] lg:h-[720px] lg:w-[720px]" />
         <div className="relative z-10 w-full p-6 sm:p-10 lg:p-14">
           <p className="animate-fade-up-delay-4 max-w-[15rem] font-mono text-[11px] leading-relaxed text-mute">

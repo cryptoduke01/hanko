@@ -85,17 +85,32 @@ export default function DocsPage() {
           </h2>
           <p className="mt-3 text-mute">
             Where a Solana mint is mapped, Hanko pulls live price, 24h change,
-            volume, and liquidity from DexScreener public APIs. The feed
-            refreshes about every 30 seconds via{" "}
+            volume, liquidity, and multi-horizon returns from DexScreener. The
+            feed refreshes about every 30 seconds via{" "}
             <span className="font-mono text-ink">/api/market</span>.
           </p>
           <p className="mt-3 text-mute">
-            Market data is enrichment only. A high price does not upgrade a
-            grade. A green chart does not mean you own the share.
+            Chart previews in the index are sparklines rebuilt from multi-horizon
+            returns (24h / 6h / 1h / 5m). Detail pages embed the full DexScreener
+            pair chart when a liquid pair is known.
           </p>
           <p className="mt-3 text-mute">
-            Assets without a verified mint show no price. That is honest
-            product design, not a bug.
+            Market data is enrichment only. A high price does not upgrade a
+            grade. A green chart does not mean you own the share. Assets without
+            a verified mint show no price. That is honest product design, not a
+            bug.
+          </p>
+        </section>
+
+        <section className="animate-fade-up-delay-3">
+          <h2 className="font-sans text-xs font-semibold uppercase tracking-[0.14em] text-ink">
+            04b · Coverage
+          </h2>
+          <p className="mt-3 text-mute">
+            The seed index covers major xStocks (Backed Finance), select
+            PreStocks, Backpack SPCX, and structural illustrations. It is not
+            every tokenized equity on Solana yet. Missing tickers are a roadmap
+            item, not a claim that they do not exist.
           </p>
         </section>
 

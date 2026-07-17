@@ -20,7 +20,7 @@ export function GrainSphere({ className = "" }: { className?: string }) {
           className="liquid-sphere-inner absolute inset-0"
           style={{
             background:
-              "radial-gradient(circle at 34% 30%, #ffffff 0%, #e8e8e8 22%, #b0b0b0 48%, #5c5c5c 72%, #1a1a1a 100%)",
+              "radial-gradient(circle at 34% 30%, var(--sphere-highlight) 0%, color-mix(in srgb, var(--sphere-highlight) 70%, var(--sphere-mid)) 22%, var(--sphere-mid) 48%, color-mix(in srgb, var(--sphere-mid) 40%, var(--sphere-deep)) 72%, var(--sphere-deep) 100%)",
           }}
         />
         {/* Specular highlight */}
@@ -28,7 +28,7 @@ export function GrainSphere({ className = "" }: { className?: string }) {
           className="absolute left-[18%] top-[14%] h-[28%] w-[34%] rounded-full opacity-70 blur-md"
           style={{
             background:
-              "radial-gradient(ellipse at center, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%)",
+              "radial-gradient(ellipse at center, color-mix(in srgb, var(--sphere-highlight) 90%, transparent) 0%, transparent 70%)",
           }}
         />
         {/* SVG grain clipped to circle */}

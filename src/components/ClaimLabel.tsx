@@ -1,5 +1,6 @@
 "use client";
 
+import { ChartPreview } from "@/components/ChartPreview";
 import { MarketStrip } from "@/components/LiveMarket";
 import { GradeSeal } from "@/components/GradeSeal";
 import { useMarket } from "@/hooks/useMarket";
@@ -43,8 +44,12 @@ export function ClaimLabel({ asset }: ClaimLabelProps) {
         <GradeSeal grade={asset.grade} size="lg" />
       </header>
 
-      <div className="mb-8">
+      <div className="mb-6">
         <MarketStrip quote={quote} loading={loading} mint={asset.mint} />
+      </div>
+
+      <div className="mb-8">
+        <ChartPreview quote={quote} loading={loading} height={340} />
       </div>
 
       {/* Nutrition-label card */}

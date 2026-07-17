@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ChangeCell, PriceCell } from "@/components/LiveMarket";
 import { GradeSeal } from "@/components/GradeSeal";
+import { Sparkline } from "@/components/Sparkline";
 import { useMarket } from "@/hooks/useMarket";
 import type { Asset, StructureCategory } from "@/lib/types";
 
@@ -37,6 +38,11 @@ export function AssetsTable({ assets }: AssetsTableProps) {
       return matchesFilter && matchesQuery;
     });
   }, [assets, query, filter]);
+
+  const liveCount = useMemo(
+    () => Object.values(quotes).filter((q) => q.priceUsd != null).length,
+    [quotes]
+  );
 
   return (
     <div className="animate-fade-up">
@@ -85,6 +91,7 @@ export function AssetsTable({ assets }: AssetsTableProps) {
               }`}
             />
             {live ? "Live" : "Connecting"}
+            {liveCount > 0 ? ` · ${liveCount} priced` : ""}
             {fetchedAt
               ? ` · ${new Date(fetchedAt).toLocaleTimeString()}`
               : ""}
@@ -93,7 +100,7 @@ export function AssetsTable({ assets }: AssetsTableProps) {
       </div>
 
       <div className="mt-6 overflow-x-auto">
-        <table className="w-full min-w-[780px] border-collapse text-left text-sm">
+        <table className="w-full min-w-[920px] border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-ink">
               <th className="pb-2 pr-4 font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-mute">
@@ -111,6 +118,9 @@ export function AssetsTable({ assets }: AssetsTableProps) {
               <th className="pb-2 pr-4 text-right font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-mute">
                 24h
               </th>
+              <th className="pb-2 pr-4 text-center font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-mute">
+                Chart
+              </th>
               <th className="pb-2 text-right font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-mute">
                 Grade
               </th>
@@ -120,7 +130,7 @@ export function AssetsTable({ assets }: AssetsTableProps) {
             {filtered.length === 0 ? (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={7}
                   className="py-10 text-center font-mono text-sm text-mute"
                 >
                   No assets match.
@@ -129,12 +139,18 @@ export function AssetsTable({ assets }: AssetsTableProps) {
             ) : (
               filtered.map((asset, i) => {
                 const quote = quotes[asset.slug];
+                const up =
+                  quote?.change24h == null
+                    ? null
+                    : quote.change24h >= 0
+                      ? true
+                      : false;
                 return (
                   <tr
                     key={asset.slug}
                     className="border-b border-rule transition-colors duration-300 hover:bg-haze/80"
                     style={{
-                      animation: `fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${i * 0.04}s both`,
+                      animation: `fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${Math.min(i, 20) * 0.03}s both`,
                     }}
                   >
                     <td className="py-3 pr-4">
@@ -164,6 +180,24 @@ export function AssetsTable({ assets }: AssetsTableProps) {
                     <td className="py-3 pr-4 text-right">
                       <ChangeCell quote={quote} loading={loading} />
                     </td>
+                    <td className="py-2 pr-4">
+                      <div className="flex justify-center">
+                        {loading && !quote?.sparkline ? (
+                          <span className="skeleton inline-block h-7 w-[72px]" />
+                        ) : (
+                          <Link
+                            href={`/assets/${asset.slug}`}
+                            className="opacity-90 transition-opacity hover:opacity-100"
+                            aria-label={`${asset.ticker} chart`}
+                          >
+                            <Sparkline
+                              points={quote?.sparkline}
+                              positive={up}
+                            />
+                          </Link>
+                        )}
+                      </div>
+                    </td>
                     <td className="py-3 text-right">
                       <span className="inline-flex justify-end">
                         <GradeSeal grade={asset.grade} size="sm" />
@@ -178,7 +212,8 @@ export function AssetsTable({ assets }: AssetsTableProps) {
       </div>
 
       <p className="mt-4 font-mono text-[11px] text-mute">
-        {filtered.length} of {assets.length} records · prices poll every 30s
+        {filtered.length} of {assets.length} claim records · {liveCount} with
+        live prices · poll every 30s
       </p>
     </div>
   );

@@ -19,11 +19,10 @@ export default function AssetsPage() {
           Tokenized assets
         </h1>
         <p className="mt-3 text-base leading-relaxed text-mute">
-          Public claim records graded from primary documents, with live price
-          and liquidity where a mint is mapped. Fields without a verified source
-          render as{" "}
-          <span className="font-mono text-ink">NOT DISCLOSED</span>. Absence is
-          the product.
+          {assets.length} claim records across registered, custodial, synthetic,
+          and unbacked structures. Live price, chart preview, and liquidity where
+          a mint is mapped. Fields without a verified source render as{" "}
+          <span className="font-mono text-ink">NOT DISCLOSED</span>.
         </p>
       </header>
 

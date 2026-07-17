@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ThemeToggle } from "./ThemeToggle";
 
 const LINKS = [
   { href: "/assets", label: "Assets" },
@@ -49,11 +50,11 @@ export function SiteHeader() {
           : "border-rule bg-paper/95 backdrop-blur-md"
       }`}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5 sm:px-6">
-        <div className="flex items-center gap-4">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
           <Link
             href="/"
-            className="group font-sans text-sm font-semibold tracking-tight text-ink"
+            className="group shrink-0 font-sans text-sm font-semibold tracking-tight text-ink"
           >
             HANKO
             <span className="ml-1.5 font-normal text-mute transition-opacity duration-300 group-hover:opacity-70">
@@ -71,54 +72,57 @@ export function SiteHeader() {
           </span>
         </div>
 
-        <nav className="hidden items-center gap-7 md:flex">
-          {LINKS.map((link) => {
-            const active =
-              pathname === link.href || pathname.startsWith(`${link.href}/`);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                data-active={active}
-                className={`nav-link text-[11px] font-medium uppercase tracking-[0.14em] transition-colors duration-300 ${
-                  active ? "text-ink" : "text-mute hover:text-ink"
-                }`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
+        <div className="flex items-center gap-3 sm:gap-5">
+          <nav className="hidden items-center gap-6 md:flex">
+            {LINKS.map((link) => {
+              const active =
+                pathname === link.href || pathname.startsWith(`${link.href}/`);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  data-active={active}
+                  className={`nav-link text-[11px] font-medium uppercase tracking-[0.14em] transition-colors duration-300 ${
+                    active ? "text-ink" : "text-mute hover:text-ink"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
 
-        <button
-          type="button"
-          className="flex h-9 w-9 items-center justify-center border border-rule text-ink md:hidden"
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span className="sr-only">Menu</span>
-          <span className="relative block h-3 w-4">
-            <span
-              className={`absolute left-0 top-0 block h-px w-full bg-ink transition-transform duration-300 ${
-                open ? "translate-y-[5.5px] rotate-45" : ""
-              }`}
-            />
-            <span
-              className={`absolute left-0 top-[5.5px] block h-px w-full bg-ink transition-opacity duration-200 ${
-                open ? "opacity-0" : "opacity-100"
-              }`}
-            />
-            <span
-              className={`absolute left-0 top-[11px] block h-px w-full bg-ink transition-transform duration-300 ${
-                open ? "-translate-y-[5.5px] -rotate-45" : ""
-              }`}
-            />
-          </span>
-        </button>
+          <ThemeToggle />
+
+          <button
+            type="button"
+            className="flex h-8 w-8 items-center justify-center border border-rule text-ink md:hidden"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+          >
+            <span className="sr-only">Menu</span>
+            <span className="relative block h-3 w-4">
+              <span
+                className={`absolute left-0 top-0 block h-px w-full bg-ink transition-transform duration-300 ${
+                  open ? "translate-y-[5.5px] rotate-45" : ""
+                }`}
+              />
+              <span
+                className={`absolute left-0 top-[5.5px] block h-px w-full bg-ink transition-opacity duration-200 ${
+                  open ? "opacity-0" : "opacity-100"
+                }`}
+              />
+              <span
+                className={`absolute left-0 top-[11px] block h-px w-full bg-ink transition-transform duration-300 ${
+                  open ? "-translate-y-[5.5px] -rotate-45" : ""
+                }`}
+              />
+            </span>
+          </button>
+        </div>
       </div>
 
-      {/* Mobile drawer */}
       <div
         className={`overflow-hidden border-t border-rule transition-[max-height,opacity] duration-400 ease-out md:hidden ${
           open ? "max-h-56 opacity-100" : "max-h-0 opacity-0 border-t-0"

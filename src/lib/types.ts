@@ -13,9 +13,7 @@ export interface Source {
 }
 
 export interface ClaimField {
-  /** Display value. Use "NOT DISCLOSED" when no primary source exists. */
   value: string;
-  /** Superscript markers linking to sources. Empty when not disclosed. */
   sourceIds: number[];
   disclosed: boolean;
 }
@@ -28,7 +26,6 @@ export interface Asset {
   network: string;
   grade: Grade;
   category: StructureCategory;
-  /** Solana mint address when known. Used for live market enrichment. */
   mint: string | null;
   fields: {
     issuer: ClaimField;
@@ -41,7 +38,6 @@ export interface Asset {
     whoMayLegallyHold: ClaimField;
   };
   sources: Source[];
-  /** Plain-English, one sentence, for someone new to crypto. */
   summary: string;
 }
 
@@ -50,9 +46,15 @@ export interface MarketQuote {
   ticker: string;
   priceUsd: number | null;
   change24h: number | null;
+  change6h: number | null;
+  change1h: number | null;
+  change5m: number | null;
   volume24h: number | null;
   liquidityUsd: number | null;
+  pairAddress: string | null;
   pairUrl: string | null;
+  /** Approximate sparkline from multi-horizon returns, oldest → newest. */
+  sparkline: number[] | null;
   updatedAt: string;
 }
 
@@ -60,6 +62,7 @@ export interface MarketResponse {
   quotes: Record<string, MarketQuote>;
   fetchedAt: string;
   source: string;
+  count: number;
 }
 
 export const FIELD_LABELS: Record<keyof Asset["fields"], string> = {

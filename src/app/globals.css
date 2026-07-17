@@ -9,6 +9,23 @@
   --fail: #b91c1c;
   --up: #0f766e;
   --down: #b91c1c;
+  --sphere-highlight: #ffffff;
+  --sphere-mid: #b0b0b0;
+  --sphere-deep: #1a1a1a;
+}
+
+html.dark {
+  --ink: #f2f2f2;
+  --paper: #0c0c0c;
+  --mute: #8a8a8a;
+  --rule: #2a2a2a;
+  --haze: #161616;
+  --fail: #ef4444;
+  --up: #2dd4bf;
+  --down: #f87171;
+  --sphere-highlight: #3a3a3a;
+  --sphere-mid: #1f1f1f;
+  --sphere-deep: #050505;
 }
 
 @theme inline {
@@ -37,6 +54,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.35s ease, color 0.35s ease;
 }
 
 ::selection {
@@ -115,15 +133,6 @@ body {
   }
 }
 
-@keyframes nav-underline {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-
 .animate-fade-up {
   animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -159,12 +168,16 @@ body {
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #ececec 25%, #f7f7f7 50%, #ececec 75%);
+  background: linear-gradient(
+    90deg,
+    var(--haze) 25%,
+    var(--rule) 50%,
+    var(--haze) 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }
 
-/* Grain on dark panels */
 .grain-overlay {
   position: relative;
   overflow: hidden;
@@ -183,7 +196,6 @@ body {
   animation: grain-drift 8s steps(6) infinite alternate;
 }
 
-/* Nav link liquid underline */
 .nav-link {
   position: relative;
 }
@@ -206,7 +218,6 @@ body {
   transform: scaleX(1);
 }
 
-/* Premium button liquid border feel */
 .btn-liquid {
   position: relative;
   overflow: hidden;
@@ -235,7 +246,19 @@ body {
   transform: translateY(-1px);
 }
 
-/* Prefer reduced motion */
+/* Hero right panel adapts in dark mode */
+.hero-right {
+  background: var(--paper);
+}
+
+html.dark .hero-right {
+  background: #0c0c0c;
+}
+
+html.dark .hero-right-glow {
+  background: radial-gradient(ellipse at 72% 78%, #1a1a1a 0%, #0c0c0c 58%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .liquid-sphere,
   .liquid-sphere-inner,
