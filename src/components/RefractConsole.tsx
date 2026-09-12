@@ -148,7 +148,7 @@ export function RefractConsole() {
         {!connected ? (
           <EmptyState
             title="Connect a wallet to refract a share"
-            body="Hanko locks one share and mints its spectrum — SHIELD, CORE and EDGE — straight to your wallet."
+            body="Lock one share and receive its three tokens in your wallet: Shield, Core and Edge."
             action={
               <button
                 type="button"

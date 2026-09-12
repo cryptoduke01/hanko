@@ -168,7 +168,7 @@ export async function fetchMarketQuotes(): Promise<MarketResponse> {
 }
 
 export function formatUsd(n: number | null | undefined): string {
-  if (n == null || Number.isNaN(n)) return "—";
+  if (n == null || Number.isNaN(n)) return "-";
   if (n >= 1000) {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -192,7 +192,7 @@ export function formatUsd(n: number | null | undefined): string {
 }
 
 export function formatCompact(n: number | null | undefined): string {
-  if (n == null || Number.isNaN(n)) return "—";
+  if (n == null || Number.isNaN(n)) return "-";
   return new Intl.NumberFormat("en-US", {
     notation: "compact",
     maximumFractionDigits: 1,
@@ -200,7 +200,7 @@ export function formatCompact(n: number | null | undefined): string {
 }
 
 export function formatChange(n: number | null | undefined): string {
-  if (n == null || Number.isNaN(n)) return "—";
+  if (n == null || Number.isNaN(n)) return "-";
   const sign = n > 0 ? "+" : "";
   return `${sign}${n.toFixed(2)}%`;
 }

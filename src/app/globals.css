@@ -82,6 +82,20 @@ body {
   color: var(--paper);
 }
 
+/* Pointers on everything interactive */
+button:not(:disabled),
+[role="button"],
+a[href],
+label[for],
+summary,
+select,
+input[type="range"] {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+
 /* —— Liquid motion —— */
 @keyframes liquid-float {
   0%,
@@ -333,6 +347,49 @@ html.dark .hero-seals-vignette {
   will-change: transform;
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes slide-up-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease both;
+}
+
+.animate-modal {
+  animation: modal-in 0.24s cubic-bezier(0, 0, 0.2, 1) both;
+}
+
+.animate-slide-up {
+  animation: slide-up-in 0.28s cubic-bezier(0, 0, 0.2, 1) both;
+}
+
 /* —— 1-bit dither: a solid fill masked into a fine dot grid —— */
 .dither {
   -webkit-mask-image: radial-gradient(circle at 0.6px 0.6px, #000 0.7px, transparent 0.85px);
@@ -351,6 +408,9 @@ html.dark .hero-seals-vignette {
   .animate-fade-up-delay-2,
   .animate-fade-up-delay-3,
   .animate-fade-up-delay-4,
+  .animate-fade-in,
+  .animate-modal,
+  .animate-slide-up,
   .skeleton {
     animation: none !important;
   }

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Inter_Tight } from "next/font/google";
+import { CookieBanner } from "@/components/CookieBanner";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SolanaProviders } from "@/components/SolanaProviders";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { WelcomeModal } from "@/components/WelcomeModal";
 import "./globals.css";
 
 const interTight = Inter_Tight({
@@ -15,15 +17,15 @@ const interTight = Inter_Tight({
 
 export const metadata: Metadata = {
   title: {
-    default: "Hanko, refract a tokenized share into its spectrum",
+    default: "Hanko, split a stock into three parts",
     template: "%s · Hanko",
   },
   description:
-    "A share bundles safety, exposure and upside into one price. Hanko refracts a tokenized stock into three tradeable tranches — SHIELD, CORE, EDGE — that always recombine into one share. Structured products, unbundled and provable, on Solana.",
+    "Hanko splits a tokenized stock into three tokens you can hold on their own: a safe part, a balanced part, and an upside part. Fully backed, recombine anytime.",
   openGraph: {
-    title: "Hanko, refract a tokenized share into its spectrum",
+    title: "Hanko, split a stock into three parts",
     description:
-      "One share, refracted into safety, exposure and upside. Own only the wavelength you want.",
+      "Split a tokenized stock into a safe part, a balanced part, and an upside part. Fully backed, recombine anytime.",
     type: "website",
   },
 };
@@ -62,6 +64,8 @@ export default function RootLayout({
             <SiteHeader />
             <main className="flex flex-1 flex-col">{children}</main>
             <SiteFooter />
+            <WelcomeModal />
+            <CookieBanner />
           </SolanaProviders>
         </ThemeProvider>
       </body>
