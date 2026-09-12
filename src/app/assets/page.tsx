@@ -1,32 +1,31 @@
 import type { Metadata } from "next";
-import { AssetsTable } from "@/components/AssetsTable";
-import { assets } from "@/lib/assets";
+import { StockCatalog } from "@/components/StockCatalog";
 
 export const metadata: Metadata = {
-  title: "Assets",
+  title: "Stocks",
   description:
-    "Index of tokenized asset claim records on Solana with live market data, grades, and primary sources.",
+    "Tokenized stocks on Solana you can split into Shield, Core and Edge with Hanko.",
 };
 
-export default function AssetsPage() {
+export default function StocksPage() {
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+    <div className="mx-auto w-full max-w-3xl px-6 py-12 sm:px-8 sm:py-16">
       <header className="mb-10 max-w-2xl animate-fade-up">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-mute">
-          Index
-        </p>
+        <p className="text-[11px] uppercase tracking-[0.2em] text-mute">Stocks</p>
         <h1 className="mt-2 font-sans text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-          Tokenized assets
+          Stocks you can split.
         </h1>
         <p className="mt-3 text-base leading-relaxed text-mute">
-          {assets.length} claim records across registered, custodial, synthetic,
-          and unbacked structures. Live price, chart preview, and liquidity where
-          a mint is mapped. Fields without a verified source render as{" "}
-          <span className="font-mono text-ink">NOT DISCLOSED</span>.
+          Tokenized stocks on Solana, with live prices. Pick one to refract into
+          a safe part, a balanced part, and an upside part.
         </p>
       </header>
 
-      <AssetsTable assets={assets} />
+      <StockCatalog />
+
+      <p className="mt-6 text-xs text-mute">
+        Prices from public DEX data. Not financial advice.
+      </p>
     </div>
   );
 }
