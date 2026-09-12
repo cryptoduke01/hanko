@@ -26,30 +26,41 @@ export default function HomePage() {
 
         <div className="relative z-10 max-w-xl">
           <p className="animate-fade-up mb-6 font-mono text-[11px] uppercase tracking-[0.18em] text-white/45">
-            Claim records · Solana · Live market
+            Hanko · Tokenized stocks · Solana
           </p>
           <h1 className="animate-fade-up-delay-1 font-sans text-[1.85rem] font-bold leading-[1.08] tracking-[-0.03em] text-paper sm:text-4xl sm:leading-[1.06] lg:text-[2.65rem] lg:leading-[1.05]">
-            Every tokenized stock has a price, a chart, a ticker, and a legal
-            structure. Your wallet shows you three.
+            A share bundles safety, exposure, and upside into one price. Hanko
+            refracts it into three.
           </h1>
           <p className="animate-fade-up-delay-2 mt-6 max-w-md text-base leading-relaxed text-white/65">
-            Hanko is the stamp that makes the fourth real. A claim record for
-            every tokenized asset on Solana, with live market data where a mint
-            is known.
+            Hanko splits a tokenized stock into{" "}
+            <span className="text-[color:var(--shield)]">SHIELD</span>,{" "}
+            <span className="text-[color:var(--core)]">CORE</span> and{" "}
+            <span className="text-[color:var(--edge)]">EDGE</span> — three tokens
+            that always recombine into one share. Own only the wavelength you
+            want. The seal is what makes each piece real.
           </p>
-          <div className="animate-fade-up-delay-3 mt-10 flex flex-wrap items-center gap-3">
+
+          {/* Spectrum motif — the only color on the ink half */}
+          <div className="animate-fade-up-delay-3 mt-8 flex h-1.5 w-full max-w-md overflow-hidden">
+            <span className="flex-[0.55]" style={{ background: "var(--shield)" }} />
+            <span className="flex-[0.30]" style={{ background: "var(--core)" }} />
+            <span className="flex-[0.15]" style={{ background: "var(--edge)" }} />
+          </div>
+
+          <div className="animate-fade-up-delay-3 mt-8 flex flex-wrap items-center gap-3">
             <Link
-              href="/assets"
+              href="/refract"
               className="btn-liquid inline-flex items-center gap-2 border border-paper/35 bg-paper/5 px-4 py-2.5 font-mono text-xs uppercase tracking-[0.14em] text-paper"
             >
-              Open the index
+              Refract a share
               <span aria-hidden="true">→</span>
             </Link>
             <Link
-              href="/docs"
+              href="/assets"
               className="inline-flex items-center gap-2 px-3 py-2.5 font-mono text-xs uppercase tracking-[0.14em] text-white/55 transition-opacity duration-300 hover:text-paper"
             >
-              Read the docs
+              The claim index
             </Link>
           </div>
         </div>

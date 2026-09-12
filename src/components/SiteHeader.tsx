@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 
 const LINKS = [
+  { href: "/refract", label: "Refract" },
   { href: "/assets", label: "Assets" },
   { href: "/method", label: "Method" },
   { href: "/docs", label: "Docs" },

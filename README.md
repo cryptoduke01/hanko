@@ -1,46 +1,42 @@
 # Hanko (判子)
 
-**Claim records for every tokenized asset on Solana.**
+**Refract a tokenized share into its spectrum.**
 
-Every tokenized stock has a price, a chart, a ticker, and a legal structure. Your wallet shows you three. Hanko is the stamp that makes the fourth real.
+A share bundles three different things into one price: safety, exposure, and upside. Everyone is forced to buy all three at once. **Hanko** refracts one tokenized stock into three tradeable tokens — **SHIELD**, **CORE**, **EDGE** — so you hold only the wavelength you want. Recombine all three and you get your share back.
 
-Named after the seal a Japanese company presses onto a document to make it official.
+Named after the seal a Japanese company presses onto a document to make it real. Hanko reads the hidden structure inside a tokenized stock; Hanko lets you separate it, and the seal is what makes each piece authentic.
 
-## What this is
+## The spectrum
 
-A production-quality v1 web app: public label pages for tokenized equities, graded from primary documents. Static seed data only — no backend.
+Deposit `1 xStock` into the Hanko vault with a floor `L` and a cap `U` (each a fraction of spot). At settlement price `S`:
 
-- **/** — Landing (split black/white, Swiss editorial)
-- **/assets** — Dense index table with search + structure filters
-- **/assets/[ticker]** — Nutrition-label claim card with sources
-- **/method** — Grading rubric (A / B / C / F)
+| Token      | Payoff                     | Who it's for |
+|------------|----------------------------|--------------|
+| **SHIELD** | `min(S, L)` + dividends    | Equity-backed yield, impaired only in a deep crash |
+| **CORE**   | `clamp(S − L, 0, U − L)`   | Plain exposure through the middle band |
+| **EDGE**   | `max(S − U, 0)`            | Leveraged upside that can never be liquidated |
+
+```
+SHIELD + CORE + EDGE ≡ S      (recombine to get the share back)
+```
+
+No external capital is created — it's a fully-collateralised redistribution of one share's payoff. That conservation law is exactly why it's trustless and provable, unlike the opaque OTC structured notes it replaces. By put-call parity the three tranche *values* also sum to spot, so indicative primary prices (Black–Scholes) obey the same invariant.
+
+## What's built
+
+- **`/refract`** — interactive explorer: pick a live xStock, set the floor/cap/vol/maturity, watch the share refract into three priced tokens, and drag a settlement marker across the stacked payoff to see who wins — with conservation proven on screen.
+- **`/assets`, `/assets/[ticker]`, `/method`** — the original Hanko claim layer: what a token legally entitles you to, and who says so.
+- Live prices via DexScreener (public, no key); tranche math in `src/lib/spectrum.ts`.
+
+## Roadmap
+
+- **Anchor `hanko_vault` program** — `deposit` → mint SHIELD/CORE/EDGE SPL tokens, `recombine`, `settle` against a Pyth xStocks feed at maturity. Devnet first.
+- **Stamp & Mint** — one action in the UI that vaults a share and mints the spectrum, gated on the seal.
+- Tranche markets on Meteora/Jupiter for live price discovery.
 
 ## Stack
 
-- Next.js App Router
-- TypeScript
-- Tailwind CSS v4
-- Static typed seed data (`src/lib/assets.ts`)
-- Deploy target: Vercel
-
-## Design
-
-Monochrome only. Typography does the work. Hard edges, no drop shadows, no crypto stock art. Reference: Swiss editorial print, legal seals, financial disclosure documents.
-
-## Seed assets
-
-| Ticker    | Grade | Structure   |
-|-----------|-------|-------------|
-| SPCX      | A     | Registered  |
-| SECZ      | A     | Registered  |
-| NVDAx     | B     | Custodial   |
-| TSLAx     | B     | Custodial   |
-| CRCLx     | B     | Custodial   |
-| ANTHROPIC | F     | Synthetic   |
-| OPENAI    | F     | Synthetic   |
-| NVDA-PERP | F     | Unbacked    |
-
-Every field without a verified primary source renders **NOT DISCLOSED**.
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Anchor / Solana. Monochrome by design — the refracted spectrum is the only color.
 
 ## Develop
 
@@ -49,13 +45,4 @@ npm install
 npm run dev
 ```
 
-```bash
-npm run build
-npm start
-```
-
-## Thesis
-
-On Solana, multiple tokens share the same ticker but represent completely different legal claims. One is redeemable registered stock. Another is economic exposure via an offshore SPV with substitutable collateral. Another is a perpetual with zero shares. Charts look the same. Hanko is the claim layer at the point of trade.
-
-Not financial advice. Independent claim records only.
+Not financial advice. Independent claim records and a fully-collateralised structured-product primitive.

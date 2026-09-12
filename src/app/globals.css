@@ -12,6 +12,15 @@
   --sphere-highlight: #ffffff;
   --sphere-mid: #b0b0b0;
   --sphere-deep: #1a1a1a;
+
+  /* —— Hanko spectrum —— the only color Hanko ever shows.
+     Cool → warm maps risk → reward. A share, refracted. */
+  --shield: #2f57d4; /* senior · safety */
+  --core: #0e8f86; /* mezzanine · exposure */
+  --edge: #c2410c; /* junior · upside */
+  --shield-soft: rgba(47, 87, 212, 0.14);
+  --core-soft: rgba(14, 143, 134, 0.14);
+  --edge-soft: rgba(194, 65, 12, 0.14);
 }
 
 html.dark {
@@ -26,6 +35,13 @@ html.dark {
   --sphere-highlight: #3a3a3a;
   --sphere-mid: #1f1f1f;
   --sphere-deep: #050505;
+
+  --shield: #6d9bff;
+  --core: #2dd4bf;
+  --edge: #fb923c;
+  --shield-soft: rgba(109, 155, 255, 0.16);
+  --core-soft: rgba(45, 212, 191, 0.16);
+  --edge-soft: rgba(251, 146, 60, 0.16);
 }
 
 @theme inline {
@@ -37,8 +53,12 @@ html.dark {
   --color-fail: var(--fail);
   --color-up: var(--up);
   --color-down: var(--down);
+  --color-shield: var(--shield);
+  --color-core: var(--core);
+  --color-edge: var(--edge);
   --font-sans: var(--font-display);
-  --font-mono: var(--font-mono);
+  /* No monospace face — labels use the major font (Inter Tight), tracked. */
+  --font-mono: var(--font-display);
 }
 
 html {

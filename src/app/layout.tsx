@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter_Tight, JetBrains_Mono } from "next/font/google";
+import { Inter_Tight } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -12,24 +12,17 @@ const interTight = Inter_Tight({
   display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  display: "swap",
-});
-
 export const metadata: Metadata = {
   title: {
-    default: "Hanko, claim records for tokenized assets on Solana",
+    default: "Hanko, refract a tokenized share into its spectrum",
     template: "%s · Hanko",
   },
   description:
-    "Every tokenized stock has a price, a chart, a ticker, and a legal structure. Your wallet shows you three. Hanko is the claim record for the fourth, with live market data.",
+    "A share bundles safety, exposure and upside into one price. Hanko refracts a tokenized stock into three tradeable tranches — SHIELD, CORE, EDGE — that always recombine into one share. Structured products, unbundled and provable, on Solana.",
   openGraph: {
-    title: "Hanko, claim records for tokenized assets on Solana",
+    title: "Hanko, refract a tokenized share into its spectrum",
     description:
-      "What does this token legally entitle you to, and who says so?",
+      "One share, refracted into safety, exposure and upside. Own only the wavelength you want.",
     type: "website",
   },
 };
@@ -56,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${interTight.variable} ${jetbrainsMono.variable} h-full`}
+      className={`${interTight.variable} h-full`}
       suppressHydrationWarning
     >
       <head>
