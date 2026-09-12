@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMarket } from "@/hooks/useMarket";
+import { StockLogo } from "@/components/StockLogo";
 import { formatUsd } from "@/lib/market";
 import {
   type SpectrumConfig,
@@ -19,17 +20,18 @@ import {
 interface AssetOpt {
   slug: string;
   ticker: string;
+  symbol: string;
   underlying: string;
   vol: number;
   fallback: number;
 }
 
 const ASSETS: AssetOpt[] = [
-  { slug: "tslax", ticker: "TSLAx", underlying: "Tesla", vol: 0.6, fallback: 420 },
-  { slug: "nvdax", ticker: "NVDAx", underlying: "NVIDIA", vol: 0.52, fallback: 180 },
-  { slug: "spyx", ticker: "SPYx", underlying: "S&P 500", vol: 0.16, fallback: 640 },
-  { slug: "mstrx", ticker: "MSTRx", underlying: "MicroStrategy", vol: 0.95, fallback: 360 },
-  { slug: "coinx", ticker: "COINx", underlying: "Coinbase", vol: 0.8, fallback: 300 },
+  { slug: "tslax", ticker: "TSLAx", symbol: "TSLA", underlying: "Tesla", vol: 0.6, fallback: 420 },
+  { slug: "nvdax", ticker: "NVDAx", symbol: "NVDA", underlying: "NVIDIA", vol: 0.52, fallback: 180 },
+  { slug: "spyx", ticker: "SPYx", symbol: "SPY", underlying: "S&P 500", vol: 0.16, fallback: 640 },
+  { slug: "mstrx", ticker: "MSTRx", symbol: "MSTR", underlying: "MicroStrategy", vol: 0.95, fallback: 360 },
+  { slug: "coinx", ticker: "COINx", symbol: "COIN", underlying: "Coinbase", vol: 0.8, fallback: 300 },
 ];
 
 const MATURITIES = [
@@ -152,12 +154,13 @@ export function SpectrumExplorer() {
                 type="button"
                 onClick={() => setSlug(a.slug)}
                 data-active={active}
-                className={`border px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] transition-colors duration-200 ${
+                className={`inline-flex items-center gap-1.5 border px-2.5 py-1.5 text-[11px] uppercase tracking-[0.12em] transition-colors duration-200 ${
                   active
                     ? "border-ink bg-ink text-paper"
                     : "border-rule text-mute hover:border-ink hover:text-ink"
                 }`}
               >
+                <StockLogo symbol={a.symbol} size={15} />
                 {a.ticker}
               </button>
             );
@@ -165,14 +168,17 @@ export function SpectrumExplorer() {
         </div>
 
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-mute">
-              {asset.underlying} · 1 {asset.ticker}
-            </div>
-            <div className="mt-1 flex items-baseline gap-2">
-              <span className="font-sans text-3xl font-bold tracking-tight text-ink tabular-nums">
-                {formatUsd(spot)}
-              </span>
+          <div className="flex items-center gap-3">
+            <StockLogo symbol={asset.symbol} size={36} />
+            <div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-mute">
+                {asset.underlying} · 1 {asset.ticker}
+              </div>
+              <div className="mt-1 flex items-baseline gap-2">
+                <span className="font-sans text-3xl font-bold tracking-tight text-ink tabular-nums">
+                  {formatUsd(spot)}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -249,11 +255,21 @@ export function SpectrumExplorer() {
             return (
               <div
                 key={key}
-                className="flex items-center justify-center overflow-hidden"
-                style={{ width: `${w}%`, background: TRANCHE_META[key].colorVar }}
+                className="relative flex items-center justify-center overflow-hidden border-r border-paper/40 last:border-r-0"
+                style={{ width: `${w}%` }}
                 title={`${TRANCHE_META[key].name} ${formatUsd(v)}`}
               >
-                <span className="px-1 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-white/95 whitespace-nowrap">
+                <span
+                  className="absolute inset-0"
+                  style={{ background: TRANCHE_META[key].colorVar, opacity: 0.16 }}
+                  aria-hidden
+                />
+                <span
+                  className="dither absolute inset-0"
+                  style={{ background: TRANCHE_META[key].colorVar }}
+                  aria-hidden
+                />
+                <span className="relative px-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-ink whitespace-nowrap">
                   {w > 10 ? TRANCHE_META[key].name : ""}
                 </span>
               </div>
@@ -357,10 +373,25 @@ export function SpectrumExplorer() {
             </g>
           ))}
 
-          {/* Stacked areas */}
-          <path d={paths.shield} fill="var(--shield)" opacity={0.85} />
-          <path d={paths.core} fill="var(--core)" opacity={0.85} />
-          <path d={paths.edge} fill="var(--edge)" opacity={0.85} />
+          {/* Dither patterns for the stacked areas */}
+          <defs>
+            <pattern id="dz-shield" width="3" height="3" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="0.95" fill="var(--shield)" />
+            </pattern>
+            <pattern id="dz-core" width="3" height="3" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="0.95" fill="var(--core)" />
+            </pattern>
+            <pattern id="dz-edge" width="3" height="3" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="0.95" fill="var(--edge)" />
+            </pattern>
+          </defs>
+          {/* Stacked areas, dithered over a faint base */}
+          <path d={paths.shield} fill="var(--shield)" opacity={0.12} />
+          <path d={paths.shield} fill="url(#dz-shield)" />
+          <path d={paths.core} fill="var(--core)" opacity={0.12} />
+          <path d={paths.core} fill="url(#dz-core)" />
+          <path d={paths.edge} fill="var(--edge)" opacity={0.12} />
+          <path d={paths.edge} fill="url(#dz-edge)" />
 
           {/* Total line = S (45°), proves conservation */}
           <line

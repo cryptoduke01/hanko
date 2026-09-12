@@ -333,6 +333,14 @@ html.dark .hero-seals-vignette {
   will-change: transform;
 }
 
+/* —— 1-bit dither: a solid fill masked into a fine dot grid —— */
+.dither {
+  -webkit-mask-image: radial-gradient(circle at 0.6px 0.6px, #000 0.7px, transparent 0.85px);
+  mask-image: radial-gradient(circle at 0.6px 0.6px, #000 0.7px, transparent 0.85px);
+  -webkit-mask-size: 3px 3px;
+  mask-size: 3px 3px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .liquid-sphere,
   .liquid-sphere-inner,

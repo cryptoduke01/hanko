@@ -25,16 +25,10 @@ export function SiteFooter() {
         </div>
         <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-mute">
           <Link
-            href="/assets"
+            href="/refract"
             className="transition-opacity duration-200 hover:text-ink"
           >
-            Index
-          </Link>
-          <Link
-            href="/method"
-            className="transition-opacity duration-200 hover:text-ink"
-          >
-            Method
+            Refract
           </Link>
           <Link
             href="/docs"

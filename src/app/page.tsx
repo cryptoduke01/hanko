@@ -14,7 +14,8 @@ export default function HomePage() {
         {/* Type */}
         <div className="max-w-xl">
           <h1 className="animate-fade-up font-sans text-[2.4rem] font-bold leading-[1.03] tracking-[-0.035em] text-ink sm:text-6xl sm:leading-[0.98]">
-            Hanko is the marketplace for the parts of a stock.
+            Hanko splits a tokenized stock into a safe part, a balanced part,
+            and an upside part.
           </h1>
           <p className="animate-fade-up-delay-1 mt-6 max-w-md text-base leading-relaxed text-ink/70">
             Buy the safety, the exposure, or the upside. Recombine into a whole

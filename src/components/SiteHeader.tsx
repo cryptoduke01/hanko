@@ -8,7 +8,6 @@ import { WalletBar } from "./WalletBar";
 
 const LINKS = [
   { href: "/refract", label: "Refract" },
-  { href: "/assets", label: "Assets" },
   { href: "/docs", label: "Docs" },
 ];
 
