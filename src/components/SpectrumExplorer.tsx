@@ -52,7 +52,7 @@ const PY1 = 344;
 const MAX_MULT = 2;
 
 export function SpectrumExplorer() {
-  const { quotes, live } = useMarket();
+  const { quotes } = useMarket();
 
   const [slug, setSlug] = useState("tslax");
   const [floorPct, setFloorPct] = useState(0.7);
@@ -71,7 +71,6 @@ export function SpectrumExplorer() {
 
   const liveSpot = quotes[slug]?.priceUsd ?? null;
   const spot = liveSpot && liveSpot > 0 ? liveSpot : asset.fallback;
-  const isLive = Boolean(liveSpot && liveSpot > 0 && live);
 
   const cfg: SpectrumConfig = useMemo(
     () => ({ spot, floorPct, capPct, tYears: days / 365, vol, rate: 0.04 }),
@@ -173,18 +172,6 @@ export function SpectrumExplorer() {
             <div className="mt-1 flex items-baseline gap-2">
               <span className="font-sans text-3xl font-bold tracking-tight text-ink tabular-nums">
                 {formatUsd(spot)}
-              </span>
-              <span
-                className={`inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.12em] ${
-                  isLive ? "text-up" : "text-mute"
-                }`}
-              >
-                <span
-                  className={`inline-block h-1.5 w-1.5 rounded-full ${
-                    isLive ? "live-dot bg-up" : "bg-mute/50"
-                  }`}
-                />
-                {isLive ? "Live" : "Est."}
               </span>
             </div>
           </div>

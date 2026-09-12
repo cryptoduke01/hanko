@@ -6,8 +6,8 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:flex-row sm:items-start sm:justify-between sm:px-6">
         <div className="space-y-2">
           <p className="text-xs leading-relaxed text-mute">
-            Hanko, claim records for tokenized assets on Solana. Not financial
-            advice. Market prices refresh from public DEX data.
+            Hanko refracts a tokenized share into three tranche tokens on
+            Solana. Not financial advice.
           </p>
           <p className="font-mono text-[11px] text-mute">
             Built by{" "}

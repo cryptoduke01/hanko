@@ -1,79 +1,65 @@
-import Image from "next/image";
 import Link from "next/link";
-import { HeroSeals } from "@/components/HeroSeals";
+import { DitherSeal } from "@/components/DitherSeal";
+
+const SPECTRUM = [
+  { name: "Shield", role: "Safety", varName: "--shield" },
+  { name: "Core", role: "Exposure", varName: "--core" },
+  { name: "Edge", role: "Upside", varName: "--edge" },
+];
 
 export default function HomePage() {
   return (
-    <section className="relative flex min-h-[calc(100dvh-7.5rem)] flex-1 flex-col lg:flex-row">
-      {/* Left, ink */}
-      <div className="grain-overlay relative flex flex-1 flex-col justify-center bg-ink px-6 py-16 text-paper sm:px-10 lg:w-1/2 lg:px-14 lg:py-24">
-        {/* Faint seal watermark on dark half */}
-        <div
-          className="pointer-events-none absolute inset-0 overflow-hidden"
-          aria-hidden
-        >
-          <div className="hero-seals-float absolute -right-[10%] bottom-[-8%] top-[-8%] w-[95%] opacity-[0.09]">
-            <Image
-              src="/hanko-seals.jpg"
-              alt=""
-              fill
-              priority
-              sizes="50vw"
-              className="hero-seals-img hero-seals-img--on-ink object-contain object-right"
-            />
-          </div>
-        </div>
-
-        <div className="relative z-10 max-w-xl">
-          <p className="animate-fade-up mb-6 font-mono text-[11px] uppercase tracking-[0.18em] text-white/45">
-            Hanko · Tokenized stocks · Solana
-          </p>
-          <h1 className="animate-fade-up-delay-1 font-sans text-[1.85rem] font-bold leading-[1.08] tracking-[-0.03em] text-paper sm:text-4xl sm:leading-[1.06] lg:text-[2.65rem] lg:leading-[1.05]">
-            A share bundles safety, exposure, and upside into one price. Hanko
-            refracts it into three.
+    <section className="relative flex min-h-[calc(100dvh-3.5rem)] items-center">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-6 py-16 sm:px-8 md:grid-cols-[1.05fr_0.9fr] md:gap-10 md:py-0">
+        {/* Type */}
+        <div className="max-w-xl">
+          <h1 className="animate-fade-up font-sans text-[2.4rem] font-bold leading-[1.03] tracking-[-0.035em] text-ink sm:text-6xl sm:leading-[0.98]">
+            Hanko is the marketplace for the parts of a stock.
           </h1>
-          <p className="animate-fade-up-delay-2 mt-6 max-w-md text-base leading-relaxed text-white/65">
-            Hanko splits a tokenized stock into{" "}
-            <span className="text-[color:var(--shield)]">SHIELD</span>,{" "}
-            <span className="text-[color:var(--core)]">CORE</span> and{" "}
-            <span className="text-[color:var(--edge)]">EDGE</span> — three tokens
-            that always recombine into one share. Own only the wavelength you
-            want. The seal is what makes each piece real.
+          <p className="animate-fade-up-delay-1 mt-6 max-w-md text-base leading-relaxed text-ink/70">
+            Buy the safety, the exposure, or the upside. Recombine into a whole
+            share anytime.
           </p>
 
-          {/* Spectrum motif — the only color on the ink half */}
-          <div className="animate-fade-up-delay-3 mt-8 flex h-1.5 w-full max-w-md overflow-hidden">
-            <span className="flex-[0.55]" style={{ background: "var(--shield)" }} />
-            <span className="flex-[0.30]" style={{ background: "var(--core)" }} />
-            <span className="flex-[0.15]" style={{ background: "var(--edge)" }} />
+          {/* Spectrum legend */}
+          <div className="animate-fade-up-delay-3 mt-8 flex flex-wrap gap-x-6 gap-y-3">
+            {SPECTRUM.map((s) => (
+              <div key={s.name} className="flex items-center gap-2">
+                <span
+                  className="h-2.5 w-2.5"
+                  style={{ background: `var(${s.varName})` }}
+                  aria-hidden
+                />
+                <span className="text-[11px] uppercase tracking-[0.14em] text-ink">
+                  {s.name}
+                </span>
+                <span className="text-[11px] uppercase tracking-[0.14em] text-mute">
+                  {s.role}
+                </span>
+              </div>
+            ))}
           </div>
 
-          <div className="animate-fade-up-delay-3 mt-8 flex flex-wrap items-center gap-3">
+          <div className="animate-fade-up-delay-4 mt-10 flex flex-wrap items-center gap-5">
             <Link
               href="/refract"
-              className="btn-liquid inline-flex items-center gap-2 border border-paper/35 bg-paper/5 px-4 py-2.5 font-mono text-xs uppercase tracking-[0.14em] text-paper"
+              className="btn-liquid inline-flex items-center gap-2 border border-ink bg-ink px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
             >
               Refract a share
-              <span aria-hidden="true">→</span>
+              <span aria-hidden>→</span>
             </Link>
             <Link
-              href="/assets"
-              className="inline-flex items-center gap-2 px-3 py-2.5 font-mono text-xs uppercase tracking-[0.14em] text-white/55 transition-opacity duration-300 hover:text-paper"
+              href="/docs"
+              className="text-[11px] uppercase tracking-[0.14em] text-mute transition-colors duration-200 hover:text-ink"
             >
-              The claim index
+              Read the docs
             </Link>
           </div>
         </div>
-      </div>
 
-      {/* Right, seals hero */}
-      <div className="hero-right relative flex min-h-[48vh] flex-1 items-end justify-end overflow-hidden lg:w-1/2 lg:min-h-0">
-        <HeroSeals />
-        <div className="relative z-10 w-full p-6 sm:p-10 lg:p-14">
-          <p className="animate-fade-up-delay-4 max-w-[15rem] font-mono text-[11px] leading-relaxed text-mute">
-            判子 · The seal a Japanese company presses onto a document to make
-            it real.
-          </p>
+        {/* Seal */}
+        <div className="relative hidden justify-center md:flex">
+          <DitherSeal className="h-auto w-full max-w-[360px]" />
         </div>
       </div>
     </section>

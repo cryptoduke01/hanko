@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter_Tight } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SolanaProviders } from "@/components/SolanaProviders";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
@@ -57,9 +58,11 @@ export default function RootLayout({
       </head>
       <body className="flex min-h-full flex-col bg-paper text-ink antialiased">
         <ThemeProvider>
-          <SiteHeader />
-          <main className="flex flex-1 flex-col">{children}</main>
-          <SiteFooter />
+          <SolanaProviders>
+            <SiteHeader />
+            <main className="flex flex-1 flex-col">{children}</main>
+            <SiteFooter />
+          </SolanaProviders>
         </ThemeProvider>
       </body>
     </html>
