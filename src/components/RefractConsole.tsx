@@ -115,7 +115,7 @@ export function RefractConsole() {
       try {
         localStorage.setItem(DEMO_KEY(owner.toBase58()), mint.toBase58());
       } catch {
-        /* storage blocked — keep in memory */
+        /* storage blocked, keep in memory */
       }
       setDemoMint(mint);
       const s = await initializeVault(

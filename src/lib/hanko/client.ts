@@ -75,7 +75,7 @@ export function poolPdas(mintA: PublicKey, mintB: PublicKey) {
   return { pool, vaultA: ata(mintA, pool, true), vaultB: ata(mintB, pool, true) };
 }
 
-/* ————————————————————— writes ————————————————————— */
+/* --------------------- writes --------------------- */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function initializeVault(
@@ -282,7 +282,7 @@ export async function createDemoShares(
   return mint.publicKey;
 }
 
-/* ————————————————————— reads ————————————————————— */
+/* --------------------- reads --------------------- */
 
 export interface VaultState {
   settled: boolean;
@@ -364,20 +364,68 @@ export interface ActivityItem {
   signature: string;
   blockTime: number | null;
   err: boolean;
+  label: string;
 }
 
-/** Recent transactions that touch this wallet, newest first. */
+// Anchor logs "Program log: Instruction: <Name>" for each call; map to a phrase.
+const IX_LABEL: Record<string, string> = {
+  InitializeVault: "Opened a vault",
+  Deposit: "Refracted a share",
+  Recombine: "Recombined a share",
+  Settle: "Settled a vault",
+  Redeem: "Redeemed a tranche",
+  InitPool: "Opened a market",
+  Swap: "Traded a tranche",
+};
+
+function labelFromTx(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  tx: any
+): string {
+  const logs: string[] = tx?.meta?.logMessages ?? [];
+  for (const line of logs) {
+    const i = line.indexOf("Instruction: ");
+    if (i !== -1) {
+      const name = line.slice(i + "Instruction: ".length).trim();
+      if (IX_LABEL[name]) return IX_LABEL[name];
+    }
+  }
+  // No program instruction matched, fall back to what the token program did.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const instrs: any[] = tx?.transaction?.message?.instructions ?? [];
+  const types = instrs.map((ix) => ix?.parsed?.type).filter(Boolean);
+  if (types.some((t) => t === "initializeMint" || t === "initializeMint2"))
+    return "Minted demo shares";
+  if (types.some((t) => t === "mintTo" || t === "mintToChecked"))
+    return "Minted tokens";
+  if (types.some((t) => t === "transfer" || t === "transferChecked"))
+    return "Transfer";
+  return "Transaction";
+}
+
+/** Recent transactions that touch this wallet, newest first, each with a
+ *  human-readable label derived from its on-chain instructions. */
 export async function recentActivity(
   connection: Connection,
   owner: PublicKey,
-  limit = 12
+  limit = 10
 ): Promise<ActivityItem[]> {
   try {
     const sigs = await connection.getSignaturesForAddress(owner, { limit });
-    return sigs.map((s) => ({
+    const txs = await Promise.all(
+      sigs.map((s) =>
+        connection
+          .getParsedTransaction(s.signature, {
+            maxSupportedTransactionVersion: 0,
+          })
+          .catch(() => null)
+      )
+    );
+    return sigs.map((s, i) => ({
       signature: s.signature,
       blockTime: s.blockTime ?? null,
       err: Boolean(s.err),
+      label: s.err ? "Failed transaction" : labelFromTx(txs[i]),
     }));
   } catch {
     return [];

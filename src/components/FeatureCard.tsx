@@ -2,7 +2,7 @@ import { DitherSeal } from "@/components/DitherSeal";
 
 /**
  * A cutout feature panel: a framed, rounded card that sits inset on the page
- * with our own texture inside — the spectrum washed along its base, a dither
+ * with our own texture inside, the spectrum washed along its base, a dither
  * grid, film grain, and the seal bleeding off one corner. Content sits on top.
  */
 export function FeatureCard({

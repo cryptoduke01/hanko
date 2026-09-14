@@ -46,7 +46,7 @@ export function DitherSeal({ className = "" }: { className?: string }) {
         opacity="0.4"
       />
 
-      {/* 判 — the seal character */}
+      {/* 判, the seal character */}
       <text
         x="200"
         y="200"

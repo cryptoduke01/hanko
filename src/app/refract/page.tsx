@@ -30,7 +30,7 @@ export default function RefractPage() {
       </header>
 
       <div className="mt-14 grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-start">
-        {/* wide side — the economics + charts get the room */}
+        {/* wide side, the economics + charts get the room */}
         <div className="min-w-0 xl:order-1">
           <p className="mb-3 text-[12px] font-medium tracking-[0.02em] text-mute">
             Model the economics

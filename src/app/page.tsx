@@ -218,7 +218,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Closing CTA — cutout feature card */}
+      {/* Closing CTA, cutout feature card */}
       <section className="border-t border-rule">
         <div className="mx-auto max-w-6xl px-6 py-20 sm:px-8 sm:py-24">
           <FeatureCard

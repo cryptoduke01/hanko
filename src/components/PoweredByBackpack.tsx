@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 /**
- * "Powered by Backpack Securities" — the underlying tokenized shares are minted
+ * "Powered by Backpack Securities", the underlying tokenized shares are minted
  * and redeemed one to one via Backpack. Their mark, our type.
  */
 export function PoweredByBackpack({ className = "" }: { className?: string }) {

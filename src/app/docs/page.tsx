@@ -147,12 +147,12 @@ export default function DocsPage() {
           One share, split three ways.
         </h1>
         <p className="mt-4 max-w-xl text-base leading-relaxed text-mute sm:text-lg">
-          The whole idea, the payoff math, and why it holds together — in plain
+          The whole idea, the payoff math, and why it holds together, in plain
           terms.
         </p>
       </header>
 
-      {/* The simple version — an interactive one-minute explainer */}
+      {/* The simple version, an interactive one-minute explainer */}
       <section className="mb-16">
         <h2 className="font-sans text-2xl font-bold tracking-[-0.02em] text-ink">
           The simple version
@@ -162,7 +162,7 @@ export default function DocsPage() {
           a <span className="text-ink">middle part</span>, and a{" "}
           <span className="text-ink">jackpot part</span>. Normally you have to buy
           all three together. Hanko splits them so you can keep just the one you
-          want — and they always snap back into a whole share. Drag the price and
+          want, and they always snap back into a whole share. Drag the price and
           watch it happen:
         </p>
         <div className="mt-6">

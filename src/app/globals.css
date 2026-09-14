@@ -13,7 +13,7 @@
   --sphere-mid: #b0b0b0;
   --sphere-deep: #1a1a1a;
 
-  /* —— Hanko spectrum —— the only color Hanko ever shows.
+  /* -- Hanko spectrum -- the only color Hanko ever shows.
      Cool → warm maps risk → reward. A share, refracted. */
   --shield: #2f57d4; /* senior · safety */
   --core: #0e8f86; /* mezzanine · exposure */
@@ -22,14 +22,14 @@
   --core-soft: rgba(14, 143, 134, 0.14);
   --edge-soft: rgba(194, 65, 12, 0.14);
 
-  /* —— Texture —— Hanko's own: a fine 1-bit dither grid, film grain, and a
+  /* -- Texture -- Hanko's own: a fine 1-bit dither grid, film grain, and a
      single restrained cool glow (Shield). Monochrome; the spectrum is the
      only colour, kept quiet. */
   --dot: rgba(10, 10, 10, 0.05);
   --dot-strong: rgba(10, 10, 10, 0.08);
   --glow-cool: rgba(47, 87, 212, 0.12);
   --lift: rgba(0, 0, 0, 0.035);
-  /* The spectrum, as light — three soft blooms that meet in a band. */
+  /* The spectrum, as light, three soft blooms that meet in a band. */
   --glow-shield: rgba(47, 87, 212, 0.38);
   --glow-core: rgba(14, 143, 134, 0.34);
   --glow-edge: rgba(194, 65, 12, 0.34);
@@ -77,7 +77,7 @@ html.dark {
   --color-core: var(--core);
   --color-edge: var(--edge);
   --font-sans: var(--font-display);
-  /* No monospace face — labels use the major font (Inter Tight), tracked. */
+  /* No monospace face, labels use the major font (Inter Tight), tracked. */
   --font-mono: var(--font-display);
 }
 
@@ -148,7 +148,7 @@ a,
   }
 }
 
-/* —— Liquid motion —— */
+/* -- Liquid motion -- */
 @keyframes liquid-float {
   0%,
   100% {
@@ -332,7 +332,7 @@ a,
   transform: translateY(-1px);
 }
 
-/* —— Hero field —— our own: monochrome depth, a single cool Shield glow rising
+/* -- Hero field -- our own: monochrome depth, a single cool Shield glow rising
    from the bottom, a denser dither grid, and visible film grain over it all. */
 .hero-depth {
   background:
@@ -350,7 +350,7 @@ a,
   mask-image: radial-gradient(circle at 50% 46%, transparent 20%, #000 62%);
 }
 
-/* Film grain — the signature texture. Kept clearly visible, static (no drift). */
+/* Film grain, the signature texture. Kept clearly visible, static (no drift). */
 .grain::after {
   content: "";
   pointer-events: none;
@@ -448,7 +448,7 @@ html.dark .grain::after {
   animation: slide-up-in 0.28s cubic-bezier(0, 0, 0.2, 1) both;
 }
 
-/* —— 1-bit dither: a solid fill masked into a fine dot grid —— */
+/* -- 1-bit dither: a solid fill masked into a fine dot grid -- */
 .dither {
   -webkit-mask-image: radial-gradient(circle at 0.6px 0.6px, #000 0.7px, transparent 0.85px);
   mask-image: radial-gradient(circle at 0.6px 0.6px, #000 0.7px, transparent 0.85px);

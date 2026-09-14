@@ -266,13 +266,13 @@ export function TrancheMarket({
           {/* quote */}
           <dl className="space-y-1.5 text-[11px] tabular-nums">
             <Row label="You receive">
-              {out > 0 ? `≈ ${fmt(out, 4)} ${outUnit}` : "—"}
+              {out > 0 ? `≈ ${fmt(out, 4)} ${outUnit}` : "-"}
             </Row>
             <Row label={`Min at ${(slip * 100).toFixed(slip < 0.01 ? 1 : 0)}% slippage`}>
-              {out > 0 ? `${fmt(minOut, 4)} ${outUnit}` : "—"}
+              {out > 0 ? `${fmt(minOut, 4)} ${outUnit}` : "-"}
             </Row>
             <Row label="Price impact">
-              {impact > 0 ? `${(impact * 100).toFixed(2)}%` : "—"}
+              {impact > 0 ? `${(impact * 100).toFixed(2)}%` : "-"}
             </Row>
           </dl>
 

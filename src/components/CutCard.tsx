@@ -1,7 +1,7 @@
 /**
  * A cutout card: a framed haze panel with the dither grid and film grain, and
  * an optional colour glow rising from a corner. The shared card language across
- * the site — the closing FeatureCard is the large, seal-bearing sibling.
+ * the site, the closing FeatureCard is the large, seal-bearing sibling.
  */
 export function CutCard({
   tint,

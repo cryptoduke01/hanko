@@ -7,7 +7,7 @@
     "description": "Created with Anchor"
   },
   "docs": [
-    "Hanko — refract a tokenized share into its spectrum.",
+    "Hanko, refract a tokenized share into its spectrum.",
     "",
     "`initialize_vault` opens a market; `deposit` mints SHIELD + CORE + EDGE",
     "against a deposited share; `recombine` burns the triplet to reclaim it.",

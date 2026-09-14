@@ -5,12 +5,12 @@ import { useState } from "react";
 /**
  * The one-minute explainer: drag the stock price and watch the share split into
  * Shield (safe), Core (middle) and Edge (jackpot). The three colours always add
- * up to the price — proof, on screen, that three tokens equal one share.
+ * up to the price, proof, on screen, that three tokens equal one share.
  *
  * Round example numbers: safe up to $100 (floor), capped at $200 (cap).
  */
-const L = 100; // floor — Shield is safe up to here
-const U = 200; // cap — Edge starts above here
+const L = 100; // floor, Shield is safe up to here
+const U = 200; // cap, Edge starts above here
 const MAX = 300;
 
 const money = (n: number) => `$${Math.round(n)}`;
@@ -58,7 +58,7 @@ export function SplitExplainer() {
       ? "The stock is low. Shield still holds almost everything; Edge is worth nothing yet."
       : price <= U
         ? "A normal price. Shield is full and safe; Core carries the ups and downs."
-        : "The stock mooned. Now Edge — the jackpot part — is where the money is.";
+        : "The stock mooned. Now Edge, the jackpot part, is where the money is.";
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-rule bg-haze">
@@ -84,7 +84,7 @@ export function SplitExplainer() {
             <div className="absolute inset-y-0 left-1/3 w-1/3" style={{ background: "var(--core-soft)" }} />
             <div className="absolute inset-y-0 left-2/3 w-1/3" style={{ background: "var(--edge-soft)" }} />
 
-            {/* filled parts, laid end to end — their total length is the price */}
+            {/* filled parts, laid end to end, their total length is the price */}
             <div className="absolute inset-y-0 left-0 flex">
               <div
                 className="h-full transition-[width] duration-150 ease-out"
@@ -157,7 +157,7 @@ export function SplitExplainer() {
           <span style={{ color: "var(--edge)" }}>{money(edge)}</span>
           {" = "}
           <span className="font-semibold text-ink">{money(price)}</span>
-          <span className="text-mute"> — always one whole share.</span>
+          <span className="text-mute">, always one whole share.</span>
         </p>
 
         <p className="mt-4 text-center text-sm leading-relaxed text-ink/70">{caption}</p>

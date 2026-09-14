@@ -143,7 +143,7 @@ export function SpectrumExplorer() {
 
   return (
     <div className="w-full">
-      {/* ——— Controls row ——— */}
+      {/* --- Controls row --- */}
       <div className="flex flex-col gap-4 rounded-2xl border border-rule bg-paper p-4 sm:p-5">
         <div className="flex flex-wrap items-center gap-2">
           {ASSETS.map((a) => {
@@ -238,7 +238,7 @@ export function SpectrumExplorer() {
         </div>
       </div>
 
-      {/* ——— Mint split bar ——— */}
+      {/* --- Mint split bar --- */}
       <div className="mt-4 rounded-2xl border border-rule bg-paper p-4 sm:p-5">
         <div className="flex items-center justify-between">
           <span className="font-mono text-[10px] tracking-[0.01em] text-mute">
@@ -278,7 +278,7 @@ export function SpectrumExplorer() {
         </div>
       </div>
 
-      {/* ——— Tranche cards ——— */}
+      {/* --- Tranche cards --- */}
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         <TrancheCard
           k="shield"
@@ -312,7 +312,7 @@ export function SpectrumExplorer() {
         />
       </div>
 
-      {/* ——— Payoff chart ——— */}
+      {/* --- Payoff chart --- */}
       <div className="mt-4 rounded-2xl border border-rule bg-paper p-4 sm:p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <span className="font-mono text-[10px] tracking-[0.01em] text-mute">

@@ -33,7 +33,7 @@ const num = (n: number, dp = 2) =>
   n.toLocaleString(undefined, { maximumFractionDigits: dp });
 
 function ago(unix: number | null): string {
-  if (!unix) return "—";
+  if (!unix) return "-";
   const s = Math.max(0, Math.floor(Date.now() / 1000 - unix));
   if (s < 60) return `${s}s ago`;
   if (s < 3600) return `${Math.floor(s / 60)}m ago`;
@@ -112,7 +112,7 @@ export function Portfolio() {
     }
   };
 
-  // Derived — value each tranche at its pool's mid-price, in shares.
+  // Derived, value each tranche at its pool's mid-price, in shares.
   const balOf = (k: TrancheKey) => (balances?.[k] ?? 0) / ONE;
   const priceOf = (k: TrancheKey) => {
     const p = pools?.[k];
@@ -152,15 +152,15 @@ export function Portfolio() {
     <div className="space-y-6">
       {/* summary */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric label="Portfolio value" value={demoMint ? `${num(totalValue)}` : "—"} unit="shares" />
-        <Metric label="Recombinable" value={demoMint ? `${num(recombinable)}` : "—"} unit="whole shares" />
+        <Metric label="Portfolio value" value={balances == null && demoMint ? null : num(totalValue)} unit="shares" />
+        <Metric label="Recombinable" value={balances == null && demoMint ? null : num(recombinable)} unit="whole shares" />
         <Metric label="SOL" value={sol == null ? null : num(sol, 4)} unit="devnet" />
         <div className="relative overflow-hidden rounded-2xl border border-rule bg-haze p-5">
           <div className="hero-dots pointer-events-none absolute inset-0" aria-hidden />
           <div className="relative">
             <div className="text-[11px] tracking-[0.02em] text-mute">Wallet</div>
             <div className="mt-2 font-sans text-lg font-semibold tabular-nums text-ink">
-              {owner ? truncate(owner.toBase58()) : "—"}
+              {owner ? truncate(owner.toBase58()) : "-"}
             </div>
             <div className="mt-2 flex items-center gap-3 text-[11px] text-mute">
               <button type="button" onClick={copy} className="transition-colors hover:text-ink">
@@ -284,16 +284,19 @@ export function Portfolio() {
             {activity.map((a) => (
               <li
                 key={a.signature}
-                className="flex items-center justify-between gap-3 border-b border-rule/60 px-5 py-3 text-sm last:border-b-0"
+                className="flex items-center justify-between gap-3 border-b border-rule/60 px-5 py-3.5 text-sm last:border-b-0"
               >
-                <span className="flex items-center gap-2.5 tabular-nums text-ink">
+                <span className="flex min-w-0 items-center gap-2.5">
                   <span
-                    className="h-1.5 w-1.5 rounded-full"
+                    className="h-1.5 w-1.5 shrink-0 rounded-full"
                     style={{ background: a.err ? "var(--down)" : "var(--up)" }}
                   />
-                  {truncate(a.signature)}
+                  <span className="truncate text-ink">{a.label}</span>
+                  <span className="hidden shrink-0 text-[11px] tabular-nums text-mute sm:inline">
+                    {truncate(a.signature)}
+                  </span>
                 </span>
-                <span className="flex items-center gap-4 text-[11px] text-mute">
+                <span className="flex shrink-0 items-center gap-4 text-[11px] text-mute">
                   <span className="tabular-nums">{ago(a.blockTime)}</span>
                   <a
                     href={explorerUrl("tx", a.signature)}
@@ -366,7 +369,7 @@ function Row({
       </div>
       <div className="text-right text-sm tabular-nums text-ink">{num(balance)}</div>
       <div className="text-right text-sm tabular-nums text-mute">
-        {value == null ? "—" : num(value)}
+        {value == null ? "-" : num(value)}
       </div>
     </div>
   );

@@ -127,7 +127,7 @@ function preStock(opts: {
  * Grades and legal fields stay editorial / primary-source based.
  */
 export const assets: Asset[] = [
-  // —— Registered / issuer-sponsored ——
+  // -- Registered / issuer-sponsored --
   {
     ticker: "SPCX",
     slug: "spcx",
@@ -206,7 +206,7 @@ export const assets: Asset[] = [
       "You hold an issuer-sponsored tokenized claim on NYSE-listed equity, with share records managed through Computershare, not an offshore synthetic.",
   },
 
-  // —— xStocks (Backed Finance) ——
+  // -- xStocks (Backed Finance) --
   xStock({
     ticker: "NVDAx",
     slug: "nvdax",
@@ -328,7 +328,7 @@ export const assets: Asset[] = [
     mint: "Xs3oZwbHvqis4NYcf4YKWmEia2eC84wSiVrcYcTqpH8",
   }),
 
-  // —— PreStocks ——
+  // -- PreStocks --
   preStock({
     ticker: "ANTHROPIC",
     slug: "anthropic",
@@ -388,7 +388,7 @@ export const assets: Asset[] = [
     mint: "Pre8AREmFPtoJFT8mQSXQLh56cwJmM7CFDRuoGBZiUP",
   }),
 
-  // —— Unbacked illustration ——
+  // -- Unbacked illustration --
   {
     ticker: "NVDA-PERP",
     slug: "nvda-perp",

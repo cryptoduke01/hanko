@@ -1,5 +1,5 @@
 /**
- * Hanko spectrum — refract one tokenized share into three tranche claims that
+ * Hanko spectrum, refract one tokenized share into three tranche claims that
  * always sum back to the share. Hanko's claim thesis made executable: a share
  * bundles safety, exposure and upside into one price; Hanko separates them.
  *
@@ -11,14 +11,14 @@
  *   CORE   (mezz)    = clamp(S - L, 0, U - L) the band [L, U] · plain exposure
  *   EDGE   (junior)  = max(S - U, 0)          everything above U · pure upside
  *
- *   SHIELD + CORE + EDGE ≡ S      (conservation — recombine to get the share)
+ *   SHIELD + CORE + EDGE ≡ S      (conservation, recombine to get the share)
  *
  * No external capital is created: it is a fully-collateralised redistribution
  * of the same payoff. That is exactly why it is trustless and provable, unlike
  * the opaque OTC structured notes it replaces.
  *
  * Indicative primary prices use Black–Scholes, and by put-call parity the three
- * tranche VALUES also sum to spot — the same conservation law, in dollars today.
+ * tranche VALUES also sum to spot, the same conservation law, in dollars today.
  */
 
 export type TrancheKey = "shield" | "core" | "edge";
@@ -104,7 +104,7 @@ export function payoffAll(S: number, k: Strikes): Record<TrancheKey, number> {
   };
 }
 
-/* —————————————————— Black–Scholes (European) —————————————————— */
+/* ------------------ Black–Scholes (European) ------------------ */
 
 /** Standard normal CDF (Abramowitz & Stegun 7.1.26). */
 function normCdf(x: number): number {
@@ -145,7 +145,7 @@ export interface TrancheValues {
 /**
  * Indicative fair value of each tranche today (risk-neutral, BS):
  *   shield = S0 − call(L),  core = call(L) − call(U),  edge = call(U).
- * These sum to S0 — the redemption invariant, priced.
+ * These sum to S0, the redemption invariant, priced.
  */
 export function trancheValues(cfg: SpectrumConfig): TrancheValues {
   const { L, U } = strikes(cfg);
@@ -160,7 +160,7 @@ export function trancheValues(cfg: SpectrumConfig): TrancheValues {
   };
 }
 
-/* —————————————————— Per-tranche investor readouts —————————————————— */
+/* ------------------ Per-tranche investor readouts ------------------ */
 
 export interface ShieldMetrics {
   price: number;
@@ -204,7 +204,7 @@ export function edgeMetrics(cfg: SpectrumConfig): EdgeMetrics {
   };
 }
 
-/* —————————————————— Curve sampling for charts —————————————————— */
+/* ------------------ Curve sampling for charts ------------------ */
 
 export interface CurveSample {
   s: number; // settlement price
