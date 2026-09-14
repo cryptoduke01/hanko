@@ -13,7 +13,7 @@ export default function RefractPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-12 sm:px-8 sm:py-16">
       <header className="max-w-2xl">
-        <p className="text-[11px] uppercase tracking-[0.2em] text-mute">Refract</p>
+        <p className="text-[11px] tracking-[0.01em] text-mute">Refract</p>
         <h1 className="mt-4 font-sans text-3xl font-bold leading-[1.08] tracking-[-0.03em] text-ink sm:text-4xl">
           Lock a share, hold its three parts.
         </h1>
@@ -34,7 +34,7 @@ export default function RefractPage() {
       </div>
 
       <div className="mt-12">
-        <p className="mb-3 text-[11px] uppercase tracking-[0.2em] text-mute">
+        <p className="mb-3 text-[11px] tracking-[0.01em] text-mute">
           Model the economics
         </p>
         <SpectrumExplorer />

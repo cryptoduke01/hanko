@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { StockCatalog } from "@/components/StockCatalog";
+import { PoweredByBackpack } from "@/components/PoweredByBackpack";
 
 export const metadata: Metadata = {
   title: "Stocks",
@@ -11,7 +12,7 @@ export default function StocksPage() {
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-12 sm:px-8 sm:py-16">
       <header className="mb-10 max-w-2xl animate-fade-up">
-        <p className="text-[11px] uppercase tracking-[0.2em] text-mute">Stocks</p>
+        <p className="text-[11px] tracking-[0.01em] text-mute">Stocks</p>
         <h1 className="mt-2 font-sans text-3xl font-bold tracking-tight text-ink sm:text-4xl">
           Stocks you can split.
         </h1>
@@ -24,9 +25,12 @@ export default function StocksPage() {
       <StockCatalog />
 
       <div className="mt-6 rounded-2xl border border-rule p-5">
-        <p className="text-[11px] uppercase tracking-[0.2em] text-mute">
-          Real securities, one to one
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <p className="text-[11px] tracking-[0.01em] text-mute">
+            Real securities, one to one
+          </p>
+          <PoweredByBackpack className="shrink-0" />
+        </div>
         <p className="mt-2 text-sm leading-relaxed text-mute">
           In production the underlying is a real, custody-backed share, minted
           and redeemed one to one via{" "}

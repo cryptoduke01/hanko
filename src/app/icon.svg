@@ -1,12 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <defs>
-    <clipPath id="r">
-      <rect x="4" y="4" width="24" height="24" rx="7" />
-    </clipPath>
-  </defs>
-  <g clip-path="url(#r)">
-    <rect x="4" y="4" width="8" height="24" fill="#3b6fe0" />
-    <rect x="12" y="4" width="8" height="24" fill="#14b8a6" />
-    <rect x="20" y="4" width="8" height="24" fill="#f97316" />
-  </g>
+  <rect x="3" y="3" width="26" height="26" rx="7.5" fill="#c8402f" />
+  <rect x="3.5" y="3.5" width="25" height="25" rx="7" fill="none" stroke="#ffffff" stroke-opacity="0.28" stroke-width="1" />
+  <text x="16" y="16.6" text-anchor="middle" dominant-baseline="central"
+        font-family="'Hiragino Sans','Yu Gothic',system-ui,sans-serif"
+        font-size="19" font-weight="600" fill="#fdf3f1">判</text>
 </svg>

@@ -195,6 +195,144 @@ async function main() {
   console.log("✓ redeem @ $100 → SHIELD 15→10.5 · CORE 15→4.5 · EDGE 15→0 shares; vault emptied");
 
   console.log("\nFULL LIFECYCLE PROVEN — mint · recombine · settle · redeem, conservation intact.");
+
+  // ── 9. Tranche market ─────────────────────────────────────────────────────
+  // A constant-product pool lets someone buy JUST the Edge, without ever
+  // touching Shield or Core. Fresh mint so this is independent of the proof
+  // above. We seed EDGE/underlying liquidity, buy Edge with underlying, and
+  // assert the payout matches x*y=k with the 0.30% fee to the last base unit.
+  console.log("\n── tranche market ──");
+  const um2 = await createMint(connection, payer, payer.publicKey, null, DECIMALS);
+  const userUm2 = (
+    await getOrCreateAssociatedTokenAccount(connection, payer, um2, payer.publicKey)
+  ).address;
+  await mintTo(connection, payer, um2, userUm2, payer, 100 * ONE);
+
+  const [vault2] = PublicKey.findProgramAddressSync(
+    [Buffer.from("vault"), um2.toBuffer()],
+    PROGRAM_ID
+  );
+  const [shield2] = PublicKey.findProgramAddressSync([Buffer.from("shield"), vault2.toBuffer()], PROGRAM_ID);
+  const [core2] = PublicKey.findProgramAddressSync([Buffer.from("core"), vault2.toBuffer()], PROGRAM_ID);
+  const [edge2] = PublicKey.findProgramAddressSync([Buffer.from("edge"), vault2.toBuffer()], PROGRAM_ID);
+  const vaultUm2 = getAssociatedTokenAddressSync(um2, vault2, true);
+  const userShield2 = getAssociatedTokenAddressSync(shield2, payer.publicKey);
+  const userCore2 = getAssociatedTokenAddressSync(core2, payer.publicKey);
+  const userEdge2 = getAssociatedTokenAddressSync(edge2, payer.publicKey);
+
+  await program.methods
+    .initializeVault(b(70 * ONE), b(115 * ONE), b(Math.floor(Date.now() / 1000) + 3600))
+    .accountsStrict({
+      authority: payer.publicKey,
+      underlyingMint: um2,
+      vault: vault2,
+      shieldMint: shield2,
+      coreMint: core2,
+      edgeMint: edge2,
+      vaultUnderlying: vaultUm2,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      systemProgram: SystemProgram.programId,
+    })
+    .rpc();
+
+  // Refract 60 shares so we hold 60 EDGE to seed the pool and trade against.
+  await program.methods
+    .deposit(b(60 * ONE))
+    .accountsStrict({
+      user: payer.publicKey,
+      vault: vault2,
+      underlyingMint: um2,
+      shieldMint: shield2,
+      coreMint: core2,
+      edgeMint: edge2,
+      vaultUnderlying: vaultUm2,
+      userUnderlying: userUm2,
+      userShield: userShield2,
+      userCore: userCore2,
+      userEdge: userEdge2,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      systemProgram: SystemProgram.programId,
+    })
+    .rpc();
+
+  // Pool between EDGE (mint_a) and the underlying (mint_b).
+  const mintA = edge2;
+  const mintB = um2;
+  const [pool] = PublicKey.findProgramAddressSync(
+    [Buffer.from("pool"), mintA.toBuffer(), mintB.toBuffer()],
+    PROGRAM_ID
+  );
+  const poolVaultA = getAssociatedTokenAddressSync(mintA, pool, true);
+  const poolVaultB = getAssociatedTokenAddressSync(mintB, pool, true);
+  const traderA = userEdge2; // EDGE
+  const traderB = userUm2; // underlying
+
+  // Seed the pool with 50 EDGE and 10 underlying (Edge is the cheap upside slice).
+  const SEED_A = 50 * ONE;
+  const SEED_B = 10 * ONE;
+  await program.methods
+    .initPool(b(SEED_A), b(SEED_B))
+    .accountsStrict({
+      initializer: payer.publicKey,
+      mintA,
+      mintB,
+      pool,
+      vaultA: poolVaultA,
+      vaultB: poolVaultB,
+      initializerA: traderA,
+      initializerB: traderB,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      systemProgram: SystemProgram.programId,
+    })
+    .rpc();
+
+  assert.equal(await bal(poolVaultA), SEED_A, "pool seeded with EDGE");
+  assert.equal(await bal(poolVaultB), SEED_B, "pool seeded with underlying");
+  console.log(`✓ pool seeded — ${shares(SEED_A)} EDGE / ${shares(SEED_B)} underlying`);
+
+  // Buy EDGE with 2 underlying. underlying is mint_b, so this is b→a (aToB=false).
+  const amountIn = 2 * ONE;
+  const rIn = BigInt(await bal(poolVaultB)); // underlying reserve (in)
+  const rOut = BigInt(await bal(poolVaultA)); // EDGE reserve (out)
+  const inAfterFee = (BigInt(amountIn) * 997n) / 1000n;
+  const expectedOut = (rOut * inAfterFee) / (rIn + inAfterFee);
+  const kBefore = rIn * rOut;
+
+  const edgeBefore = await bal(traderA);
+  const underlyingBefore = await bal(traderB);
+
+  await program.methods
+    .swap(b(amountIn), false, b(Number(expectedOut)))
+    .accountsStrict({
+      trader: payer.publicKey,
+      mintA,
+      mintB,
+      pool,
+      vaultA: poolVaultA,
+      vaultB: poolVaultB,
+      traderA,
+      traderB,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    })
+    .rpc();
+
+  const edgeGained = (await bal(traderA)) - edgeBefore;
+  const underlyingSpent = underlyingBefore - (await bal(traderB));
+  assert.equal(underlyingSpent, amountIn, "spent exactly the input");
+  assert.equal(edgeGained, Number(expectedOut), "received the x*y=k output to the base unit");
+
+  const kAfter = BigInt(await bal(poolVaultB)) * BigInt(await bal(poolVaultA));
+  assert.ok(kAfter >= kBefore, "invariant holds: k grows by the fee");
+  console.log(
+    `✓ bought Edge — ${(amountIn / ONE).toFixed(2)} underlying → ${(edgeGained / ONE).toFixed(4)} EDGE ` +
+      `(no Shield or Core touched)`
+  );
+  console.log(`✓ k after ≥ k before — ${kBefore} → ${kAfter}`);
+
+  console.log("\nTRANCHE MARKET PROVEN — a single tranche trades on its own x*y=k pool.");
 }
 
 main().then(

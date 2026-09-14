@@ -36,21 +36,21 @@ export interface TrancheMeta {
 export const TRANCHE_META: Record<TrancheKey, TrancheMeta> = {
   shield: {
     key: "shield",
-    name: "SHIELD",
+    name: "Shield",
     role: "Senior · safety",
     buyer: "Wants equity-backed yield, impaired only in a deep crash.",
     colorVar: "var(--shield)",
   },
   core: {
     key: "core",
-    name: "CORE",
+    name: "Core",
     role: "Mezzanine · exposure",
     buyer: "Wants plain exposure through the middle band, cheaper entry.",
     colorVar: "var(--core)",
   },
   edge: {
     key: "edge",
-    name: "EDGE",
+    name: "Edge",
     role: "Junior · upside",
     buyer: "Wants leveraged upside that can never be liquidated.",
     colorVar: "var(--edge)",

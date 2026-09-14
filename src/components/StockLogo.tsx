@@ -17,7 +17,7 @@ export function StockLogo({
   if (failed) {
     return (
       <span
-        className={`inline-flex shrink-0 items-center justify-center border border-rule font-sans text-[10px] font-semibold text-mute ${className}`}
+        className={`inline-flex shrink-0 items-center justify-center rounded-[22%] border border-rule font-sans text-[10px] font-semibold text-mute ${className}`}
         style={{ width: size, height: size }}
         aria-hidden
       >
@@ -35,7 +35,7 @@ export function StockLogo({
       height={size}
       loading="lazy"
       onError={() => setFailed(true)}
-      className={`inline-block shrink-0 object-contain ${className}`}
+      className={`inline-block shrink-0 rounded-[22%] object-contain ring-1 ring-inset ring-rule/60 ${className}`}
       style={{ width: size, height: size }}
     />
   );

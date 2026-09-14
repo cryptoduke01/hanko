@@ -21,7 +21,7 @@ export function StockCatalog() {
 
   return (
     <div className="overflow-hidden rounded-2xl border border-rule">
-      <div className="hidden items-center gap-4 border-b border-rule px-4 py-2.5 text-[10px] uppercase tracking-[0.14em] text-mute sm:flex">
+      <div className="hidden items-center gap-4 border-b border-rule px-4 py-2.5 text-[10px] tracking-[0.01em] text-mute sm:flex">
         <span className="flex-1">Stock</span>
         <span className="w-24 text-right">Price</span>
         <span className="w-16 text-right">24h</span>
@@ -65,7 +65,7 @@ export function StockCatalog() {
                   {change == null ? "" : formatChange(change)}
                 </div>
 
-                <span className="hidden w-20 items-center justify-end gap-1.5 text-[11px] uppercase tracking-[0.12em] text-mute transition-colors duration-150 group-hover:text-ink sm:inline-flex">
+                <span className="hidden w-20 items-center justify-end gap-1.5 text-[11px] tracking-[0.01em] text-mute transition-colors duration-150 group-hover:text-ink sm:inline-flex">
                   Refract
                   <ArrowRight size={12} />
                 </span>

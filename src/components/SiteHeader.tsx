@@ -59,9 +59,9 @@ export function SiteHeader() {
   };
 
   const rowLink =
-    "block rounded-lg px-3 py-2.5 text-[11px] font-medium uppercase tracking-[0.14em] transition-colors duration-150";
+    "block rounded-lg px-3 py-2.5 text-[13px] font-medium tracking-[0.01em] transition-colors duration-150";
   const menuItem =
-    "block w-full rounded-md px-3 py-2 text-left text-[11px] uppercase tracking-[0.1em] transition-colors duration-150";
+    "block w-full rounded-md px-3 py-2 text-left text-[13px] tracking-[0.01em] transition-colors duration-150";
 
   return (
     <header
@@ -74,9 +74,9 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
         <Link
           href="/"
-          className="shrink-0 font-sans text-sm font-semibold tracking-tight text-ink"
+          className="shrink-0 font-sans text-[15px] font-semibold tracking-tight text-ink"
         >
-          HANKO
+          Hanko
         </Link>
 
         <nav className="hidden items-center gap-7 md:flex">
@@ -88,7 +88,7 @@ export function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 data-active={active}
-                className={`nav-link text-[11px] font-medium uppercase tracking-[0.14em] transition-colors duration-300 ${
+                className={`nav-link text-[14px] font-medium tracking-[0.01em] transition-colors duration-300 ${
                   active ? "text-ink" : "text-mute hover:text-ink"
                 }`}
               >
@@ -144,7 +144,7 @@ export function SiteHeader() {
                     setOpen(false);
                   }}
                   disabled={connecting}
-                  className="press w-full rounded-lg border border-ink bg-ink px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-paper transition-opacity duration-200 hover:opacity-90 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+                  className="press w-full rounded-lg border border-ink bg-ink px-3 py-2.5 text-[13px] font-medium tracking-[0.01em] text-paper transition-opacity duration-200 hover:opacity-90 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
                 >
                   {connecting ? "Connecting" : "Connect wallet"}
                 </button>
@@ -184,7 +184,7 @@ export function SiteHeader() {
 
               {/* Appearance */}
               <div className="mt-1.5 flex items-center justify-between rounded-lg px-3 py-1.5">
-                <span className="text-[11px] uppercase tracking-[0.14em] text-mute">
+                <span className="text-[13px] tracking-[0.01em] text-mute">
                   Appearance
                 </span>
                 <ThemeToggle />

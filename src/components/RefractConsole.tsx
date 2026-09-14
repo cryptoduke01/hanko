@@ -21,6 +21,8 @@ import {
 import { explorerUrl } from "@/lib/solana/config";
 import { Loader } from "@/components/Loader";
 import { ArrowUpRight, Check } from "@/components/icons";
+import { ActionButton } from "@/components/ui/ActionButton";
+import { TrancheMarket, type SuccessInfo } from "@/components/TrancheMarket";
 import { TRANCHE_META, type TrancheKey } from "@/lib/spectrum";
 
 const DEMO_KEY = (owner: string) => `hanko-demo-mint-${owner}`;
@@ -50,11 +52,7 @@ export function RefractConsole() {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sig, setSig] = useState<string | null>(null);
-  const [success, setSuccess] = useState<{
-    title: string;
-    lines: string[];
-    sig: string;
-  } | null>(null);
+  const [success, setSuccess] = useState<SuccessInfo | null>(null);
 
   useEffect(() => {
     if (!owner) {
@@ -177,7 +175,7 @@ export function RefractConsole() {
     <div className="rounded-2xl border border-rule bg-paper">
       {/* header */}
       <div className="flex items-center justify-between border-b border-rule px-4 py-3 sm:px-5">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink">
+        <span className="text-[11px] font-semibold tracking-[0.01em] text-ink">
           Refract
         </span>
       </div>
@@ -191,7 +189,7 @@ export function RefractConsole() {
               <button
                 type="button"
                 onClick={() => setVisible(true)}
-                className="press btn-liquid rounded-lg border border-ink bg-ink px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+                className="press btn-liquid rounded-lg border border-ink bg-ink px-4 py-2.5 text-[11px] font-semibold tracking-[0.01em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
               >
                 Connect wallet
               </button>
@@ -253,6 +251,21 @@ export function RefractConsole() {
                 </ActionButton>
               }
             />
+
+            {/* tranche market */}
+            {program && owner && (
+              <TrancheMarket
+                program={program}
+                owner={owner}
+                connection={connection}
+                underlyingMint={demoMint}
+                balances={balances}
+                busy={busy}
+                run={run}
+                onRefresh={refresh}
+                onSuccess={setSuccess}
+              />
+            )}
           </div>
         )}
 
@@ -316,7 +329,7 @@ export function RefractConsole() {
                 href={explorerUrl("tx", success.sig)}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.12em] text-mute transition-colors hover:text-ink"
+                className="inline-flex items-center gap-1 text-[11px] tracking-[0.01em] text-mute transition-colors hover:text-ink"
               >
                 View transaction
                 <ArrowUpRight size={12} />
@@ -324,7 +337,7 @@ export function RefractConsole() {
               <button
                 type="button"
                 onClick={() => setSuccess(null)}
-                className="press ml-auto rounded-lg border border-ink bg-ink px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+                className="press ml-auto rounded-lg border border-ink bg-ink px-5 py-2.5 text-[11px] font-semibold tracking-[0.01em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
               >
                 Done
               </button>
@@ -366,7 +379,7 @@ function Stat({
   return (
     <div className="rounded-xl border border-rule p-3">
       <div
-        className="text-[10px] font-semibold uppercase tracking-[0.12em]"
+        className="text-[10px] font-semibold tracking-[0.01em]"
         style={{ color: tint ?? "var(--mute)" }}
       >
         {label}
@@ -398,11 +411,11 @@ function ActionRow({
   return (
     <div className="rounded-xl border border-rule p-4">
       <div className="mb-2 flex items-center justify-between">
-        <label className="text-[10px] uppercase tracking-[0.14em] text-mute">{label}</label>
+        <label className="text-[10px] tracking-[0.01em] text-mute">{label}</label>
         <button
           type="button"
           onClick={() => onAmount(String(max))}
-          className="text-[10px] uppercase tracking-[0.12em] text-mute transition-colors hover:text-ink"
+          className="text-[10px] tracking-[0.01em] text-mute transition-colors hover:text-ink"
         >
           Max {max.toLocaleString(undefined, { maximumFractionDigits: 2 })}
         </button>
@@ -421,38 +434,5 @@ function ActionRow({
       </div>
       {hint && <p className="mt-2 text-[11px] text-mute tabular-nums">{hint}</p>}
     </div>
-  );
-}
-
-function ActionButton({
-  onClick,
-  busy,
-  label,
-  children,
-  variant = "solid",
-}: {
-  onClick: () => void;
-  busy: string | null;
-  label: string;
-  children: React.ReactNode;
-  variant?: "solid" | "ghost";
-}) {
-  const isBusy = busy === label;
-  const base =
-    "press shrink-0 whitespace-nowrap rounded-lg px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition-opacity duration-200 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
-  const skin =
-    variant === "solid"
-      ? "border border-ink bg-ink text-paper hover:opacity-90"
-      : "border border-rule text-ink hover:border-ink";
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={Boolean(busy)}
-      aria-busy={isBusy}
-      className={`${base} ${skin}`}
-    >
-      {isBusy ? <Loader size={14} /> : children}
-    </button>
   );
 }

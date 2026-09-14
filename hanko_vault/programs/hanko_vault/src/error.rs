@@ -16,4 +16,8 @@ pub enum HankoError {
     NotMatured,
     #[msg("Tranche selector must be 0=SHIELD, 1=CORE, 2=EDGE")]
     BadTranche,
+    #[msg("Pool reserves must be greater than zero")]
+    EmptyReserves,
+    #[msg("Output is below the minimum requested")]
+    SlippageExceeded,
 }

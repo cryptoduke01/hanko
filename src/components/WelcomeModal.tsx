@@ -71,7 +71,7 @@ export function WelcomeModal() {
       >
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-mute">
+            <p className="text-[11px] tracking-[0.01em] text-mute">
               Welcome to Hanko
             </p>
             <h2
@@ -116,7 +116,7 @@ export function WelcomeModal() {
         <button
           type="button"
           onClick={close}
-          className="press mt-6 w-full rounded-lg border border-ink bg-ink py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+          className="press mt-6 w-full rounded-lg border border-ink bg-ink py-3 text-[11px] font-semibold tracking-[0.01em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
         >
           Get started
         </button>

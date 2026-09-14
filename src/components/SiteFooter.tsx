@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PoweredByBackpack } from "@/components/PoweredByBackpack";
 
 const PRODUCT = [
   { href: "/refract", label: "Refract" },
@@ -12,8 +13,8 @@ export function SiteFooter() {
       <div className="mx-auto max-w-6xl px-6 py-12 sm:px-8">
         <div className="flex flex-col gap-10 sm:flex-row sm:justify-between">
           <div className="max-w-xs">
-            <div className="font-sans text-sm font-semibold tracking-tight text-ink">
-              HANKO
+            <div className="font-sans text-[15px] font-semibold tracking-tight text-ink">
+              Hanko
             </div>
             <p className="mt-3 text-xs leading-relaxed text-mute">
               Split a tokenized stock into a safe part, a balanced part, and an
@@ -24,11 +25,14 @@ export function SiteFooter() {
               <span className="flex-[0.3]" style={{ background: "var(--core)" }} />
               <span className="flex-[0.2]" style={{ background: "var(--edge)" }} />
             </div>
+            <div className="mt-6">
+              <PoweredByBackpack />
+            </div>
           </div>
 
           <div className="flex gap-16">
             <div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-mute">
+              <div className="text-[11px] tracking-[0.02em] text-mute">
                 Product
               </div>
               <ul className="mt-4 space-y-2.5 text-xs text-mute">
@@ -45,7 +49,7 @@ export function SiteFooter() {
               </ul>
             </div>
             <div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-mute">
+              <div className="text-[11px] tracking-[0.02em] text-mute">
                 More
               </div>
               <ul className="mt-4 space-y-2.5 text-xs text-mute">

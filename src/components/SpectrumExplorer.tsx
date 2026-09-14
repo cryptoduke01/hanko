@@ -154,7 +154,7 @@ export function SpectrumExplorer() {
                 type="button"
                 onClick={() => setSlug(a.slug)}
                 data-active={active}
-                className={`inline-flex items-center gap-1.5 rounded-lg press border px-2.5 py-1.5 text-[11px] uppercase tracking-[0.12em] transition-colors duration-200 ${
+                className={`inline-flex items-center gap-1.5 rounded-lg press border px-2.5 py-1.5 text-[11px] tracking-[0.01em] transition-colors duration-200 ${
                   active
                     ? "border-ink bg-ink text-paper"
                     : "border-rule text-mute hover:border-ink hover:text-ink"
@@ -171,7 +171,7 @@ export function SpectrumExplorer() {
           <div className="flex items-center gap-3">
             <StockLogo symbol={asset.symbol} size={36} />
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-mute">
+              <div className="font-mono text-[10px] tracking-[0.01em] text-mute">
                 {asset.underlying} · 1 {asset.ticker}
               </div>
               <div className="mt-1 flex items-baseline gap-2">
@@ -214,7 +214,7 @@ export function SpectrumExplorer() {
               tint="var(--mute)"
             />
             <div>
-              <div className="mb-1 font-mono text-[10px] uppercase tracking-[0.14em] text-mute">
+              <div className="mb-1 font-mono text-[10px] tracking-[0.01em] text-mute">
                 Maturity
               </div>
               <div className="flex">
@@ -223,7 +223,7 @@ export function SpectrumExplorer() {
                     key={m.days}
                     type="button"
                     onClick={() => setDays(m.days)}
-                    className={`border-y border-r px-2.5 py-1 first:rounded-l-lg last:rounded-r-lg font-mono text-[11px] tracking-[0.1em] first:border-l transition-colors duration-200 ${
+                    className={`border-y border-r px-2.5 py-1 first:rounded-l-lg last:rounded-r-lg font-mono text-[11px] tracking-[0.01em] first:border-l transition-colors duration-200 ${
                       days === m.days
                         ? "border-ink bg-ink text-paper"
                         : "border-rule text-mute hover:text-ink"
@@ -241,10 +241,10 @@ export function SpectrumExplorer() {
       {/* ——— Mint split bar ——— */}
       <div className="mt-4 rounded-2xl border border-rule bg-paper p-4 sm:p-5">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-mute">
+          <span className="font-mono text-[10px] tracking-[0.01em] text-mute">
             Deposit 1 {asset.ticker}, mint the spectrum
           </span>
-          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-mute">
+          <span className="font-mono text-[10px] tracking-[0.01em] text-mute">
             Σ = {formatUsd(values.spot)}
           </span>
         </div>
@@ -269,7 +269,7 @@ export function SpectrumExplorer() {
                   style={{ background: TRANCHE_META[key].colorVar }}
                   aria-hidden
                 />
-                <span className="relative px-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-ink whitespace-nowrap">
+                <span className="relative px-1 text-[10px] font-semibold tracking-[0.01em] text-ink whitespace-nowrap">
                   {w > 10 ? TRANCHE_META[key].name : ""}
                 </span>
               </div>
@@ -315,7 +315,7 @@ export function SpectrumExplorer() {
       {/* ——— Payoff chart ——— */}
       <div className="mt-4 rounded-2xl border border-rule bg-paper p-4 sm:p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-mute">
+          <span className="font-mono text-[10px] tracking-[0.01em] text-mute">
             Payoff at maturity · drag to set settlement price
           </span>
           <div className="flex gap-1.5">
@@ -324,7 +324,7 @@ export function SpectrumExplorer() {
                 key={s.label}
                 type="button"
                 onClick={() => setSettle(s.f)}
-                className="rounded-md press border border-rule px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-mute transition-colors duration-200 hover:border-ink hover:text-ink"
+                className="rounded-md press border border-rule px-2 py-1 font-mono text-[10px] tracking-[0.01em] text-mute transition-colors duration-200 hover:border-ink hover:text-ink"
               >
                 {s.label}
               </button>
@@ -472,7 +472,7 @@ export function SpectrumExplorer() {
               >
                 <div className="flex items-center justify-between">
                   <span
-                    className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em]"
+                    className="font-mono text-[11px] font-semibold tracking-[0.01em]"
                     style={{ color: TRANCHE_META[key].colorVar }}
                   >
                     {TRANCHE_META[key].name}
@@ -492,7 +492,7 @@ export function SpectrumExplorer() {
             );
           })}
         </div>
-        <div className="mt-3 border-t border-rule pt-3 text-center font-mono text-[10px] uppercase tracking-[0.14em] text-mute">
+        <div className="mt-3 border-t border-rule pt-3 text-center font-mono text-[10px] tracking-[0.01em] text-mute">
           SHIELD {formatUsd(atSettle.shield)} + CORE {formatUsd(atSettle.core)} +
           EDGE {formatUsd(atSettle.edge)} = {formatUsd(sumAtSettle)} · one share,
           conserved
@@ -524,7 +524,7 @@ function SliderControl({
   return (
     <div className="w-[104px]">
       <div className="mb-1 flex items-center justify-between">
-        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-mute">
+        <span className="font-mono text-[10px] tracking-[0.01em] text-mute">
           {label}
         </span>
         <span
@@ -570,7 +570,7 @@ function TrancheCard({
           >
             {meta.name}
           </div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">
+          <div className="font-mono text-[10px] tracking-[0.01em] text-mute">
             {meta.role}
           </div>
         </div>
@@ -586,7 +586,7 @@ function TrancheCard({
       <div className="mt-3 space-y-1.5 border-t border-rule pt-3">
         {lines.map(([label, val]) => (
           <div key={label} className="flex items-baseline justify-between gap-2">
-            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-mute">
+            <span className="font-mono text-[10px] tracking-[0.01em] text-mute">
               {label}
             </span>
             <span className="text-right font-mono text-[11px] text-ink tabular-nums">

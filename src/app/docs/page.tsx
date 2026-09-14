@@ -134,7 +134,7 @@ export default function DocsPage() {
   return (
     <div className="mx-auto w-full max-w-2xl px-6 py-12 sm:px-8 sm:py-16">
       <header className="mb-12 animate-fade-up">
-        <p className="text-[11px] uppercase tracking-[0.2em] text-mute">
+        <p className="text-[11px] tracking-[0.01em] text-mute">
           How it works
         </p>
         <h1 className="mt-2 font-sans text-3xl font-bold tracking-tight text-ink sm:text-4xl">
@@ -145,7 +145,7 @@ export default function DocsPage() {
       <div className="space-y-12 text-sm leading-relaxed">
         {SECTIONS.map((s) => (
           <section key={s.n}>
-            <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-ink">
+            <h2 className="text-xs font-semibold tracking-[0.01em] text-ink">
               {s.n} · {s.t}
             </h2>
             {s.body}
@@ -156,7 +156,7 @@ export default function DocsPage() {
       <p className="mt-14">
         <Link
           href="/refract"
-          className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.14em] text-ink underline decoration-rule underline-offset-4 transition-opacity duration-200 hover:opacity-60"
+          className="inline-flex items-center gap-1.5 text-xs tracking-[0.01em] text-ink underline decoration-rule underline-offset-4 transition-opacity duration-200 hover:opacity-60"
         >
           Refract a share
           <ArrowRight size={13} />

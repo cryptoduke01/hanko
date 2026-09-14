@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { DitherSeal } from "@/components/DitherSeal";
-import { ArrowUpRight } from "@/components/icons";
+import { HeroBackdrop } from "@/components/HeroBackdrop";
+import { ArrowUpRight, ArrowRight } from "@/components/icons";
 
 const STEPS = [
   {
@@ -63,7 +63,7 @@ const WHY = [
   },
 ];
 
-const eyebrow = "text-[11px] uppercase tracking-[0.2em] text-mute";
+const eyebrow = "text-[12px] font-medium tracking-[0.02em] text-mute";
 const heading =
   "mt-3 font-sans text-3xl font-bold tracking-[-0.03em] text-ink sm:text-4xl";
 
@@ -72,18 +72,13 @@ export default function HomePage() {
     <>
       {/* Hero */}
       <section className="relative flex min-h-[calc(100dvh-3.5rem)] items-center overflow-hidden">
-        <div
-          className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.05]"
-          aria-hidden
-        >
-          <DitherSeal className="h-auto w-[min(92vw,720px)]" />
-        </div>
+        <HeroBackdrop />
 
         <div className="relative mx-auto flex w-full max-w-3xl flex-col items-center px-6 py-16 text-center">
-          <h1 className="animate-fade-up font-sans text-[2.7rem] font-bold leading-[0.96] tracking-[-0.04em] text-ink sm:text-7xl sm:leading-[0.94]">
-            One share.
+          <h1 className="animate-fade-up font-sans text-[2.7rem] font-bold leading-[0.98] tracking-[-0.04em] text-ink sm:text-7xl sm:leading-[0.96]">
+            Trade a stock
             <br />
-            <span className="text-mute">Three tradeable parts.</span>
+            <span className="text-mute">as three tokens.</span>
           </h1>
 
           <p className="animate-fade-up-delay-1 mt-7 max-w-lg text-base leading-relaxed text-ink/70 sm:text-lg">
@@ -94,14 +89,14 @@ export default function HomePage() {
           <div className="animate-fade-up-delay-2 mt-10 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/refract"
-              className="press btn-liquid inline-flex items-center gap-2 rounded-full border border-ink bg-ink px-6 py-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              className="press btn-liquid inline-flex items-center gap-2 rounded-full border border-ink bg-ink px-6 py-3 text-[14px] font-medium tracking-[0.01em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
             >
               Refract a share
-              <ArrowUpRight size={14} />
+              <ArrowUpRight size={15} />
             </Link>
             <Link
               href="/docs"
-              className="press inline-flex items-center rounded-full border border-rule px-6 py-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-ink transition-colors duration-200 hover:border-ink"
+              className="press inline-flex items-center rounded-full border border-rule px-6 py-3 text-[14px] font-medium tracking-[0.01em] text-ink transition-colors duration-200 hover:border-ink"
             >
               How it works
             </Link>
@@ -116,10 +111,43 @@ export default function HomePage() {
           <h2 className={`${heading} max-w-2xl`}>
             Lock a share. Hold its parts. Recombine anytime.
           </h2>
+
+          {/* The whole idea, in one line: one share becomes three tokens. */}
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4 rounded-2xl border border-rule p-6 sm:gap-8 sm:p-8">
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-ink bg-ink font-sans text-xl font-bold text-paper">
+                1
+              </div>
+              <span className="text-[11px] tracking-[0.02em] text-mute">One share</span>
+            </div>
+
+            <ArrowRight size={22} className="text-mute" />
+
+            <div className="flex items-center gap-3 sm:gap-4">
+              {PARTS.map((p) => (
+                <div key={p.name} className="flex flex-col items-center gap-2">
+                  <div
+                    className="h-16 w-16 rounded-2xl border"
+                    style={{
+                      borderColor: `var(${p.varName})`,
+                      background: `var(${p.varName}-soft)`,
+                    }}
+                  />
+                  <span
+                    className="text-[11px] font-medium"
+                    style={{ color: `var(${p.varName})` }}
+                  >
+                    {p.name}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="mt-12 grid gap-4 md:grid-cols-3">
             {STEPS.map((s) => (
               <div key={s.n} className="rounded-2xl border border-rule p-6">
-                <div className="text-[11px] tracking-[0.14em] text-mute tabular-nums">
+                <div className="text-[11px] tracking-[0.01em] text-mute tabular-nums">
                   {s.n}
                 </div>
                 <div className="mt-4 font-sans text-lg font-semibold text-ink">
@@ -159,7 +187,7 @@ export default function HomePage() {
                     {p.name}
                   </span>
                 </div>
-                <div className="mt-1 text-[11px] uppercase tracking-[0.14em] text-mute">
+                <div className="mt-1 text-[11px] tracking-[0.01em] text-mute">
                   {p.role}
                 </div>
                 <div className="mt-4 text-xs tabular-nums text-ink">{p.pay}</div>
@@ -189,18 +217,18 @@ export default function HomePage() {
       </section>
 
       {/* Closing CTA */}
-      <section className="border-t border-rule">
-        <div className="mx-auto max-w-3xl px-6 py-24 text-center sm:py-28">
+      <section className="section-glow relative overflow-hidden border-t border-rule">
+        <div className="relative mx-auto max-w-3xl px-6 py-24 text-center sm:py-28">
           <h2 className="font-sans text-3xl font-bold tracking-[-0.03em] text-ink sm:text-5xl">
             Own only the part you want.
           </h2>
           <div className="mt-8">
             <Link
               href="/refract"
-              className="press btn-liquid inline-flex items-center gap-2 rounded-full border border-ink bg-ink px-7 py-3.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              className="press btn-liquid inline-flex items-center gap-2 rounded-full border border-ink bg-ink px-7 py-3.5 text-[14px] font-medium tracking-[0.01em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
             >
               Refract a share
-              <ArrowUpRight size={14} />
+              <ArrowUpRight size={15} />
             </Link>
           </div>
         </div>

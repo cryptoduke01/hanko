@@ -21,6 +21,18 @@
   --shield-soft: rgba(47, 87, 212, 0.14);
   --core-soft: rgba(14, 143, 134, 0.14);
   --edge-soft: rgba(194, 65, 12, 0.14);
+
+  /* —— Texture —— Hanko's own: a fine 1-bit dither grid, film grain, and a
+     single restrained cool glow (Shield). Monochrome; the spectrum is the
+     only colour, kept quiet. */
+  --dot: rgba(10, 10, 10, 0.05);
+  --dot-strong: rgba(10, 10, 10, 0.08);
+  --glow-cool: rgba(47, 87, 212, 0.12);
+  --lift: rgba(0, 0, 0, 0.035);
+  /* The spectrum, as light — three soft blooms that meet in a band. */
+  --glow-shield: rgba(47, 87, 212, 0.38);
+  --glow-core: rgba(14, 143, 134, 0.34);
+  --glow-edge: rgba(194, 65, 12, 0.34);
 }
 
 html.dark {
@@ -42,6 +54,14 @@ html.dark {
   --shield-soft: rgba(109, 155, 255, 0.16);
   --core-soft: rgba(45, 212, 191, 0.16);
   --edge-soft: rgba(251, 146, 60, 0.16);
+
+  --dot: rgba(242, 242, 242, 0.055);
+  --dot-strong: rgba(242, 242, 242, 0.08);
+  --glow-cool: rgba(109, 155, 255, 0.16);
+  --lift: rgba(255, 255, 255, 0.04);
+  --glow-shield: rgba(109, 155, 255, 0.42);
+  --glow-core: rgba(45, 212, 191, 0.36);
+  --glow-edge: rgba(251, 146, 60, 0.36);
 }
 
 @theme inline {
@@ -68,7 +88,10 @@ html {
 }
 
 body {
-  background: var(--paper);
+  background-color: var(--paper);
+  /* The dither grid runs under the whole app, so no section is ever plain. */
+  background-image: radial-gradient(var(--dot) 0.9px, transparent 1.15px);
+  background-size: 22px 22px;
   color: var(--ink);
   font-family: var(--font-display), "Helvetica Neue", Helvetica, Arial,
     sans-serif;
@@ -77,15 +100,17 @@ body {
   transition: background-color 0.35s ease, color 0.35s ease;
 }
 
-/* Subtle depth: a faint glow from the top, dark theme only */
+/* Subtle depth: a faint glow from the top, dark theme only, over the grid */
 html.dark body {
-  background:
+  background-image:
     radial-gradient(
       1100px 520px at 50% -8%,
       rgba(255, 255, 255, 0.05),
       transparent 62%
     ),
-    var(--paper);
+    radial-gradient(var(--dot) 0.9px, transparent 1.15px);
+  background-size: 100% 100%, 22px 22px;
+  background-repeat: no-repeat, repeat;
 }
 
 ::selection {
@@ -307,71 +332,50 @@ a,
   transform: translateY(-1px);
 }
 
-/* Hero right panel + monochrome seal plate */
-.hero-right {
-  background: var(--paper);
-}
-
-html.dark .hero-right {
-  background: #0c0c0c;
-}
-
-.hero-seals-field {
+/* —— Hero field —— our own: monochrome depth, a single cool Shield glow rising
+   from the bottom, a denser dither grid, and visible film grain over it all. */
+.hero-depth {
   background:
-    radial-gradient(ellipse at 60% 45%, var(--haze) 0%, transparent 62%),
-    var(--paper);
+    radial-gradient(56% 58% at 22% 104%, var(--glow-shield) 0%, transparent 62%),
+    radial-gradient(60% 60% at 50% 112%, var(--glow-core) 0%, transparent 64%),
+    radial-gradient(56% 58% at 78% 104%, var(--glow-edge) 0%, transparent 62%),
+    radial-gradient(80% 62% at 50% 34%, var(--lift) 0%, transparent 72%);
 }
 
-html.dark .hero-seals-field {
-  background:
-    radial-gradient(ellipse at 60% 45%, #161616 0%, transparent 62%),
-    #0c0c0c;
+.hero-dots {
+  background-image: radial-gradient(var(--dot-strong) 1px, transparent 1.3px);
+  background-size: 22px 22px;
+  /* clear the grid behind the headline, let it build toward the edges */
+  -webkit-mask-image: radial-gradient(circle at 50% 46%, transparent 20%, #000 62%);
+  mask-image: radial-gradient(circle at 50% 46%, transparent 20%, #000 62%);
 }
 
-/* Red ink → charcoal stamps, soft blend into paper */
-.hero-seals-img {
-  filter: grayscale(1) contrast(1.25) brightness(0.55);
-  opacity: 0.38;
-  mix-blend-mode: multiply;
-  transition: opacity 0.5s ease, filter 0.5s ease;
-}
-
-html.dark .hero-seals-img {
-  /* Light gray impressions on black, still monochrome */
-  filter: grayscale(1) contrast(1.15) brightness(1.4) invert(1);
-  opacity: 0.16;
-  mix-blend-mode: screen;
-}
-
-/* Left panel watermark (already on ink) */
-.hero-seals-img--on-ink {
-  filter: grayscale(1) contrast(1.2) brightness(2) invert(1);
-  opacity: 1;
-  mix-blend-mode: screen;
-}
-
-html.dark .hero-seals-img--on-ink {
-  filter: grayscale(1) contrast(1.15) brightness(1.5) invert(1);
-  opacity: 0.85;
-  mix-blend-mode: screen;
-}
-
-.hero-seals-vignette {
-  background:
-    linear-gradient(to right, var(--paper) 0%, transparent 18%, transparent 82%, var(--paper) 100%),
-    linear-gradient(to bottom, var(--paper) 0%, transparent 14%, transparent 78%, var(--paper) 100%);
+/* Film grain — the signature texture. Kept clearly visible, static (no drift). */
+.grain::after {
+  content: "";
   pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 150px 150px;
+  opacity: 0.22;
+  mix-blend-mode: soft-light;
 }
 
-html.dark .hero-seals-vignette {
-  background:
-    linear-gradient(to right, #0c0c0c 0%, transparent 18%, transparent 82%, #0c0c0c 100%),
-    linear-gradient(to bottom, #0c0c0c 0%, transparent 14%, transparent 78%, #0c0c0c 100%);
+html.dark .grain::after {
+  opacity: 0.14;
+  mix-blend-mode: overlay;
 }
 
-.hero-seals-float {
-  animation: liquid-float 18s ease-in-out infinite;
-  will-change: transform;
+/* A quiet cool glow to lift a section out of flat paper. Content must sit in a
+   `relative` wrapper so it stays above this layer. */
+.section-glow::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(52% 78% at 50% 118%, var(--glow-cool) 0%, transparent 66%);
 }
 
 @keyframes fade-in {
