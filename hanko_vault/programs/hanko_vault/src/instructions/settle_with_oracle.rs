@@ -43,12 +43,18 @@ pub fn handle_settle_with_oracle(ctx: Context<SettleWithOracle>) -> Result<()> {
     require!(!vault.settled, HankoError::AlreadySettled);
     require!(now >= vault.maturity_ts, HankoError::NotMatured);
 
-    let (price, expo) = read_pyth_price(
+    let (price, expo, conf) = read_pyth_price(
         &ctx.accounts.price_update.to_account_info(),
         &ctx.accounts.oracle_feed.feed_id,
         PYTH_MAX_AGE_SECS,
         now,
     )?;
+
+    // Reject a price whose confidence band is too wide (e.g. during a halt).
+    require!(
+        (conf as u128).saturating_mul(PYTH_CONF_RATIO) <= price as u128,
+        HankoError::PriceTooUncertain
+    );
 
     // Pyth gives price * 10^expo (in dollars). Floor/cap are quoted in the
     // vault's price units (dollars * 10^decimals), so scale by 10^decimals.

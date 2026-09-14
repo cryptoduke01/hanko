@@ -25,3 +25,7 @@ pub const FEED_SEED: &[u8] = b"feed";
 
 /// Maximum age of a Pyth price accepted at oracle settlement (seconds).
 pub const PYTH_MAX_AGE_SECS: i64 = 300;
+
+/// Reject a Pyth price whose confidence band is wider than price / this ratio.
+/// 50 means the 1-sigma confidence must be under 2% of the price.
+pub const PYTH_CONF_RATIO: u128 = 50;

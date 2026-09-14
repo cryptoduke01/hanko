@@ -26,4 +26,6 @@ pub enum HankoError {
     WrongFeed,
     #[msg("Oracle price is too old")]
     StaleOracle,
+    #[msg("Oracle price confidence band is too wide")]
+    PriceTooUncertain,
 }

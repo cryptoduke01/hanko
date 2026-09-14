@@ -3289,6 +3289,11 @@
       "code": 6011,
       "name": "StaleOracle",
       "msg": "Oracle price is too old"
+    },
+    {
+      "code": 6012,
+      "name": "PriceTooUncertain",
+      "msg": "Oracle price confidence band is too wide"
     }
   ],
   "types": [

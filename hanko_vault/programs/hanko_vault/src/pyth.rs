@@ -41,13 +41,13 @@ pub struct PriceUpdateV2 {
 
 /// Read and validate a Pyth `PriceUpdateV2` account: it must be owned by the
 /// receiver, carry the expected feed, be fresh, and be positive. Returns the
-/// raw `(price, exponent)` so the caller can normalize into its own units.
+/// raw `(price, exponent, conf)` so the caller can normalize and bound it.
 pub fn read_pyth_price(
     account: &AccountInfo,
     feed_id: &[u8; 32],
     max_age: i64,
     now: i64,
-) -> Result<(i64, i32)> {
+) -> Result<(i64, i32, u64)> {
     require_keys_eq!(*account.owner, PYTH_RECEIVER_ID, HankoError::BadOracle);
     let data = account.try_borrow_data()?;
     require!(data.len() > 8, HankoError::BadOracle);
@@ -63,5 +63,5 @@ pub fn read_pyth_price(
         HankoError::StaleOracle
     );
     require!(m.price > 0, HankoError::InvalidPrice);
-    Ok((m.price, m.exponent))
+    Ok((m.price, m.exponent, m.conf))
 }
