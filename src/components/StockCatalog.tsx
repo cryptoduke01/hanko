@@ -67,7 +67,7 @@ export function StockCatalog() {
           return (
             <li key={row.slug}>
               <Link
-                href="/refract"
+                href={`/assets/${row.slug}`}
                 className="group flex items-center gap-4 px-4 py-3 transition-colors duration-150 hover:bg-haze focus-visible:bg-haze focus-visible:outline-none"
               >
                 <StockLogo symbol={row.symbol} size={30} />
@@ -105,7 +105,7 @@ export function StockCatalog() {
                 </div>
 
                 <span className="hidden w-20 items-center justify-end gap-1.5 text-[11px] tracking-[0.01em] text-mute transition-colors duration-150 group-hover:text-ink sm:inline-flex">
-                  Refract
+                  View
                   <ArrowRight size={12} />
                 </span>
               </Link>

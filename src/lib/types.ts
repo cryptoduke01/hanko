@@ -65,6 +65,28 @@ export interface MarketResponse {
   count: number;
 }
 
+/** One OHLCV candle (timestamp in unix seconds). */
+export interface Candle {
+  t: number;
+  o: number;
+  h: number;
+  l: number;
+  c: number;
+  v: number | null;
+}
+
+export interface ChartResponse {
+  symbol: string;
+  interval: string;
+  /** Full OHLC candles when a real source (Tokens.xyz) is available. */
+  candles: Candle[] | null;
+  /** Coarse price line (oldest → newest) when only quote-level data exists. */
+  line: number[] | null;
+  /** "tokens.xyz" for real candles, else the fallback provider. */
+  source: string;
+  fetchedAt: string;
+}
+
 export const FIELD_LABELS: Record<keyof Asset["fields"], string> = {
   issuer: "Issuer",
   jurisdiction: "Jurisdiction",
