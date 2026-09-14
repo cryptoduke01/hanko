@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "@/components/icons";
 import { CutCard } from "@/components/CutCard";
+import { SplitExplainer } from "@/components/SplitExplainer";
 
 export const metadata: Metadata = {
   title: "How it works",
@@ -150,6 +151,24 @@ export default function DocsPage() {
           terms.
         </p>
       </header>
+
+      {/* The simple version — an interactive one-minute explainer */}
+      <section className="mb-16">
+        <h2 className="font-sans text-2xl font-bold tracking-[-0.02em] text-ink">
+          The simple version
+        </h2>
+        <p className="mt-3 max-w-2xl text-base leading-relaxed text-mute">
+          A share is really three things in one: a <span className="text-ink">safe part</span>,
+          a <span className="text-ink">middle part</span>, and a{" "}
+          <span className="text-ink">jackpot part</span>. Normally you have to buy
+          all three together. Hanko splits them so you can keep just the one you
+          want — and they always snap back into a whole share. Drag the price and
+          watch it happen:
+        </p>
+        <div className="mt-6">
+          <SplitExplainer />
+        </div>
+      </section>
 
       <div className="space-y-14 text-base leading-relaxed">
         {SECTIONS.map((s) => (
