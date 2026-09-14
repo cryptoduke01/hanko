@@ -43,22 +43,40 @@ const SECTIONS = [
         <p className="mt-3 text-mute">
           With a floor L and a cap U, at a settlement price S:
         </p>
-        <ul className="mt-3 space-y-2 text-mute">
-          <li>
-            <span className="text-[color:var(--shield)]">Shield</span> pays{" "}
-            <span className="tabular-nums text-ink">min(S, L)</span>. The first,
-            safest part. Impaired only if the stock falls below the floor.
-          </li>
-          <li>
-            <span className="text-[color:var(--core)]">Core</span> pays the value
-            between L and U. Plain exposure through the middle.
-          </li>
-          <li>
-            <span className="text-[color:var(--edge)]">Edge</span> pays whatever
-            is above U. The upside, and it can never be liquidated.
-          </li>
-        </ul>
-        <p className="mt-3 tabular-nums text-ink">Shield + Core + Edge = S.</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {[
+            {
+              name: "Shield",
+              varName: "--shield",
+              pay: "min(S, L)",
+              desc: "The first, safest part. Impaired only if the stock falls below the floor.",
+            },
+            {
+              name: "Core",
+              varName: "--core",
+              pay: "clamp(S−L, 0, U−L)",
+              desc: "Plain exposure through the middle band.",
+            },
+            {
+              name: "Edge",
+              varName: "--edge",
+              pay: "max(S−U, 0)",
+              desc: "The upside, and it can never be liquidated.",
+            },
+          ].map((t) => (
+            <div key={t.name} className="rounded-xl border border-rule p-4">
+              <div
+                className="text-sm font-semibold"
+                style={{ color: `var(${t.varName})` }}
+              >
+                {t.name}
+              </div>
+              <div className="mt-1 text-xs tabular-nums text-ink">{t.pay}</div>
+              <p className="mt-2 text-xs leading-relaxed text-mute">{t.desc}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 tabular-nums text-ink">Shield + Core + Edge = S.</p>
       </>
     ),
   },
