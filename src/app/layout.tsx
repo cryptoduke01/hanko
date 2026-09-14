@@ -16,17 +16,35 @@ const interTight = Inter_Tight({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://hankolabs.xyz"),
   title: {
-    default: "Hanko, split a stock into three parts",
+    default: "Hanko, trade a stock as three tokens",
     template: "%s · Hanko",
   },
   description:
     "Hanko splits a tokenized stock into three tokens you can hold on their own: a safe part, a balanced part, and an upside part. Fully backed, recombine anytime.",
+  keywords: [
+    "tokenized stocks",
+    "Solana",
+    "tranches",
+    "Backpack Securities",
+    "xStocks",
+    "structured products",
+    "DeFi",
+  ],
   openGraph: {
-    title: "Hanko, split a stock into three parts",
+    title: "Hanko, trade a stock as three tokens",
     description:
       "Split a tokenized stock into a safe part, a balanced part, and an upside part. Fully backed, recombine anytime.",
+    url: "https://hankolabs.xyz",
+    siteName: "Hanko",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Hanko, trade a stock as three tokens",
+    description:
+      "Split a tokenized stock into a safe part, a balanced part, and an upside part.",
   },
 };
 

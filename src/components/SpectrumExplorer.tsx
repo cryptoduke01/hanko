@@ -32,6 +32,15 @@ const ASSETS: AssetOpt[] = [
   { slug: "spyx", ticker: "SPYx", symbol: "SPY", underlying: "S&P 500", vol: 0.16, fallback: 640 },
   { slug: "mstrx", ticker: "MSTRx", symbol: "MSTR", underlying: "MicroStrategy", vol: 0.95, fallback: 360 },
   { slug: "coinx", ticker: "COINx", symbol: "COIN", underlying: "Coinbase", vol: 0.8, fallback: 300 },
+  { slug: "googlx", ticker: "GOOGLx", symbol: "GOOGL", underlying: "Alphabet", vol: 0.3, fallback: 200 },
+  { slug: "amznx", ticker: "AMZNx", symbol: "AMZN", underlying: "Amazon", vol: 0.34, fallback: 230 },
+  { slug: "msftx", ticker: "MSFTx", symbol: "MSFT", underlying: "Microsoft", vol: 0.26, fallback: 510 },
+  { slug: "metax", ticker: "METAx", symbol: "META", underlying: "Meta", vol: 0.4, fallback: 750 },
+  { slug: "hoodx", ticker: "HOODx", symbol: "HOOD", underlying: "Robinhood", vol: 0.75, fallback: 110 },
+  { slug: "crclx", ticker: "CRCLx", symbol: "CRCL", underlying: "Circle", vol: 0.8, fallback: 90 },
+  { slug: "avgox", ticker: "AVGOx", symbol: "AVGO", underlying: "Broadcom", vol: 0.4, fallback: 340 },
+  { slug: "gldx", ticker: "GLDx", symbol: "GLD", underlying: "Gold", vol: 0.14, fallback: 390 },
+  { slug: "qqqx", ticker: "QQQx", symbol: "QQQ", underlying: "Nasdaq 100", vol: 0.2, fallback: 600 },
 ];
 
 const MATURITIES = [
