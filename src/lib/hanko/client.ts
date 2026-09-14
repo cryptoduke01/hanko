@@ -347,3 +347,39 @@ export async function fetchBalances(
   ]);
   return { underlying, shield, core, edge };
 }
+
+/** The wallet's native SOL balance, in whole SOL. */
+export async function solBalance(
+  connection: Connection,
+  owner: PublicKey
+): Promise<number> {
+  try {
+    return (await connection.getBalance(owner)) / 1e9;
+  } catch {
+    return 0;
+  }
+}
+
+export interface ActivityItem {
+  signature: string;
+  blockTime: number | null;
+  err: boolean;
+}
+
+/** Recent transactions that touch this wallet, newest first. */
+export async function recentActivity(
+  connection: Connection,
+  owner: PublicKey,
+  limit = 12
+): Promise<ActivityItem[]> {
+  try {
+    const sigs = await connection.getSignaturesForAddress(owner, { limit });
+    return sigs.map((s) => ({
+      signature: s.signature,
+      blockTime: s.blockTime ?? null,
+      err: Boolean(s.err),
+    }));
+  } catch {
+    return [];
+  }
+}

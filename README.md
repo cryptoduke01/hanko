@@ -36,6 +36,8 @@ Once refracted, each part trades on its own **constant-product pool**. Buy just 
 
 ![Stocks](docs/screenshots/stocks.png)
 
+A **Portfolio** dashboard reads your holdings, each tranche's market price, and your recent on-chain activity live from devnet.
+
 The interface is theme-aware; the hero is the spectrum itself, cool Shield up top blooming to a warm Edge glow at the bottom.
 
 ## On-chain

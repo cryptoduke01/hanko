@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 
 export default function RefractPage() {
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 py-12 sm:px-8 sm:py-16">
-      <header className="max-w-2xl">
-        <p className="text-[11px] tracking-[0.01em] text-mute">Refract</p>
-        <h1 className="mt-4 font-sans text-3xl font-bold leading-[1.08] tracking-[-0.03em] text-ink sm:text-4xl">
+    <div className="mx-auto w-full max-w-6xl px-6 py-16 sm:px-8 sm:py-24">
+      <header className="max-w-3xl">
+        <p className="text-[12px] font-medium tracking-[0.02em] text-mute">Refract</p>
+        <h1 className="mt-3 font-sans text-4xl font-bold leading-[1.04] tracking-[-0.03em] text-ink sm:text-5xl">
           Lock a share, hold its three parts.
         </h1>
-        <p className="mt-4 max-w-xl text-base leading-relaxed text-ink/70">
+        <p className="mt-4 max-w-xl text-base leading-relaxed text-ink/70 sm:text-lg">
           One share becomes Shield, Core and Edge. Recombine them into a whole
           share anytime.{" "}
           <Link
@@ -29,15 +29,14 @@ export default function RefractPage() {
         </p>
       </header>
 
-      <div className="mt-10">
+      <div className="mt-14 grid gap-6 xl:grid-cols-2 xl:items-start">
         <RefractConsole />
-      </div>
-
-      <div className="mt-12">
-        <p className="mb-3 text-[11px] tracking-[0.01em] text-mute">
-          Model the economics
-        </p>
-        <SpectrumExplorer />
+        <div>
+          <p className="mb-3 text-[12px] font-medium tracking-[0.02em] text-mute">
+            Model the economics
+          </p>
+          <SpectrumExplorer />
+        </div>
       </div>
     </div>
   );

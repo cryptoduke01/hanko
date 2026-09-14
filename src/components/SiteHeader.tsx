@@ -11,6 +11,7 @@ import { explorerUrl, truncate } from "@/lib/solana/config";
 
 const LINKS = [
   { href: "/refract", label: "Refract" },
+  { href: "/portfolio", label: "Portfolio" },
   { href: "/assets", label: "Stocks" },
   { href: "/docs", label: "Docs" },
 ];

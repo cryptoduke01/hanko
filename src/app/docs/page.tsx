@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "@/components/icons";
+import { CutCard } from "@/components/CutCard";
 
 export const metadata: Metadata = {
   title: "How it works",
@@ -64,7 +65,11 @@ const SECTIONS = [
               desc: "The upside, and it can never be liquidated.",
             },
           ].map((t) => (
-            <div key={t.name} className="rounded-xl border border-rule p-4">
+            <CutCard
+              key={t.name}
+              padding="p-4"
+              tint={`var(--glow-${t.name.toLowerCase()})`}
+            >
               <div
                 className="text-sm font-semibold"
                 style={{ color: `var(${t.varName})` }}
@@ -73,7 +78,7 @@ const SECTIONS = [
               </div>
               <div className="mt-1 text-xs tabular-nums text-ink">{t.pay}</div>
               <p className="mt-2 text-xs leading-relaxed text-mute">{t.desc}</p>
-            </div>
+            </CutCard>
           ))}
         </div>
         <p className="mt-4 tabular-nums text-ink">Shield + Core + Edge = S.</p>
@@ -132,38 +137,48 @@ const SECTIONS = [
 
 export default function DocsPage() {
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 py-12 sm:px-8 sm:py-16">
-      <header className="mb-12 animate-fade-up">
-        <p className="text-[11px] tracking-[0.01em] text-mute">
+    <div className="mx-auto w-full max-w-4xl px-6 py-16 sm:px-8 sm:py-24">
+      <header className="mb-16 max-w-3xl animate-fade-up">
+        <p className="text-[12px] font-medium tracking-[0.02em] text-mute">
           How it works
         </p>
-        <h1 className="mt-2 font-sans text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+        <h1 className="mt-3 font-sans text-4xl font-bold tracking-[-0.03em] text-ink sm:text-5xl">
           One share, split three ways.
         </h1>
+        <p className="mt-4 max-w-xl text-base leading-relaxed text-mute sm:text-lg">
+          The whole idea, the payoff math, and why it holds together — in plain
+          terms.
+        </p>
       </header>
 
-      <div className="space-y-12 text-sm leading-relaxed">
+      <div className="space-y-14 text-base leading-relaxed">
         {SECTIONS.map((s) => (
-          <section key={s.n}>
-            <h2 className="text-xs font-semibold tracking-[0.01em] text-ink">
-              {s.n} · {s.t}
-            </h2>
-            {s.body}
+          <section
+            key={s.n}
+            className="grid gap-3 border-t border-rule pt-8 sm:grid-cols-[64px_1fr] sm:gap-8"
+          >
+            <div className="text-sm tabular-nums text-mute sm:pt-1">{s.n}</div>
+            <div>
+              <h2 className="font-sans text-xl font-bold tracking-[-0.02em] text-ink">
+                {s.t}
+              </h2>
+              {s.body}
+            </div>
           </section>
         ))}
       </div>
 
-      <p className="mt-14">
+      <div className="mt-16">
         <Link
           href="/refract"
-          className="inline-flex items-center gap-1.5 text-xs tracking-[0.01em] text-ink underline decoration-rule underline-offset-4 transition-opacity duration-200 hover:opacity-60"
+          className="press btn-liquid inline-flex items-center gap-2 rounded-full border border-ink bg-ink px-6 py-3 text-[14px] font-medium tracking-[0.01em] text-paper transition-opacity duration-200 hover:opacity-90"
         >
           Refract a share
-          <ArrowRight size={13} />
+          <ArrowRight size={15} />
         </Link>
-      </p>
+      </div>
 
-      <p className="mt-6 text-xs text-mute">Not financial advice.</p>
+      <p className="mt-8 text-xs text-mute">Not financial advice.</p>
     </div>
   );
 }

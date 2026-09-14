@@ -3,6 +3,7 @@ import { PoweredByBackpack } from "@/components/PoweredByBackpack";
 
 const PRODUCT = [
   { href: "/refract", label: "Refract" },
+  { href: "/portfolio", label: "Portfolio" },
   { href: "/assets", label: "Stocks" },
   { href: "/docs", label: "Docs" },
 ];

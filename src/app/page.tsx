@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { HeroBackdrop } from "@/components/HeroBackdrop";
 import { FeatureCard } from "@/components/FeatureCard";
+import { CutCard } from "@/components/CutCard";
 import { ArrowUpRight, ArrowRight } from "@/components/icons";
 
 const STEPS = [
@@ -147,7 +148,7 @@ export default function HomePage() {
 
           <div className="mt-12 grid gap-4 md:grid-cols-3">
             {STEPS.map((s) => (
-              <div key={s.n} className="rounded-2xl border border-rule p-6">
+              <CutCard key={s.n} tint="var(--glow-cool)">
                 <div className="text-[11px] tracking-[0.01em] text-mute tabular-nums">
                   {s.n}
                 </div>
@@ -155,7 +156,7 @@ export default function HomePage() {
                   {s.t}
                 </div>
                 <p className="mt-2 text-sm leading-relaxed text-mute">{s.d}</p>
-              </div>
+              </CutCard>
             ))}
           </div>
         </div>
@@ -175,40 +176,25 @@ export default function HomePage() {
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
             {PARTS.map((p) => (
-              <div
-                key={p.name}
-                className="relative overflow-hidden rounded-2xl border border-rule bg-haze p-6"
-              >
-                {/* cutout texture, tinted to the tranche */}
-                <div className="hero-dots pointer-events-none absolute inset-0" aria-hidden />
-                <div className="grain pointer-events-none absolute inset-0" aria-hidden />
-                <div
-                  className="pointer-events-none absolute inset-0"
-                  aria-hidden
-                  style={{
-                    background: `radial-gradient(78% 62% at 16% 118%, var(--glow-${p.name.toLowerCase()}) 0%, transparent 60%)`,
-                  }}
-                />
-                <div className="relative">
-                  <div className="flex items-center gap-2.5">
-                    <span
-                      className="h-2.5 w-2.5 rounded-sm"
-                      style={{ background: `var(${p.varName})` }}
-                    />
-                    <span
-                      className="font-sans text-lg font-bold"
-                      style={{ color: `var(${p.varName})` }}
-                    >
-                      {p.name}
-                    </span>
-                  </div>
-                  <div className="mt-1 text-[11px] tracking-[0.01em] text-mute">
-                    {p.role}
-                  </div>
-                  <div className="mt-4 text-xs tabular-nums text-ink">{p.pay}</div>
-                  <p className="mt-2 text-sm leading-relaxed text-mute">{p.d}</p>
+              <CutCard key={p.name} tint={`var(--glow-${p.name.toLowerCase()})`}>
+                <div className="flex items-center gap-2.5">
+                  <span
+                    className="h-2.5 w-2.5 rounded-sm"
+                    style={{ background: `var(${p.varName})` }}
+                  />
+                  <span
+                    className="font-sans text-lg font-bold"
+                    style={{ color: `var(${p.varName})` }}
+                  >
+                    {p.name}
+                  </span>
                 </div>
-              </div>
+                <div className="mt-1 text-[11px] tracking-[0.01em] text-mute">
+                  {p.role}
+                </div>
+                <div className="mt-4 text-xs tabular-nums text-ink">{p.pay}</div>
+                <p className="mt-2 text-sm leading-relaxed text-mute">{p.d}</p>
+              </CutCard>
             ))}
           </div>
         </div>
@@ -221,12 +207,12 @@ export default function HomePage() {
           <h2 className={`${heading} max-w-2xl`}>Backed, not leveraged.</h2>
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {WHY.map((w) => (
-              <div key={w.t} className="rounded-2xl border border-rule p-6">
+              <CutCard key={w.t} tint="var(--glow-cool)">
                 <div className="font-sans text-base font-semibold text-ink">
                   {w.t}
                 </div>
                 <p className="mt-2 text-sm leading-relaxed text-mute">{w.d}</p>
-              </div>
+              </CutCard>
             ))}
           </div>
         </div>

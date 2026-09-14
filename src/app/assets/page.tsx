@@ -10,13 +10,13 @@ export const metadata: Metadata = {
 
 export default function StocksPage() {
   return (
-    <div className="mx-auto w-full max-w-3xl px-6 py-12 sm:px-8 sm:py-16">
-      <header className="mb-10 max-w-2xl animate-fade-up">
-        <p className="text-[11px] tracking-[0.01em] text-mute">Stocks</p>
-        <h1 className="mt-2 font-sans text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+    <div className="mx-auto w-full max-w-5xl px-6 py-16 sm:px-8 sm:py-24">
+      <header className="mb-12 max-w-3xl animate-fade-up">
+        <p className="text-[12px] font-medium tracking-[0.02em] text-mute">Stocks</p>
+        <h1 className="mt-3 font-sans text-4xl font-bold tracking-[-0.03em] text-ink sm:text-5xl">
           Stocks you can split.
         </h1>
-        <p className="mt-3 text-base leading-relaxed text-mute">
+        <p className="mt-4 max-w-xl text-base leading-relaxed text-mute sm:text-lg">
           Tokenized stocks on Solana, with live prices. Pick one to refract into
           a safe part, a balanced part, and an upside part.
         </p>
