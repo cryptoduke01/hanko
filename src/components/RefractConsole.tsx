@@ -6,7 +6,7 @@ import {
   useWallet,
 } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { PublicKey } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   type Balances,
@@ -96,6 +96,16 @@ export function RefractConsole() {
   const getDemo = () =>
     run("Minting demo shares…", async () => {
       if (!program || !owner) return;
+      // Make sure the wallet has devnet SOL for rent and fees.
+      try {
+        const bal = await connection.getBalance(owner);
+        if (bal < 0.1 * LAMPORTS_PER_SOL) {
+          const air = await connection.requestAirdrop(owner, LAMPORTS_PER_SOL);
+          await connection.confirmTransaction(air, "confirmed");
+        }
+      } catch {
+        /* airdrop may be rate-limited; the next step surfaces any real error */
+      }
       const mint = await createDemoShares(program, connection, owner, 100);
       try {
         localStorage.setItem(DEMO_KEY(owner.toBase58()), mint.toBase58());
