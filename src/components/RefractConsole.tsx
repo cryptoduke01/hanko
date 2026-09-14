@@ -19,6 +19,7 @@ import {
   recombine,
 } from "@/lib/hanko/client";
 import { explorerUrl } from "@/lib/solana/config";
+import { Loader } from "@/components/Loader";
 import { TRANCHE_META, type TrancheKey } from "@/lib/spectrum";
 
 const DEMO_KEY = (owner: string) => `hanko-demo-mint-${owner}`;
@@ -48,6 +49,11 @@ export function RefractConsole() {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sig, setSig] = useState<string | null>(null);
+  const [success, setSuccess] = useState<{
+    title: string;
+    lines: string[];
+    sig: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!owner) {
@@ -123,6 +129,14 @@ export function RefractConsole() {
       );
       setSig(s);
       setBalances(await fetchBalances(connection, owner, mint));
+      setSuccess({
+        title: "Demo shares ready",
+        lines: [
+          "100 shares are in your wallet.",
+          "A vault is set up to refract them.",
+        ],
+        sig: s,
+      });
     });
 
   const doRefract = () =>
@@ -133,6 +147,14 @@ export function RefractConsole() {
       const s = await deposit(program, owner, demoMint, amt);
       setSig(s);
       await refresh();
+      setSuccess({
+        title: "Refracted",
+        lines: [
+          `You now hold ${refractAmt} Shield, ${refractAmt} Core and ${refractAmt} Edge.`,
+          "Sell any part, or recombine all three for a whole share.",
+        ],
+        sig: s,
+      });
     });
 
   const doRecombine = () =>
@@ -143,6 +165,11 @@ export function RefractConsole() {
       const s = await recombine(program, owner, demoMint, amt);
       setSig(s);
       await refresh();
+      setSuccess({
+        title: "Recombined",
+        lines: [`${recombineAmt} whole shares are back in your wallet.`],
+        sig: s,
+      });
     });
 
   return (
@@ -233,7 +260,7 @@ export function RefractConsole() {
           <div className="mt-4 border-t border-rule pt-3 text-[11px]">
             {busy && (
               <p className="flex items-center gap-2 text-mute">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-ink" />
+                <Loader size={16} />
                 {busy}
               </p>
             )}
@@ -255,6 +282,53 @@ export function RefractConsole() {
           </div>
         )}
       </div>
+
+      {success && (
+        <div className="fixed inset-0 z-[100] flex items-end justify-center p-4 sm:items-center">
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={() => setSuccess(null)}
+            className="animate-fade-in absolute inset-0 cursor-default bg-ink/60 backdrop-blur-sm"
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="animate-modal relative w-full max-w-sm border border-rule bg-paper p-6"
+          >
+            <div className="flex h-9 w-9 items-center justify-center border border-up text-up">
+              ✓
+            </div>
+            <h3 className="mt-4 font-sans text-lg font-bold tracking-tight text-ink">
+              {success.title}
+            </h3>
+            <ul className="mt-2 space-y-1.5">
+              {success.lines.map((l, i) => (
+                <li key={i} className="text-sm leading-relaxed text-mute">
+                  {l}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6 flex items-center gap-4">
+              <a
+                href={explorerUrl("tx", success.sig)}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[11px] uppercase tracking-[0.12em] text-mute transition-colors hover:text-ink"
+              >
+                View transaction ↗
+              </a>
+              <button
+                type="button"
+                onClick={() => setSuccess(null)}
+                className="ml-auto border border-ink bg-ink px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -375,7 +449,7 @@ function ActionButton({
       aria-busy={isBusy}
       className={`${base} ${skin}`}
     >
-      {isBusy ? "…" : children}
+      {isBusy ? <Loader size={14} /> : children}
     </button>
   );
 }
