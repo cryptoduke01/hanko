@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test": "ts-node --transpile-only tests/hanko_vault.ts"
+    "test": "ts-node --transpile-only tests/hanko_vault.ts",
+    "test:meta": "ts-node --transpile-only tests/metadata.ts"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.31.1",

@@ -17,15 +17,20 @@ import {
   getProgram,
   initializeVault,
   recombine,
+  setTrancheMetadata,
 } from "@/lib/hanko/client";
 import { explorerUrl } from "@/lib/solana/config";
 import { Loader } from "@/components/Loader";
 import { ArrowUpRight, Check } from "@/components/icons";
 import { ActionButton } from "@/components/ui/ActionButton";
+import { StockLogo } from "@/components/StockLogo";
 import { TrancheMarket, type SuccessInfo } from "@/components/TrancheMarket";
+import { getRefractableStocks, type RefractableStock } from "@/lib/assets";
 import { TRANCHE_META, type TrancheKey } from "@/lib/spectrum";
 
+const STOCKS = getRefractableStocks();
 const DEMO_KEY = (owner: string) => `hanko-demo-mint-${owner}`;
+const SYM_KEY = (owner: string) => `hanko-demo-sym-${owner}`;
 const FLOOR = 70 * ONE;
 const CAP = 115 * ONE;
 
@@ -45,6 +50,7 @@ export function RefractConsole() {
   );
 
   const [demoMint, setDemoMint] = useState<PublicKey | null>(null);
+  const [stock, setStock] = useState<RefractableStock>(STOCKS[0]);
   const [balances, setBalances] = useState<Balances | null>(null);
   const [loading, setLoading] = useState(false);
   const [refractAmt, setRefractAmt] = useState("25");
@@ -62,6 +68,9 @@ export function RefractConsole() {
     try {
       const stored = localStorage.getItem(DEMO_KEY(owner.toBase58()));
       setDemoMint(stored ? new PublicKey(stored) : null);
+      const sym = localStorage.getItem(SYM_KEY(owner.toBase58()));
+      const found = sym ? STOCKS.find((s) => s.symbol === sym) : null;
+      if (found) setStock(found);
     } catch {
       setDemoMint(null);
     }
@@ -111,9 +120,16 @@ export function RefractConsole() {
       } catch {
         /* the mint step surfaces any real error */
       }
-      const mint = await createDemoShares(program, connection, owner, 100);
+      const mint = await createDemoShares(
+        program,
+        connection,
+        owner,
+        100,
+        stock.symbol
+      );
       try {
         localStorage.setItem(DEMO_KEY(owner.toBase58()), mint.toBase58());
+        localStorage.setItem(SYM_KEY(owner.toBase58()), stock.symbol);
       } catch {
         /* storage blocked, keep in memory */
       }
@@ -126,13 +142,20 @@ export function RefractConsole() {
         CAP,
         Math.floor(Date.now() / 1000) + 30 * 86400
       );
+      // Name the three tranche mints so they read as "Hanko TSLA Shield" etc.
+      // in wallets. Non-fatal: the vault works even if this step is skipped.
+      try {
+        await setTrancheMetadata(program, owner, mint, stock.symbol);
+      } catch {
+        /* naming is cosmetic; leave tranches unnamed if it fails */
+      }
       setSig(s);
       setBalances(await fetchBalances(connection, owner, mint));
       setSuccess({
-        title: "Demo shares ready",
+        title: `${stock.name} shares ready`,
         lines: [
-          "100 shares are in your wallet.",
-          "A vault is set up to refract them.",
+          `100 Hanko ${stock.symbol} shares are in your wallet.`,
+          "Refract them into Shield, Core and Edge below.",
         ],
         sig: s,
       });
@@ -149,8 +172,8 @@ export function RefractConsole() {
       setSuccess({
         title: "Refracted",
         lines: [
-          `You now hold ${refractAmt} Shield, ${refractAmt} Core and ${refractAmt} Edge.`,
-          "Sell any part, or recombine all three for a whole share.",
+          `Your wallet now holds ${refractAmt} Hanko ${stock.symbol} Shield, Core and Edge.`,
+          "Next: sell any one tranche in the market below, hold it, or recombine all three back into a whole share.",
         ],
         sig: s,
       });
@@ -196,20 +219,48 @@ export function RefractConsole() {
             }
           />
         ) : !demoMint ? (
-          <EmptyState
-            title="Get a share to refract"
-            body="Mint demo shares to try it. Lock a share, receive its three tranche tokens, recombine anytime."
-            action={
-              <ActionButton onClick={getDemo} busy={busy} label="Mint 100 demo shares">
-                Mint 100 demo shares
+          <div className="flex flex-col gap-4 py-5">
+            <div>
+              <h3 className="font-sans text-lg font-semibold tracking-tight text-ink">
+                Pick a stock to refract
+              </h3>
+              <p className="mt-1 max-w-md text-sm leading-relaxed text-mute">
+                Mint 100 demo shares of it, then split them into Shield, Core and
+                Edge. They land in your wallet by name and recombine anytime.
+              </p>
+            </div>
+            <StockPicker stocks={STOCKS} selected={stock} onSelect={setStock} />
+            <div>
+              <ActionButton
+                onClick={getDemo}
+                busy={busy}
+                label={`Minting ${stock.symbol} shares…`}
+              >
+                Mint 100 {stock.symbol} shares
               </ActionButton>
-            }
-          />
+            </div>
+          </div>
         ) : (
           <div className="space-y-5">
+            {/* selected stock */}
+            <div className="flex items-center gap-3">
+              <StockLogo symbol={stock.symbol} size={28} />
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold text-ink">
+                  {stock.name}
+                </div>
+                <div className="text-[11px] tracking-[0.01em] text-mute">
+                  Hanko {stock.symbol} demo · {stock.ticker}
+                </div>
+              </div>
+            </div>
+
             {/* balances */}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Stat label="Shares" value={loading ? null : fmt(balances?.underlying ?? 0)} />
+              <Stat
+                label={stock.symbol}
+                value={loading ? null : fmt(balances?.underlying ?? 0)}
+              />
               {(["shield", "core", "edge"] as TrancheKey[]).map((k) => (
                 <Stat
                   key={k}
@@ -345,6 +396,52 @@ export function RefractConsole() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function StockPicker({
+  stocks,
+  selected,
+  onSelect,
+}: {
+  stocks: RefractableStock[];
+  selected: RefractableStock;
+  onSelect: (s: RefractableStock) => void;
+}) {
+  return (
+    <div
+      role="radiogroup"
+      aria-label="Stock to refract"
+      className="grid grid-cols-3 gap-2 sm:grid-cols-4"
+    >
+      {stocks.map((s) => {
+        const active = s.symbol === selected.symbol;
+        return (
+          <button
+            key={s.slug}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            onClick={() => onSelect(s)}
+            className={`press flex items-center gap-2 rounded-xl border px-2.5 py-2 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${
+              active
+                ? "border-ink bg-haze"
+                : "border-rule hover:border-ink/40"
+            }`}
+          >
+            <StockLogo symbol={s.symbol} size={22} />
+            <span className="min-w-0">
+              <span className="block truncate text-[12px] font-semibold text-ink">
+                {s.symbol}
+              </span>
+              <span className="block truncate text-[10px] tracking-[0.01em] text-mute">
+                {s.name}
+              </span>
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }

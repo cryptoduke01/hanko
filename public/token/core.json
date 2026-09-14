@@ -1,0 +1,7 @@
+{
+  "name": "Hanko Core",
+  "symbol": "CORE",
+  "description": "Mezzanine tranche of a Hanko-refracted tokenized share. Holds the middle band of the share's value, so it behaves like plain exposure at a cheaper entry. Shield + Core + Edge always recombine into one whole share.",
+  "image": "https://hankolabs.xyz/token/core.svg",
+  "external_url": "https://hankolabs.xyz"
+}

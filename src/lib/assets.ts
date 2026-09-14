@@ -435,6 +435,26 @@ export function getAllSlugs(): string[] {
   return assets.map((a) => a.slug);
 }
 
+export interface RefractableStock {
+  slug: string;
+  ticker: string;
+  symbol: string;
+  name: string;
+}
+
+/** Stocks offered in the refract picker: those with a clean ticker symbol we
+ *  can put on the demo tokens (e.g. TSLA → "Hanko TSLA Shield"). */
+export function getRefractableStocks(): RefractableStock[] {
+  return assets
+    .map((a) => {
+      const m = a.underlying.match(/\(([A-Z.]{1,6})\)/);
+      if (!m) return null;
+      const name = a.underlying.replace(/\s*\(.*\)\s*/, "").trim();
+      return { slug: a.slug, ticker: a.ticker, symbol: m[1], name };
+    })
+    .filter((s): s is RefractableStock => s !== null);
+}
+
 export function getTrackedMints(): {
   slug: string;
   ticker: string;

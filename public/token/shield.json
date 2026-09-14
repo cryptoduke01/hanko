@@ -1,0 +1,7 @@
+{
+  "name": "Hanko Shield",
+  "symbol": "SHIELD",
+  "description": "Senior tranche of a Hanko-refracted tokenized share. Takes the first value of the share at settlement, so it behaves like the safe, bond-like part. Shield + Core + Edge always recombine into one whole share.",
+  "image": "https://hankolabs.xyz/token/shield.svg",
+  "external_url": "https://hankolabs.xyz"
+}

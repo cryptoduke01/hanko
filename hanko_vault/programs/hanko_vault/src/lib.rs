@@ -81,4 +81,13 @@ pub mod hanko_vault {
     pub fn settle_with_oracle(ctx: Context<SettleWithOracle>) -> Result<()> {
         instructions::settle_with_oracle::handle_settle_with_oracle(ctx)
     }
+
+    /// Attach Metaplex metadata to the three tranche mints so wallets show them
+    /// by name (authority only). Set-once; leaves vault state untouched.
+    pub fn set_tranche_metadata(
+        ctx: Context<SetTrancheMetadata>,
+        symbol: String,
+    ) -> Result<()> {
+        instructions::set_tranche_metadata::handle_set_tranche_metadata(ctx, symbol)
+    }
 }

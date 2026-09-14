@@ -28,4 +28,6 @@ pub enum HankoError {
     StaleOracle,
     #[msg("Oracle price confidence band is too wide")]
     PriceTooUncertain,
+    #[msg("Ticker symbol is empty or longer than the limit")]
+    BadSymbol,
 }

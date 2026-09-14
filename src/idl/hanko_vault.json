@@ -2166,6 +2166,94 @@
       ]
     },
     {
+      "name": "set_tranche_metadata",
+      "docs": [
+        "Attach Metaplex metadata to the three tranche mints so wallets show them",
+        "by name (authority only). Set-once; leaves vault state untouched."
+      ],
+      "discriminator": [
+        109,
+        71,
+        203,
+        196,
+        174,
+        35,
+        46,
+        247
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "vault"
+          ]
+        },
+        {
+          "name": "vault",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault.underlying_mint",
+                "account": "Vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "shield_mint"
+        },
+        {
+          "name": "core_mint"
+        },
+        {
+          "name": "edge_mint"
+        },
+        {
+          "name": "shield_metadata",
+          "writable": true
+        },
+        {
+          "name": "core_metadata",
+          "writable": true
+        },
+        {
+          "name": "edge_metadata",
+          "writable": true
+        },
+        {
+          "name": "token_metadata_program",
+          "address": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "symbol",
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "settle",
       "discriminator": [
         175,
@@ -3294,6 +3382,11 @@
       "code": 6012,
       "name": "PriceTooUncertain",
       "msg": "Oracle price confidence band is too wide"
+    },
+    {
+      "code": 6013,
+      "name": "BadSymbol",
+      "msg": "Ticker symbol is empty or longer than the limit"
     }
   ],
   "types": [

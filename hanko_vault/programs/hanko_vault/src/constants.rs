@@ -29,3 +29,13 @@ pub const PYTH_MAX_AGE_SECS: i64 = 300;
 /// Reject a Pyth price whose confidence band is wider than price / this ratio.
 /// 50 means the 1-sigma confidence must be under 2% of the price.
 pub const PYTH_CONF_RATIO: u128 = 50;
+
+/// Longest underlying ticker accepted when naming tranche tokens. Keeps the
+/// derived Metaplex `name`/`symbol` inside their 32/10 byte limits.
+pub const MAX_SYMBOL_LEN: usize = 6;
+
+/// Off-chain metadata JSON for each tranche (image + description). The on-chain
+/// `name`/`symbol` carry the specific ticker; these stay ticker-agnostic.
+pub const SHIELD_URI: &str = "https://hankolabs.xyz/token/shield.json";
+pub const CORE_URI: &str = "https://hankolabs.xyz/token/core.json";
+pub const EDGE_URI: &str = "https://hankolabs.xyz/token/edge.json";

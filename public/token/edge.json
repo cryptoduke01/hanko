@@ -1,0 +1,7 @@
+{
+  "name": "Hanko Edge",
+  "symbol": "EDGE",
+  "description": "Junior tranche of a Hanko-refracted tokenized share. Takes everything above the cap at settlement, so it is pure upside that can never be liquidated. Shield + Core + Edge always recombine into one whole share.",
+  "image": "https://hankolabs.xyz/token/edge.svg",
+  "external_url": "https://hankolabs.xyz"
+}

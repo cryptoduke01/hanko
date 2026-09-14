@@ -1,0 +1,7 @@
+{
+  "name": "Hanko Demo Share",
+  "symbol": "SHARE",
+  "description": "A demo tokenized share on Solana devnet, used to try Hanko. Refract it into Shield, Core and Edge, then recombine anytime. Not a real security.",
+  "image": "https://hankolabs.xyz/token/share.svg",
+  "external_url": "https://hankolabs.xyz"
+}

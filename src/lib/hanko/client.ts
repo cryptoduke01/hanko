@@ -1,10 +1,13 @@
 import { AnchorProvider, BN, Program, type Idl } from "@coral-xyz/anchor";
 import {
+  ComputeBudgetProgram,
   Connection,
   Keypair,
   PublicKey,
+  SYSVAR_RENT_PUBKEY,
   SystemProgram,
   Transaction,
+  TransactionInstruction,
 } from "@solana/web3.js";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -73,6 +76,73 @@ export function poolPdas(mintA: PublicKey, mintB: PublicKey) {
     PROGRAM_ID
   );
   return { pool, vaultA: ata(mintA, pool, true), vaultB: ata(mintB, pool, true) };
+}
+
+/* --------------------- token metadata --------------------- */
+
+/** Metaplex Token Metadata program (same address on every cluster). */
+export const METADATA_PROGRAM_ID = new PublicKey(
+  "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+);
+
+/** Off-chain metadata JSON for the demo share (the three tranche URIs are set
+ *  on-chain by the program). */
+const SHARE_URI = "https://hankolabs.xyz/token/share.json";
+
+/** Metaplex metadata PDA for a mint: ["metadata", program, mint]. */
+export function metadataPda(mint: PublicKey): PublicKey {
+  const [pda] = PublicKey.findProgramAddressSync(
+    [seed("metadata"), METADATA_PROGRAM_ID.toBuffer(), mint.toBuffer()],
+    METADATA_PROGRAM_ID
+  );
+  return pda;
+}
+
+const borshStr = (s: string): Buffer => {
+  const body = Buffer.from(s, "utf8");
+  const len = Buffer.alloc(4);
+  len.writeUInt32LE(body.length, 0);
+  return Buffer.concat([len, body]);
+};
+
+/** Build a CreateMetadataAccountV3 instruction by hand (no Metaplex SDK, so we
+ *  avoid the dependency churn its packages pull in). Only used for mints whose
+ *  authority is a plain wallet; PDA-authority tranche mints are named on-chain
+ *  by the program instead. */
+function createMetadataV3Ix(args: {
+  mint: PublicKey;
+  mintAuthority: PublicKey;
+  payer: PublicKey;
+  updateAuthority: PublicKey;
+  name: string;
+  symbol: string;
+  uri: string;
+}): TransactionInstruction {
+  const data = Buffer.concat([
+    Buffer.from([33]), // CreateMetadataAccountV3 discriminator
+    borshStr(args.name),
+    borshStr(args.symbol),
+    borshStr(args.uri),
+    Buffer.from([0, 0]), // seller_fee_basis_points u16 = 0
+    Buffer.from([0]), // creators: None
+    Buffer.from([0]), // collection: None
+    Buffer.from([0]), // uses: None
+    Buffer.from([1]), // is_mutable = true
+    Buffer.from([0]), // collection_details: None
+  ]);
+  return new TransactionInstruction({
+    programId: METADATA_PROGRAM_ID,
+    keys: [
+      { pubkey: metadataPda(args.mint), isSigner: false, isWritable: true },
+      { pubkey: args.mint, isSigner: false, isWritable: false },
+      { pubkey: args.mintAuthority, isSigner: true, isWritable: false },
+      { pubkey: args.payer, isSigner: true, isWritable: true },
+      { pubkey: args.updateAuthority, isSigner: false, isWritable: false },
+      { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+      { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
+    ],
+    data,
+  });
 }
 
 /* --------------------- writes --------------------- */
@@ -288,7 +358,8 @@ export async function createDemoShares(
   program: Program,
   connection: Connection,
   owner: PublicKey,
-  uiAmount = 100
+  uiAmount = 100,
+  symbol?: string
 ): Promise<PublicKey> {
   const mint = Keypair.generate();
   const lamports = await getMinimumBalanceForRentExemptMint(connection);
@@ -305,8 +376,54 @@ export async function createDemoShares(
     createAssociatedTokenAccountInstruction(owner, userAta, owner, mint.publicKey),
     createMintToInstruction(mint.publicKey, userAta, owner, uiAmount * ONE)
   );
+  // Name the share so wallets show it (e.g. "Hanko TSLA") instead of a blank.
+  if (symbol) {
+    const sym = symbol.toUpperCase().slice(0, 6);
+    tx.add(
+      createMetadataV3Ix({
+        mint: mint.publicKey,
+        mintAuthority: owner,
+        payer: owner,
+        updateAuthority: owner,
+        name: `Hanko ${sym} Share`,
+        symbol: `h${sym}`.slice(0, 10),
+        uri: SHARE_URI,
+      })
+    );
+  }
   await (program.provider as AnchorProvider).sendAndConfirm(tx, [mint]);
   return mint.publicKey;
+}
+
+/** Name the three tranche mints on-chain (Metaplex, vault PDA signs). Set-once:
+ *  calling it again for the same vault fails, so run it right after the vault
+ *  is created. Silently a no-op-safe boundary in the UI. */
+export function setTrancheMetadata(
+  program: Program,
+  owner: PublicKey,
+  underlyingMint: PublicKey,
+  symbol: string
+): Promise<string> {
+  const { vault, shieldMint, coreMint, edgeMint } = pdas(underlyingMint);
+  return program.methods
+    .setTrancheMetadata(symbol.toUpperCase().slice(0, 6))
+    .accountsStrict({
+      authority: owner,
+      vault,
+      shieldMint,
+      coreMint,
+      edgeMint,
+      shieldMetadata: metadataPda(shieldMint),
+      coreMetadata: metadataPda(coreMint),
+      edgeMetadata: metadataPda(edgeMint),
+      tokenMetadataProgram: METADATA_PROGRAM_ID,
+      systemProgram: SystemProgram.programId,
+      rent: SYSVAR_RENT_PUBKEY,
+    })
+    .preInstructions([
+      ComputeBudgetProgram.setComputeUnitLimit({ units: 400_000 }),
+    ])
+    .rpc();
 }
 
 /* --------------------- reads --------------------- */
