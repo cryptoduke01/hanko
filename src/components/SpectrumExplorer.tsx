@@ -154,7 +154,7 @@ export function SpectrumExplorer() {
                 type="button"
                 onClick={() => setSlug(a.slug)}
                 data-active={active}
-                className={`inline-flex items-center gap-1.5 border px-2.5 py-1.5 text-[11px] uppercase tracking-[0.12em] transition-colors duration-200 ${
+                className={`inline-flex items-center gap-1.5 rounded-lg press border px-2.5 py-1.5 text-[11px] uppercase tracking-[0.12em] transition-colors duration-200 ${
                   active
                     ? "border-ink bg-ink text-paper"
                     : "border-rule text-mute hover:border-ink hover:text-ink"
@@ -223,7 +223,7 @@ export function SpectrumExplorer() {
                     key={m.days}
                     type="button"
                     onClick={() => setDays(m.days)}
-                    className={`border-y border-r px-2.5 py-1 font-mono text-[11px] tracking-[0.1em] first:border-l transition-colors duration-200 ${
+                    className={`border-y border-r px-2.5 py-1 first:rounded-l-lg last:rounded-r-lg font-mono text-[11px] tracking-[0.1em] first:border-l transition-colors duration-200 ${
                       days === m.days
                         ? "border-ink bg-ink text-paper"
                         : "border-rule text-mute hover:text-ink"
@@ -324,7 +324,7 @@ export function SpectrumExplorer() {
                 key={s.label}
                 type="button"
                 onClick={() => setSettle(s.f)}
-                className="border border-rule px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-mute transition-colors duration-200 hover:border-ink hover:text-ink"
+                className="rounded-md press border border-rule px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-mute transition-colors duration-200 hover:border-ink hover:text-ink"
               >
                 {s.label}
               </button>
