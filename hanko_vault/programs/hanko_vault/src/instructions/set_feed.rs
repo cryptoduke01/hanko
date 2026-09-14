@@ -24,8 +24,9 @@ pub struct SetFeed<'info> {
     )]
     pub vault: Box<Account<'info, Vault>>,
 
+    // `init` (not init_if_needed): the feed is set once and cannot be re-pointed.
     #[account(
-        init_if_needed,
+        init,
         payer = authority,
         space = 8 + OracleFeed::INIT_SPACE,
         seeds = [FEED_SEED, vault.key().as_ref()],

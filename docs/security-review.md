@@ -1,62 +1,45 @@
-# Hanko, Security Review (Kensho self-audit)
+# Hanko, Security Review (Kensho fleet audit)
 
 **Target:** `hanko_vault` Anchor program, `programs/hanko_vault/src`
 **Program ID:** `EjxYgyiQ6DY8qB69svz6sooP3SRo7jCECHYiEDZG1i9p` (Solana devnet)
-**Method:** [Kensho](https://github.com/cryptoduke01) Track B (Rust/Solana), read-only static analysis of every instruction, cross-checked against the integration test. This is an internal self-audit of our own code, not a third-party audit.
-**Instructions reviewed:** `initialize_vault`, `deposit`, `recombine`, `settle`, `redeem`, `init_pool`, `swap`.
+**Method:** [Kensho](https://github.com/cryptoduke01) Track B (Rust/Solana). A four-agent audit fleet reviewed the program in parallel (vault lifecycle, AMM, Pyth oracle, and cross-cutting account security), each separating permissionless bugs from trust/centralization and applying the reachability kill-questions. Findings were then verified and consolidated. Internal review of our own code, not a third-party audit.
+**Instructions:** `initialize_vault`, `deposit`, `recombine`, `settle`, `redeem`, `init_pool`, `swap`, `withdraw_liquidity`, `set_feed`, `settle_with_oracle`.
 
-## Summary
+## Headline
 
-No permissionless theft, drain, or freeze of another user's funds was found. Every state-changing instruction validates its accounts (`has_one`, PDA seeds, `associated_token::{mint,authority}`), signs vault/pool payouts with the correct PDA, and gates with a `Signer`. The conservation invariant (three tranche tokens equal one share) and vault solvency hold across the full lifecycle.
-
-The two items worth acting on before mainnet are **trust/design** issues, not permissionless exploits: settlement is set by a single authority with no oracle, and seeded pool liquidity has no withdrawal path. Both are acceptable for a devnet demo and are called out in code comments; both must change for a real deployment.
-
-| # | Severity | Type | Finding |
-| - | -------- | ---- | ------- |
-| 1 | High (design/trust) | Centralization | Settlement price is set by the vault authority, unbounded, with no oracle |
-| 2 | Medium | Fund lock | Pool liquidity seeded by `init_pool` has no withdrawal path |
-| 3 | Informational | UX | Redeeming an out-of-the-money tranche burns tokens for a zero payout |
-| 4 | Informational | Trust model | Vault creation is permissionless, so the creator becomes the settlement authority |
+**No unprivileged Critical or High was found.** Every state-changing instruction is `Signer`-gated; PDAs are validated by seeds + stored bump; every token account is pinned (`associated_token::{mint,authority}` or an in-handler key check); the vault and pool PDAs are the only signers over their funds and only behind a matching burn/deposit, so there is no unprivileged path to mint tranches for free or drain a vault/pool. The conservation invariant and vault solvency were proven. The material risk is the **trust surface** (authority-set settlement, permissionless creation), which is expected for the interim design and is what the mainnet build removes.
 
 ## Findings
 
-### 1. Settlement price is authority-set and unbounded (High, design/trust)
+| # | Severity | Type | Finding | Status |
+| - | -------- | ---- | ------- | ------ |
+| 1 | High | Trust | On an oracle-configured vault, the authority `settle` still works and overrides the oracle | Mainnet build |
+| 2 | High | Trust | Settlement authority picks the price freely; interim ceiling is weak (only upper, degrades for large cap) | Mainnet build (oracle-only) |
+| 3 | Medium | Hardening | Pyth `verification_level` was not enforced (accepted 1-signature Partial updates) | **Fixed** |
+| 4 | Low | Hardening | `PriceUpdateV2` account discriminator was not checked | **Fixed** |
+| 5 | Low | Trust | Feed was re-pointable after being set (`init_if_needed`) | **Fixed** |
+| 6 | Low | Design | Permissionless settler picks the price within a 300s window of *now*, not pinned to maturity | Roadmap |
+| 7 | Low | Trust | Permissionless vault creation: the first creator is the permanent settler | Documented |
+| 8 | Info | - | Rounding dust and donated tokens are locked (no sweep); no `maturity_ts` sanity; classic-SPL-only underlying | Documented |
 
-`settle` ( [settle.rs](../hanko_vault/programs/hanko_vault/src/instructions/settle.rs) ) lets the vault authority write any `settlement_price > 0` once maturity has passed, and that price determines every `redeem` payout (`Shield = min(S,L)`, `Core = clamp(S-L,0,U-L)`, `Edge = max(S-U,0)`). Because tranche tokens can be freely traded to third parties on the pools, an authority who also holds tranches could pick a settlement price that favors their own position at the expense of other holders (settle high to pay Edge, low to pay Shield).
+### Fixed in this pass
+- **#3 Full verification (`pyth.rs`).** `read_pyth_price` now requires `VerificationLevel::Full`, rejecting low-signature partial updates for value-bearing settlement.
+- **#4 Discriminator check (`pyth.rs`).** The `price_update` account's 8-byte Anchor discriminator is asserted to equal `PriceUpdateV2`'s before decoding, so no other receiver-owned account type is mistaken for a price.
+- **#5 Immutable feed (`set_feed.rs`).** The `OracleFeed` PDA now uses `init` (not `init_if_needed`), so a vault's feed is set once and cannot be re-pointed to a different asset before settlement.
 
-This is **centralization-by-design**, not a permissionless bug: it requires the trusted `authority` role, and per Kensho's rules a "trusted key can act maliciously" case is a trust finding, not a payable exploit. It is, however, the single most important thing to change for production.
+### For the mainnet build (deliberately not changed on the live devnet demo, to avoid breaking its vault layout)
+- **#1/#2 Oracle-only settlement.** In the mainnet program, disable the authority `settle` for any vault that has a feed (a `Vault` flag set by `set_feed`, checked in `settle`), or drop the authority `settle` path entirely so an oracle-configured vault can only be settled by `settle_with_oracle`. This is the single most important change: today, setting a feed does not yet remove the authority's settlement power.
+- **#6 Settlement window.** Pin the accepted price to a window around `maturity_ts` (or use an EMA/TWAP) rather than "recent relative to whoever settles first," so the permissionless settler cannot select a favorable print in the 300s band.
+- Multi-provider pools (LP tokens), a Squads multisig upgrade authority, and removing the demo faucet/mock-mint, per `docs/mainnet-checklist.md`.
 
-**Recommendation:** replace the passed-in price with a real settlement oracle (Pyth xStocks feed, as the code comment already anticipates), and bound the recorded price (staleness window, sanity band around the feed). The `authority` field on `Vault` should point at an oracle-gated settler, not a discretionary key.
+## What is solid (verified by the fleet)
+- **Conservation and solvency, proven.** `deposit` transfers the underlying in then mints exactly `amount` of each tranche 1:1; `recombine` burns the triplet 1:1 then returns the share; both gated on `!settled`. At `redeem`, per-unit payoffs sum to `S` and each payout floors in the vault's favor, so `Σ redemptions ≤ vault balance` in every price regime (`S≤L`, `L<S≤U`, `S>U`): no over-draw, no insolvency, no freeze.
+- **Oracle read path is correct.** Owner is checked against the Pyth receiver before any data is trusted (receiver id byte-verified); the manual `PriceUpdateV2` layout, field order, and `VerificationLevel` enum encoding match the SDK; the discriminator skip is length-guarded (no panic) and a bad account errors rather than panics; `feed_id` is bound to the vault via a `[FEED_SEED, vault]` PDA with `has_one = vault`; confidence and staleness bounds and price normalization are overflow-checked and cannot settle at zero.
+- **AMM is faithful.** Constant product with a retained 0.30% fee (`k` grows), output strictly `< reserve_out` (cannot be over-drained), rounding favors the pool, reserves read live from the pool vaults (donations only help the pool), `min_out` slippage enforced before any transfer, and all pool vaults bound by `has_one`.
+- **Account security.** Signer on all 10 instructions; correct `has_one`/PDA/ATA pinning everywhere; `token_program` always the validated SPL Token program (no arbitrary CPI); `init` blocks reinitialization; the single `UncheckedAccount` (`price_update`) is fully validated in-handler; `overflow-checks = true` in the release profile.
 
-**Status (mitigation shipped + oracle path built):** `settle` now rejects any price above `SETTLE_SANITY_MULT × cap` as an interim guardrail. The full fix is implemented: `set_feed` configures a Pyth feed per vault, and `settle_with_oracle` settles permissionlessly from a signed Pyth price (owner check against the receiver program, `feed_id` match, staleness bound, normalization into the vault's units). Because `pyth-solana-receiver-sdk` targets an older Anchor generation, the `PriceUpdateV2` account is read directly; the byte layout, owner check, and normalization were verified against a live devnet Pyth account (SOL/USD, `0xef0d8b6f…`). It is additive: vaults without a feed keep the interim authority `settle`. **Deployed live on devnet; `set_feed` is proven on-chain** (see `hanko_vault/tests/oracle.ts`), and the full permissionless `settle_with_oracle` runs from that script once a fresh Pyth price is posted from a network that can reach Hermes.
-
-### 2. Pool liquidity has no withdrawal path (Medium, fund lock)
-
-`init_pool` ( [init_pool.rs](../hanko_vault/programs/hanko_vault/src/instructions/init_pool.rs) ) moves the initializer's tokens into the pool's vaults, but there is no `withdraw_liquidity` / `close_pool` instruction and the pool issues no LP tokens. The seeded capital is therefore only recoverable piecemeal by trading against the pool, and never fully (constant-product leaves reserves on both sides). For the demo this is intentional "protocol-owned liquidity," but it means whoever seeds a market cannot reclaim their capital.
-
-**Recommendation:** for production, mint LP tokens on `init_pool` and add an LP-gated `withdraw_liquidity` that returns a pro-rata share of both reserves.
-
-**Status (fixed):** `Pool` now stores its `authority` (the seeder), and a `withdraw_liquidity` instruction lets that authority reclaim reserves. Seeded liquidity is no longer locked. LP tokens for multi-provider pools remain a roadmap item.
-
-### 3. Out-of-the-money redeem burns for zero (Informational, UX)
-
-`redeem` computes `underlying_out = amount * payoff / S` and pays it out; for an out-of-the-money tranche (e.g. Edge when `S < U`) the payoff is 0, so the call burns the user's tokens and returns nothing. This is economically correct (the tranche is worthless at that price) but is a foot-gun.
-
-**Recommendation:** surface the zero payout in the UI before the user signs; optionally short-circuit on a zero payoff.
-
-### 4. Permissionless vault creation (Informational, trust model)
-
-`initialize_vault` is open: anyone can create a vault for any underlying mint and becomes its `authority` (and thus its settler, per finding 1). This is fine for open market creation but should be documented so users understand who controls settlement for a given vault.
-
-## What is solid
-
-- **Conservation and solvency, verified.** `deposit` mints exactly `amount` of each tranche 1:1 against the deposited share; `recombine` burns the triplet 1:1 for the share back; `redeem` payoffs sum to `S` per unit and floor down, so total redemptions never exceed the vault balance (rounding dust favors the vault, no insolvency path). Proven end-to-end by the integration test.
-- **Access control is present everywhere.** Every instruction gates with a `Signer`; the vault and pool are validated by PDA seeds and `has_one` against their stored mints/vaults; token accounts are pinned with `associated_token::{mint,authority}`, so forged or substituted accounts are rejected.
-- **PDA-signed payouts.** Vault and pool transfers/mints are signed by the correct PDA with the stored bump; mint authority for the tranche mints is the vault PDA.
-- **AMM safety.** `swap` reads live reserves from the pool vaults, applies the constant-product curve with a 0.30% fee (so `k` grows), floors output in the pool's favor, enforces a caller `min_out` slippage bound, and validates the pool's vaults via `has_one`.
-- **No arbitrary CPI, no reentrancy.** All CPIs target the validated SPL Token program; Solana's token program does not re-enter.
-- **`overflow-checks = true`** in the release profile, so arithmetic overflow aborts the transaction rather than wrapping (the AMM math also cannot overflow for `u64`-bounded reserves within `u128`).
+## Trust / centralization surface (context, not vulnerabilities)
+Single-key vault authority settles (interim); permissionless vault and pool creation (first creator owns the terms); pool liquidity is single-provider by design; program upgrade authority is a single key (move to a multisig for mainnet). All are expected for a devnet demo and are tracked for the mainnet build.
 
 ## Scope and disclosure
-
-Internal review of our own devnet program; no third-party funds are at risk and no live exploit was attempted (Kensho verification is read-only / local reasoning only). Findings 1 and 2 are tracked as production-hardening requirements before any mainnet deployment.
+Internal review of our own devnet program; no third-party funds at risk; no live exploit attempted (Kensho verification is read-only / local reasoning). Findings 1, 2, and 6 are tracked as mainnet-build requirements.

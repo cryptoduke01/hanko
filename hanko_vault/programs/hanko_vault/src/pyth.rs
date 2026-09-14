@@ -13,6 +13,9 @@ pub const PYTH_RECEIVER_ID: Pubkey = Pubkey::new_from_array([
     250, 254, 1, 230, 196, 223, 152, 204, 56, 88, 129,
 ]);
 
+/// Anchor account discriminator for `PriceUpdateV2` (`sha256("account:PriceUpdateV2")[..8]`).
+const PRICE_UPDATE_V2_DISCRIMINATOR: [u8; 8] = [34, 241, 35, 99, 157, 126, 244, 205];
+
 #[derive(AnchorDeserialize, Clone)]
 pub struct PriceFeedMessage {
     pub feed_id: [u8; 32],
@@ -51,10 +54,20 @@ pub fn read_pyth_price(
     require_keys_eq!(*account.owner, PYTH_RECEIVER_ID, HankoError::BadOracle);
     let data = account.try_borrow_data()?;
     require!(data.len() > 8, HankoError::BadOracle);
+    // Confirm this is actually a PriceUpdateV2 account, not another receiver-owned type.
+    require!(
+        data[..8] == PRICE_UPDATE_V2_DISCRIMINATOR,
+        HankoError::BadOracle
+    );
 
     // Skip the 8-byte Anchor discriminator, then Borsh-decode the update.
     let mut slice: &[u8] = &data[8..];
     let update = PriceUpdateV2::deserialize(&mut slice).map_err(|_| error!(HankoError::BadOracle))?;
+    // Require full guardian verification, not a low-signature partial update.
+    require!(
+        matches!(update.verification_level, VerificationLevel::Full),
+        HankoError::BadOracle
+    );
     let m = update.price_message;
 
     require!(&m.feed_id == feed_id, HankoError::WrongFeed);
