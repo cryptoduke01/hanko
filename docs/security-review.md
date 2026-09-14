@@ -21,11 +21,13 @@
 | 6 | Low | Design | Permissionless settler picks the price within a 300s window of *now*, not pinned to maturity | Roadmap |
 | 7 | Low | Trust | Permissionless vault creation: the first creator is the permanent settler | Documented |
 | 8 | Info | - | Rounding dust and donated tokens are locked (no sweep); no `maturity_ts` sanity; classic-SPL-only underlying | Documented |
+| 9 | Low | Off-chain / DoS | Unauthenticated `/api/faucet` had no rate limit or payout cap: fresh wallets could drain the devnet faucet funder | **Fixed** |
 
 ### Fixed in this pass
 - **#3 Full verification (`pyth.rs`).** `read_pyth_price` now requires `VerificationLevel::Full`, rejecting low-signature partial updates for value-bearing settlement.
 - **#4 Discriminator check (`pyth.rs`).** The `price_update` account's 8-byte Anchor discriminator is asserted to equal `PriceUpdateV2`'s before decoding, so no other receiver-owned account type is mistaken for a price.
 - **#5 Immutable feed (`set_feed.rs`).** The `OracleFeed` PDA now uses `init` (not `init_if_needed`), so a vault's feed is set once and cannot be re-pointed to a different asset before settlement.
+- **#9 Bounded faucet (`src/app/api/faucet/route.ts`).** Reported externally (thanks to a friend-auditor). The endpoint is public and unauthenticated by design (frictionless demo onboarding), so it cannot refuse fresh keypairs; instead the damage is now bounded. A **reserve floor** (stateless, reads the on-chain funder balance on every request) refuses to drip once the funder would drop below a reserve, so it can never be fully drained and legitimate onboarding survives; a top-up restores it. Best-effort per-IP (3 / 10 min) and per-instance global (~2 SOL / hour) limits raise the cost of casual scripted abuse. Scope is devnet SOL only, never user funds or mainnet assets. Fully preventing fresh-wallet abuse would need a captcha or login, which we deliberately avoid to keep the demo one-click.
 
 ### For the mainnet build (deliberately not changed on the live devnet demo, to avoid breaking its vault layout)
 - **#1/#2 Oracle-only settlement.** In the mainnet program, disable the authority `settle` for any vault that has a feed (a `Vault` flag set by `set_feed`, checked in `settle`), or drop the authority `settle` path entirely so an oracle-configured vault can only be settled by `settle_with_oracle`. This is the single most important change: today, setting a feed does not yet remove the authority's settlement power.
