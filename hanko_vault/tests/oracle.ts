@@ -104,7 +104,7 @@ async function main() {
   const v: any = await (program.account as any).vault.fetch(vault);
   assert.ok(v.settled === true, "vault settled via oracle");
   console.log(`✓ settled via Pyth: settlement_price = ${v.settlementPrice.toNumber() / ONE} (= live SOL/USD)`);
-  console.log("\nORACLE SETTLEMENT PROVEN — permissionless settle from a signed Pyth price, on devnet.");
+  console.log("\nORACLE SETTLEMENT PROVEN, permissionless settle from a signed Pyth price, on devnet.");
 }
 
 main().then(() => process.exit(0), (e) => { console.error(e); process.exit(1); });
