@@ -1,66 +1,66 @@
 import Link from "next/link";
 import { DitherSeal } from "@/components/DitherSeal";
 
-const SPECTRUM = [
-  { name: "Shield", role: "Safety", varName: "--shield" },
-  { name: "Core", role: "Exposure", varName: "--core" },
-  { name: "Edge", role: "Upside", varName: "--edge" },
+const CHIPS = [
+  { label: "Fully collateralized", varName: "--shield" },
+  { label: "No liquidation", varName: "--core" },
+  { label: "Recombine anytime", varName: "--edge" },
 ];
 
 export default function HomePage() {
   return (
-    <section className="relative flex min-h-[calc(100dvh-3.5rem)] items-center">
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-6 py-16 sm:px-8 md:grid-cols-[1.05fr_0.9fr] md:gap-10 md:py-0">
-        {/* Type */}
-        <div className="max-w-xl">
-          <h1 className="animate-fade-up font-sans text-[2.4rem] font-bold leading-[1.03] tracking-[-0.035em] text-ink sm:text-6xl sm:leading-[0.98]">
-            Hanko splits a tokenized stock into a safe part, a balanced part,
-            and an upside part.
-          </h1>
-          <p className="animate-fade-up-delay-1 mt-6 max-w-md text-base leading-relaxed text-ink/70">
-            Buy the safety, the exposure, or the upside. Recombine into a whole
-            share anytime.
-          </p>
+    <section className="relative flex min-h-[calc(100dvh-3.5rem)] items-center overflow-hidden">
+      {/* Faint seal, the only motif */}
+      <div
+        className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.05]"
+        aria-hidden
+      >
+        <DitherSeal className="h-auto w-[min(92vw,720px)]" />
+      </div>
 
-          {/* Spectrum legend */}
-          <div className="animate-fade-up-delay-3 mt-8 flex flex-wrap gap-x-6 gap-y-3">
-            {SPECTRUM.map((s) => (
-              <div key={s.name} className="flex items-center gap-2">
-                <span
-                  className="h-2.5 w-2.5"
-                  style={{ background: `var(${s.varName})` }}
-                  aria-hidden
-                />
-                <span className="text-[11px] uppercase tracking-[0.14em] text-ink">
-                  {s.name}
-                </span>
-                <span className="text-[11px] uppercase tracking-[0.14em] text-mute">
-                  {s.role}
-                </span>
-              </div>
-            ))}
-          </div>
+      <div className="relative mx-auto flex w-full max-w-3xl flex-col items-center px-6 py-16 text-center">
+        <h1 className="animate-fade-up font-sans text-[2.7rem] font-bold leading-[0.96] tracking-[-0.04em] text-ink sm:text-7xl sm:leading-[0.94]">
+          One share.
+          <br />
+          <span className="text-mute">Three tradeable parts.</span>
+        </h1>
 
-          <div className="animate-fade-up-delay-4 mt-10 flex flex-wrap items-center gap-5">
-            <Link
-              href="/refract"
-              className="btn-liquid inline-flex items-center gap-2 border border-ink bg-ink px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-            >
-              Refract a share
-              <span aria-hidden>→</span>
-            </Link>
-            <Link
-              href="/docs"
-              className="text-[11px] uppercase tracking-[0.14em] text-mute transition-colors duration-200 hover:text-ink"
-            >
-              Read the docs
-            </Link>
-          </div>
+        <p className="animate-fade-up-delay-1 mt-7 max-w-lg text-base leading-relaxed text-ink/70 sm:text-lg">
+          Hanko splits a tokenized stock into a safe part, a balanced part, and
+          an upside part. Own only the part you want.
+        </p>
+
+        <div className="animate-fade-up-delay-2 mt-9 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="/refract"
+            className="btn-liquid inline-flex items-center gap-2 rounded-full border border-ink bg-ink px-6 py-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+          >
+            Refract a share
+            <span aria-hidden>↗</span>
+          </Link>
+          <Link
+            href="/docs"
+            className="inline-flex items-center rounded-full border border-rule px-6 py-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-ink transition-colors duration-200 hover:border-ink"
+          >
+            How it works
+          </Link>
         </div>
 
-        {/* Seal */}
-        <div className="relative hidden justify-center md:flex">
-          <DitherSeal className="h-auto w-full max-w-[360px]" />
+        <p className="animate-fade-up-delay-3 mt-12 text-[11px] uppercase tracking-[0.22em] text-mute">
+          Live on Solana devnet
+        </p>
+
+        <div className="animate-fade-up-delay-3 mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          {CHIPS.map((c) => (
+            <span key={c.label} className="flex items-center gap-2 text-[12px] text-mute">
+              <span
+                className="h-1.5 w-1.5"
+                style={{ background: `var(${c.varName})` }}
+                aria-hidden
+              />
+              {c.label}
+            </span>
+          ))}
         </div>
       </div>
     </section>

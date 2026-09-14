@@ -76,6 +76,19 @@ const SECTIONS = [
   },
   {
     n: "05",
+    t: "Real securities",
+    body: (
+      <p className="mt-3 text-mute">
+        The underlying can be a real, custody-backed tokenized security. Backpack
+        Securities has opened a public mint and redeem API, so a real US share
+        can be issued on Solana and redeemed back one to one. Hanko refracts that
+        security into its three parts; recombine the parts into a whole share and
+        redeem it for the real stock. The demo uses test shares in place of this.
+      </p>
+    ),
+  },
+  {
+    n: "06",
     t: "What Hanko is not",
     body: (
       <ul className="mt-3 list-disc space-y-1.5 pl-5 text-mute">
@@ -86,13 +99,13 @@ const SECTIONS = [
     ),
   },
   {
-    n: "06",
+    n: "07",
     t: "Roadmap",
     body: (
       <ul className="mt-3 list-disc space-y-1.5 pl-5 text-mute">
+        <li>Real underlyings and redemption via Backpack Securities</li>
         <li>Tranche markets so each token trades with depth</li>
         <li>Pyth price feeds for settlement</li>
-        <li>Broader stock coverage</li>
       </ul>
     ),
   },
