@@ -1,5 +1,5 @@
 /**
- * Hanko vault — end-to-end proof of the conservation invariant.
+ * Hanko vault, end-to-end proof of the conservation invariant.
  *
  * Mints a mock underlying share, refracts it (deposit → SHIELD+CORE+EDGE),
  * then recombines part of it (burn triplet → share back), asserting balances
@@ -51,7 +51,7 @@ async function main() {
     await getOrCreateAssociatedTokenAccount(connection, payer, underlyingMint, payer.publicKey)
   ).address;
   await mintTo(connection, payer, underlyingMint, userUnderlying, payer, 100 * ONE);
-  console.log(`underlying mint ${underlyingMint.toBase58().slice(0, 8)}… — user holds 100 shares`);
+  console.log(`underlying mint ${underlyingMint.toBase58().slice(0, 8)}…, user holds 100 shares`);
 
   // 2. Derive the vault + tranche mint PDAs.
   const [vault] = PublicKey.findProgramAddressSync(
@@ -66,7 +66,7 @@ async function main() {
   const userCore = getAssociatedTokenAddressSync(coreMint, payer.publicKey);
   const userEdge = getAssociatedTokenAddressSync(edgeMint, payer.publicKey);
 
-  // 3. initialize_vault — floor L and cap U (price units). Maturity in the past
+  // 3. initialize_vault, floor L and cap U (price units). Maturity in the past
   //    so this single run can also exercise settle + redeem.
   const maturity = b(Math.floor(Date.now() / 1000) - 1);
   await program.methods
@@ -84,7 +84,7 @@ async function main() {
       systemProgram: SystemProgram.programId,
     })
     .rpc();
-  console.log("vault initialized — SHIELD / CORE / EDGE mints created");
+  console.log("vault initialized, SHIELD / CORE / EDGE mints created");
 
   // 4. deposit 40 shares → mint the spectrum.
   await program.methods
@@ -194,7 +194,7 @@ async function main() {
   assert.equal(await bal(userUnderlying), 100 * ONE, "user made whole: 85 + 10.5 + 4.5 + 0 = 100");
   console.log("✓ redeem @ $100 → SHIELD 15→10.5 · CORE 15→4.5 · EDGE 15→0 shares; vault emptied");
 
-  console.log("\nFULL LIFECYCLE PROVEN — mint · recombine · settle · redeem, conservation intact.");
+  console.log("\nFULL LIFECYCLE PROVEN, mint · recombine · settle · redeem, conservation intact.");
 
   // ── 9. Tranche market ─────────────────────────────────────────────────────
   // A constant-product pool lets someone buy JUST the Edge, without ever
@@ -291,7 +291,7 @@ async function main() {
 
   assert.equal(await bal(poolVaultA), SEED_A, "pool seeded with EDGE");
   assert.equal(await bal(poolVaultB), SEED_B, "pool seeded with underlying");
-  console.log(`✓ pool seeded — ${shares(SEED_A)} EDGE / ${shares(SEED_B)} underlying`);
+  console.log(`✓ pool seeded, ${shares(SEED_A)} EDGE / ${shares(SEED_B)} underlying`);
 
   // Buy EDGE with 2 underlying. underlying is mint_b, so this is b→a (aToB=false).
   const amountIn = 2 * ONE;
@@ -327,10 +327,10 @@ async function main() {
   const kAfter = BigInt(await bal(poolVaultB)) * BigInt(await bal(poolVaultA));
   assert.ok(kAfter >= kBefore, "invariant holds: k grows by the fee");
   console.log(
-    `✓ bought Edge — ${(amountIn / ONE).toFixed(2)} underlying → ${(edgeGained / ONE).toFixed(4)} EDGE ` +
+    `✓ bought Edge, ${(amountIn / ONE).toFixed(2)} underlying → ${(edgeGained / ONE).toFixed(4)} EDGE ` +
       `(no Shield or Core touched)`
   );
-  console.log(`✓ k after ≥ k before — ${kBefore} → ${kAfter}`);
+  console.log(`✓ k after ≥ k before, ${kBefore} → ${kAfter}`);
 
   // Withdraw the remaining liquidity back to the pool authority (the seeder),
   // proving seeded capital is reclaimable, not locked.
@@ -357,10 +357,10 @@ async function main() {
   assert.equal((await bal(traderA)) - beforeEdge, poolEdge, "EDGE returned to LP");
   assert.equal((await bal(traderB)) - beforeUnderlying, poolUnderlying, "underlying returned to LP");
   console.log(
-    `✓ withdrew liquidity — ${(poolEdge / ONE).toFixed(4)} EDGE + ${(poolUnderlying / ONE).toFixed(2)} underlying back to the LP`
+    `✓ withdrew liquidity, ${(poolEdge / ONE).toFixed(4)} EDGE + ${(poolUnderlying / ONE).toFixed(2)} underlying back to the LP`
   );
 
-  console.log("\nTRANCHE MARKET PROVEN — a single tranche trades on its own x*y=k pool, and liquidity is reclaimable.");
+  console.log("\nTRANCHE MARKET PROVEN, a single tranche trades on its own x*y=k pool, and liquidity is reclaimable.");
 }
 
 main().then(

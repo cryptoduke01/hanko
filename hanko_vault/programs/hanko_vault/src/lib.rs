@@ -12,7 +12,7 @@ pub use state::*;
 
 declare_id!("EjxYgyiQ6DY8qB69svz6sooP3SRo7jCECHYiEDZG1i9p");
 
-/// Hanko — refract a tokenized share into its spectrum.
+/// Hanko, refract a tokenized share into its spectrum.
 ///
 /// `initialize_vault` opens a market; `deposit` mints SHIELD + CORE + EDGE
 /// against a deposited share; `recombine` burns the triplet to reclaim it.

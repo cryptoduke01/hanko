@@ -4,7 +4,7 @@ use anchor_spl::token::{self, Burn, Mint, Token, TokenAccount, Transfer};
 use crate::{constants::*, error::HankoError, state::Vault};
 
 /// Burn `amount` of each tranche and receive `amount` of the underlying back.
-/// The colors recombine into white — the redemption invariant, on-chain.
+/// The colors recombine into white, the redemption invariant, on-chain.
 #[derive(Accounts)]
 pub struct Recombine<'info> {
     #[account(mut)]
