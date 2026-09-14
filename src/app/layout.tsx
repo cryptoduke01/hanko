@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter_Tight } from "next/font/google";
+import { ClusterBanner } from "@/components/ClusterBanner";
+import { ClusterProvider } from "@/components/ClusterProvider";
 import { CookieBanner } from "@/components/CookieBanner";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -78,13 +80,16 @@ export default function RootLayout({
       </head>
       <body className="flex min-h-full flex-col bg-paper text-ink antialiased">
         <ThemeProvider>
-          <SolanaProviders>
-            <SiteHeader />
-            <main className="flex flex-1 flex-col">{children}</main>
-            <SiteFooter />
-            <WelcomeModal />
-            <CookieBanner />
-          </SolanaProviders>
+          <ClusterProvider>
+            <SolanaProviders>
+              <SiteHeader />
+              <ClusterBanner />
+              <main className="flex flex-1 flex-col">{children}</main>
+              <SiteFooter />
+              <WelcomeModal />
+              <CookieBanner />
+            </SolanaProviders>
+          </ClusterProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import { ClusterToggle } from "./ClusterToggle";
 import { ThemeToggle } from "./ThemeToggle";
 import { Menu } from "./icons";
 import { explorerUrl, truncate } from "@/lib/solana/config";
@@ -183,8 +184,16 @@ export function SiteHeader() {
                 </div>
               )}
 
-              {/* Appearance */}
+              {/* Network */}
               <div className="mt-1.5 flex items-center justify-between rounded-lg px-3 py-1.5">
+                <span className="text-[13px] tracking-[0.01em] text-mute">
+                  Network
+                </span>
+                <ClusterToggle />
+              </div>
+
+              {/* Appearance */}
+              <div className="mt-0.5 flex items-center justify-between rounded-lg px-3 py-1.5">
                 <span className="text-[13px] tracking-[0.01em] text-mute">
                   Appearance
                 </span>
