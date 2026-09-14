@@ -1,6 +1,7 @@
 pub mod constants;
 pub mod error;
 pub mod instructions;
+pub mod pyth;
 pub mod state;
 
 use anchor_lang::prelude::*;
@@ -69,5 +70,15 @@ pub mod hanko_vault {
         amount_b: u64,
     ) -> Result<()> {
         instructions::withdraw_liquidity::handle_withdraw_liquidity(ctx, amount_a, amount_b)
+    }
+
+    /// Configure the Pyth feed for a vault (authority only).
+    pub fn set_feed(ctx: Context<SetFeed>, feed_id: [u8; 32]) -> Result<()> {
+        instructions::set_feed::handle_set_feed(ctx, feed_id)
+    }
+
+    /// Permissionlessly settle an oracle-configured vault from a fresh Pyth price.
+    pub fn settle_with_oracle(ctx: Context<SettleWithOracle>) -> Result<()> {
+        instructions::settle_with_oracle::handle_settle_with_oracle(ctx)
     }
 }

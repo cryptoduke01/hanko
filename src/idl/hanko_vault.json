@@ -2077,6 +2077,95 @@
       ]
     },
     {
+      "name": "set_feed",
+      "docs": [
+        "Configure the Pyth feed for a vault (authority only)."
+      ],
+      "discriminator": [
+        79,
+        150,
+        2,
+        207,
+        41,
+        104,
+        77,
+        41
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "vault"
+          ]
+        },
+        {
+          "name": "underlying_mint",
+          "relations": [
+            "vault"
+          ]
+        },
+        {
+          "name": "vault",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "underlying_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "oracle_feed",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  101,
+                  101,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "feed_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "settle",
       "discriminator": [
         175,
@@ -2131,6 +2220,86 @@
           "type": "u64"
         }
       ]
+    },
+    {
+      "name": "settle_with_oracle",
+      "docs": [
+        "Permissionlessly settle an oracle-configured vault from a fresh Pyth price."
+      ],
+      "discriminator": [
+        241,
+        120,
+        5,
+        38,
+        87,
+        75,
+        160,
+        74
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "signer": true
+        },
+        {
+          "name": "underlying_mint",
+          "relations": [
+            "vault"
+          ]
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "underlying_mint"
+              }
+            ]
+          },
+          "relations": [
+            "oracle_feed"
+          ]
+        },
+        {
+          "name": "oracle_feed",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  101,
+                  101,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "price_update",
+          "docs": [
+            "matches this vault's, and the price is fresh."
+          ]
+        }
+      ],
+      "args": []
     },
     {
       "name": "swap",
@@ -3021,6 +3190,19 @@
   ],
   "accounts": [
     {
+      "name": "OracleFeed",
+      "discriminator": [
+        102,
+        96,
+        193,
+        204,
+        107,
+        0,
+        111,
+        27
+      ]
+    },
+    {
       "name": "Pool",
       "discriminator": [
         241,
@@ -3092,9 +3274,54 @@
       "code": 6008,
       "name": "SlippageExceeded",
       "msg": "Output is below the minimum requested"
+    },
+    {
+      "code": 6009,
+      "name": "BadOracle",
+      "msg": "Price update account is not a valid Pyth receiver account"
+    },
+    {
+      "code": 6010,
+      "name": "WrongFeed",
+      "msg": "Price update is for a different feed than this vault"
+    },
+    {
+      "code": 6011,
+      "name": "StaleOracle",
+      "msg": "Oracle price is too old"
     }
   ],
   "types": [
+    {
+      "name": "OracleFeed",
+      "docs": [
+        "Per-vault Pyth feed configuration. Additive: a vault without one keeps the",
+        "interim authority `settle`; one with a feed can be settled permissionlessly",
+        "from a signed Pyth price via `settle_with_oracle`."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "feed_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
     {
       "name": "Pool",
       "docs": [
@@ -3212,6 +3439,14 @@
       "name": "EDGE_SEED",
       "type": "bytes",
       "value": "[101, 100, 103, 101]"
+    },
+    {
+      "name": "FEED_SEED",
+      "docs": [
+        "Per-vault Pyth feed config PDA seed."
+      ],
+      "type": "bytes",
+      "value": "[102, 101, 101, 100]"
     },
     {
       "name": "POOL_SEED",

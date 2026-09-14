@@ -28,7 +28,7 @@ This is **centralization-by-design**, not a permissionless bug: it requires the 
 
 **Recommendation:** replace the passed-in price with a real settlement oracle (Pyth xStocks feed, as the code comment already anticipates), and bound the recorded price (staleness window, sanity band around the feed). The `authority` field on `Vault` should point at an oracle-gated settler, not a discretionary key.
 
-**Status (mitigation shipped):** `settle` now rejects any price above `SETTLE_SANITY_MULT × cap` as an interim guardrail. The full fix (oracle-fed settlement) is on the roadmap; because `pyth-solana-receiver-sdk` targets an older Anchor generation, the integration reads the Pyth `PriceUpdateV2` account directly (owner check + `feed_id` match + staleness) rather than via the SDK.
+**Status (mitigation shipped + oracle path built):** `settle` now rejects any price above `SETTLE_SANITY_MULT × cap` as an interim guardrail. The full fix is implemented: `set_feed` configures a Pyth feed per vault, and `settle_with_oracle` settles permissionlessly from a signed Pyth price (owner check against the receiver program, `feed_id` match, staleness bound, normalization into the vault's units). Because `pyth-solana-receiver-sdk` targets an older Anchor generation, the `PriceUpdateV2` account is read directly; the byte layout, owner check, and normalization were verified against a live devnet Pyth account (SOL/USD, `0xef0d8b6f…`). It is additive: vaults without a feed keep the interim authority `settle`. (Devnet deploy of this build pending a small SOL top-up; the code compiles and is layout-verified.)
 
 ### 2. Pool liquidity has no withdrawal path (Medium, fund lock)
 

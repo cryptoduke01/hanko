@@ -39,3 +39,14 @@ pub struct Pool {
     pub vault_b: Pubkey,
     pub bump: u8,
 }
+
+/// Per-vault Pyth feed configuration. Additive: a vault without one keeps the
+/// interim authority `settle`; one with a feed can be settled permissionlessly
+/// from a signed Pyth price via `settle_with_oracle`.
+#[account]
+#[derive(InitSpace)]
+pub struct OracleFeed {
+    pub vault: Pubkey,
+    pub feed_id: [u8; 32],
+    pub bump: u8,
+}

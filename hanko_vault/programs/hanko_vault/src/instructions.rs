@@ -3,7 +3,9 @@ pub mod init_pool;
 pub mod initialize_vault;
 pub mod recombine;
 pub mod redeem;
+pub mod set_feed;
 pub mod settle;
+pub mod settle_with_oracle;
 pub mod swap;
 pub mod withdraw_liquidity;
 
@@ -12,6 +14,8 @@ pub use init_pool::*;
 pub use initialize_vault::*;
 pub use recombine::*;
 pub use redeem::*;
+pub use set_feed::*;
 pub use settle::*;
+pub use settle_with_oracle::*;
 pub use swap::*;
 pub use withdraw_liquidity::*;

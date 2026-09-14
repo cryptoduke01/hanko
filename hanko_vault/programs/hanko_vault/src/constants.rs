@@ -18,3 +18,10 @@ pub const POOL_SEED: &[u8] = b"pool";
 /// cap. A guardrail against an absurd authority-set price; the real fix is an
 /// oracle-fed settlement (Pyth), tracked on the roadmap.
 pub const SETTLE_SANITY_MULT: u64 = 20;
+
+/// Per-vault Pyth feed config PDA seed.
+#[constant]
+pub const FEED_SEED: &[u8] = b"feed";
+
+/// Maximum age of a Pyth price accepted at oracle settlement (seconds).
+pub const PYTH_MAX_AGE_SECS: i64 = 300;

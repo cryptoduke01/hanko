@@ -20,4 +20,10 @@ pub enum HankoError {
     EmptyReserves,
     #[msg("Output is below the minimum requested")]
     SlippageExceeded,
+    #[msg("Price update account is not a valid Pyth receiver account")]
+    BadOracle,
+    #[msg("Price update is for a different feed than this vault")]
+    WrongFeed,
+    #[msg("Oracle price is too old")]
+    StaleOracle,
 }
