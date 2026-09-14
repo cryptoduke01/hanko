@@ -332,7 +332,35 @@ async function main() {
   );
   console.log(`✓ k after ≥ k before — ${kBefore} → ${kAfter}`);
 
-  console.log("\nTRANCHE MARKET PROVEN — a single tranche trades on its own x*y=k pool.");
+  // Withdraw the remaining liquidity back to the pool authority (the seeder),
+  // proving seeded capital is reclaimable, not locked.
+  const poolEdge = await bal(poolVaultA);
+  const poolUnderlying = await bal(poolVaultB);
+  const beforeEdge = await bal(traderA);
+  const beforeUnderlying = await bal(traderB);
+  await program.methods
+    .withdrawLiquidity(b(poolEdge), b(poolUnderlying))
+    .accountsStrict({
+      authority: payer.publicKey,
+      mintA,
+      mintB,
+      pool,
+      vaultA: poolVaultA,
+      vaultB: poolVaultB,
+      authorityA: traderA,
+      authorityB: traderB,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    })
+    .rpc();
+  assert.equal(await bal(poolVaultA), 0, "pool EDGE reserve emptied");
+  assert.equal(await bal(poolVaultB), 0, "pool underlying reserve emptied");
+  assert.equal((await bal(traderA)) - beforeEdge, poolEdge, "EDGE returned to LP");
+  assert.equal((await bal(traderB)) - beforeUnderlying, poolUnderlying, "underlying returned to LP");
+  console.log(
+    `✓ withdrew liquidity — ${(poolEdge / ONE).toFixed(4)} EDGE + ${(poolUnderlying / ONE).toFixed(2)} underlying back to the LP`
+  );
+
+  console.log("\nTRANCHE MARKET PROVEN — a single tranche trades on its own x*y=k pool, and liquidity is reclaimable.");
 }
 
 main().then(

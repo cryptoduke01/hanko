@@ -70,10 +70,11 @@ Internal Kensho self-review in `docs/security-review.md`. No permissionless thef
 
 ## Roadmap (post-hackathon, before mainnet)
 
-1. Pyth xStocks oracle for settlement, with staleness and sanity bounds (replaces the authority-set price).
-2. LP tokens + `withdraw_liquidity` so pool capital is reclaimable.
-3. Real Backpack Securities underlyings (mint/redeem integration).
-4. Third-party audit before any mainnet deployment.
+1. Pyth xStocks oracle for settlement, replacing the interim authority-set price (a sanity bound already caps it).
+2. Real Backpack Securities underlyings (mint/redeem integration); the program already accepts any SPL mint, so this is access + config, not a rewrite.
+3. **Shield as premium collateral**: the senior, safe slice is high-grade collateral other Solana lending protocols can accept, making Hanko a factory for a new safe-yield asset that composes across DeFi.
+4. LP tokens for multi-provider pools (single-LP `withdraw_liquidity` is shipped, so seeded liquidity is reclaimable).
+5. Third-party audit before any mainnet deployment.
 
 ## Pre-submission checklist
 

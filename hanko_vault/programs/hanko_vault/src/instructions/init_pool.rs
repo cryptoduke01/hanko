@@ -56,6 +56,7 @@ pub fn handle_init_pool(ctx: Context<InitPool>, amount_a: u64, amount_b: u64) ->
     require!(amount_a > 0 && amount_b > 0, HankoError::EmptyReserves);
 
     let pool = &mut ctx.accounts.pool;
+    pool.authority = ctx.accounts.initializer.key();
     pool.mint_a = ctx.accounts.mint_a.key();
     pool.mint_b = ctx.accounts.mint_b.key();
     pool.vault_a = ctx.accounts.vault_a.key();

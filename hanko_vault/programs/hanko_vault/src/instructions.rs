@@ -5,6 +5,7 @@ pub mod recombine;
 pub mod redeem;
 pub mod settle;
 pub mod swap;
+pub mod withdraw_liquidity;
 
 pub use deposit::*;
 pub use init_pool::*;
@@ -13,3 +14,4 @@ pub use recombine::*;
 pub use redeem::*;
 pub use settle::*;
 pub use swap::*;
+pub use withdraw_liquidity::*;

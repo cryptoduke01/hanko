@@ -28,11 +28,15 @@ This is **centralization-by-design**, not a permissionless bug: it requires the 
 
 **Recommendation:** replace the passed-in price with a real settlement oracle (Pyth xStocks feed, as the code comment already anticipates), and bound the recorded price (staleness window, sanity band around the feed). The `authority` field on `Vault` should point at an oracle-gated settler, not a discretionary key.
 
+**Status (mitigation shipped):** `settle` now rejects any price above `SETTLE_SANITY_MULT × cap` as an interim guardrail. The full fix (oracle-fed settlement) is on the roadmap; because `pyth-solana-receiver-sdk` targets an older Anchor generation, the integration reads the Pyth `PriceUpdateV2` account directly (owner check + `feed_id` match + staleness) rather than via the SDK.
+
 ### 2. Pool liquidity has no withdrawal path (Medium, fund lock)
 
 `init_pool` ( [init_pool.rs](../hanko_vault/programs/hanko_vault/src/instructions/init_pool.rs) ) moves the initializer's tokens into the pool's vaults, but there is no `withdraw_liquidity` / `close_pool` instruction and the pool issues no LP tokens. The seeded capital is therefore only recoverable piecemeal by trading against the pool, and never fully (constant-product leaves reserves on both sides). For the demo this is intentional "protocol-owned liquidity," but it means whoever seeds a market cannot reclaim their capital.
 
 **Recommendation:** for production, mint LP tokens on `init_pool` and add an LP-gated `withdraw_liquidity` that returns a pro-rata share of both reserves.
+
+**Status (fixed):** `Pool` now stores its `authority` (the seeder), and a `withdraw_liquidity` instruction lets that authority reclaim reserves. Seeded liquidity is no longer locked. LP tokens for multi-provider pools remain a roadmap item.
 
 ### 3. Out-of-the-money redeem burns for zero (Informational, UX)
 

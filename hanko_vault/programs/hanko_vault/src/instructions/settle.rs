@@ -29,6 +29,12 @@ pub fn handle_settle(ctx: Context<Settle>, settlement_price: u64) -> Result<()> 
     let vault = &mut ctx.accounts.vault;
     require!(!vault.settled, HankoError::AlreadySettled);
     require!(now >= vault.maturity_ts, HankoError::NotMatured);
+    // Sanity ceiling so the authority cannot record an absurd price. The real
+    // guarantee is an oracle-fed price (Pyth); this bounds the interim.
+    require!(
+        settlement_price <= vault.cap_price.saturating_mul(SETTLE_SANITY_MULT),
+        HankoError::InvalidPrice
+    );
 
     vault.settlement_price = settlement_price;
     vault.settled = true;

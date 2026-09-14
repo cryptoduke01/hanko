@@ -61,4 +61,13 @@ pub mod hanko_vault {
     pub fn swap(ctx: Context<Swap>, amount_in: u64, a_to_b: bool, min_out: u64) -> Result<()> {
         instructions::swap::handle_swap(ctx, amount_in, a_to_b, min_out)
     }
+
+    /// Withdraw seeded pool liquidity back to the pool's liquidity provider.
+    pub fn withdraw_liquidity(
+        ctx: Context<WithdrawLiquidity>,
+        amount_a: u64,
+        amount_b: u64,
+    ) -> Result<()> {
+        instructions::withdraw_liquidity::handle_withdraw_liquidity(ctx, amount_a, amount_b)
+    }
 }

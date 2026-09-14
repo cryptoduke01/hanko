@@ -128,9 +128,15 @@ const SECTIONS = [
     t: "Roadmap",
     body: (
       <ul className="mt-3 list-disc space-y-1.5 pl-5 text-mute">
+        <li>Oracle-fed settlement via Pyth, replacing the interim authority-set price</li>
         <li>Real underlyings and redemption via Backpack Securities</li>
-        <li>Tranche markets so each token trades with depth</li>
-        <li>Pyth price feeds for settlement</li>
+        <li>
+          <span className="text-ink">Shield as premium collateral</span>: the safe,
+          senior slice is high-grade collateral other Solana lending protocols can
+          accept, making Hanko a factory for a new safe-yield asset that composes
+          across DeFi
+        </li>
+        <li>Reclaimable pool liquidity via LP tokens (single-LP withdrawal shipped)</li>
       </ul>
     ),
   },

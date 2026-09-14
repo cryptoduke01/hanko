@@ -217,6 +217,33 @@ export function swap(
     .rpc();
 }
 
+/** Withdraw seeded liquidity from a tranche pool back to its authority (the
+ *  seeder). Fixes the fund-lock: pool capital is reclaimable, not stuck. */
+export function withdrawLiquidity(
+  program: Program,
+  owner: PublicKey,
+  trancheMint: PublicKey,
+  underlyingMint: PublicKey,
+  trancheAmount: number,
+  underlyingAmount: number
+): Promise<string> {
+  const { pool, vaultA, vaultB } = poolPdas(trancheMint, underlyingMint);
+  return program.methods
+    .withdrawLiquidity(new BN(trancheAmount), new BN(underlyingAmount))
+    .accountsStrict({
+      authority: owner,
+      mintA: trancheMint,
+      mintB: underlyingMint,
+      pool,
+      vaultA,
+      vaultB,
+      authorityA: ata(trancheMint, owner),
+      authorityB: ata(underlyingMint, owner),
+      tokenProgram: TOKEN_PROGRAM_ID,
+    })
+    .rpc();
+}
+
 /** Constant-product output with the pool's 0.30% fee. Mirrors the on-chain
  *  u128 integer math exactly, so a quote equals the executed amount. */
 export function quoteOut(

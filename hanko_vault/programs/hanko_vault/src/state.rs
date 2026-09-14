@@ -31,6 +31,8 @@ pub struct Vault {
 #[account]
 #[derive(InitSpace)]
 pub struct Pool {
+    /// The liquidity provider who seeded the pool and may withdraw it.
+    pub authority: Pubkey,
     pub mint_a: Pubkey,
     pub mint_b: Pubkey,
     pub vault_a: Pubkey,
