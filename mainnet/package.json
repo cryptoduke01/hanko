@@ -1,0 +1,24 @@
+{
+  "name": "hanko-mainnet-scripts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Standalone mainnet liquidity scripts for Hanko tranche tokens. Kept out of the web app so its heavy SDK deps never touch the app build.",
+  "scripts": {
+    "raydium:pool": "ts-node --transpile-only raydium-create-pool.ts",
+    "meteora:pool": "ts-node --transpile-only meteora-create-pool.ts"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.31.0",
+    "@meteora-ag/cp-amm-sdk": "1.4.8",
+    "@raydium-io/raydium-sdk-v2": "0.2.69-alpha",
+    "@solana/spl-token": "^0.4.8",
+    "@solana/web3.js": "^1.95.3",
+    "bn.js": "^5.2.1",
+    "decimal.js": "^10.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.0"
+  }
+}

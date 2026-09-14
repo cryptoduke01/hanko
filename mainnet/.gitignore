@@ -1,0 +1,6 @@
+node_modules/
+package-lock.json
+# never commit a wallet
+*wallet*.json
+*keypair*.json
+.deployer.json

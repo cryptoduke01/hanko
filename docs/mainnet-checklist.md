@@ -45,3 +45,7 @@ Honest stance: **do not open Hanko to real users before A (legal) and B (audit) 
 3. Only after A + B sign off: **E (mainnet deploy)** and go-live.
 
 Nothing in E ships before A and B are done.
+
+## Practical runbook + scripts
+- [`mainnet-deploy.md`](./mainnet-deploy.md): exact commands to put the program on mainnet-beta as a **demo** (distinct from a public launch) and point the app at it via `NEXT_PUBLIC_MAINNET_LIVE`.
+- [`../mainnet/`](../mainnet/): standalone Raydium (`raydium-create-pool.ts`) and Meteora (`meteora-create-pool.ts`) scripts to seed real tranche liquidity. Run by you, on mainnet, with real funds, after refracting a real xStock. Heavy SDKs are isolated there, out of the app build.

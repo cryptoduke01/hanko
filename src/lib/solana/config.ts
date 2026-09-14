@@ -29,11 +29,13 @@ export const CLUSTER_ENDPOINTS: Record<Cluster, string> = {
     process.env.NEXT_PUBLIC_RPC_URL_MAINNET || clusterApiUrl("mainnet-beta"),
 };
 
-/** Where the Hanko program is actually deployed. Mainnet is not live yet. */
+/** Where the Hanko program is actually deployed. Devnet is live; mainnet flips
+ *  on via env (`NEXT_PUBLIC_MAINNET_LIVE=true`) once you deploy there, so the
+ *  cutover is a config change, not a code edit. */
 export const PROGRAM_LIVE: Record<Cluster, boolean> = {
   localnet: false,
   devnet: true,
-  "mainnet-beta": false,
+  "mainnet-beta": process.env.NEXT_PUBLIC_MAINNET_LIVE === "true",
 };
 
 /** The cluster the app is currently pointed at (set by ClusterProvider at runtime). */
