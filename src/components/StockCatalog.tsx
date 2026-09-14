@@ -19,7 +19,7 @@ export function StockCatalog() {
   const { quotes, loading } = useMarket();
 
   return (
-    <div className="border border-rule">
+    <div className="overflow-hidden rounded-2xl border border-rule">
       <div className="hidden items-center gap-4 border-b border-rule px-4 py-2.5 text-[10px] uppercase tracking-[0.14em] text-mute sm:flex">
         <span className="flex-1">Stock</span>
         <span className="w-24 text-right">Price</span>

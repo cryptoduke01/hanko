@@ -32,7 +32,8 @@ and the tracked-uppercase labels. **No monospace face.** Numbers use
 
 ## Surfaces & motion
 
-Hard edges, hairline `border-rule`, no drop shadows, subtle film grain. Motion is
+Soft-rounded cards (`rounded-xl` / `rounded-2xl`), pill buttons, hairline
+`border-rule`, a faint top vignette (dark theme) for depth, no heavy shadows. Motion is
 quiet: `fade-up` on entry, 0.35s ease transitions, and always honor
 `prefers-reduced-motion`. No crypto stock art, no gradients-as-decoration.
 

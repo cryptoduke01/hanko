@@ -66,7 +66,7 @@ export function WelcomeModal() {
         role="dialog"
         aria-modal="true"
         aria-labelledby="welcome-title"
-        className="animate-modal relative w-full max-w-md border border-rule bg-paper p-6 sm:p-7"
+        className="animate-modal relative w-full max-w-md rounded-2xl border border-rule bg-paper p-6 sm:p-7"
       >
         <div className="flex items-start justify-between">
           <div>

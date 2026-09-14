@@ -144,7 +144,7 @@ export function SpectrumExplorer() {
   return (
     <div className="w-full">
       {/* ——— Controls row ——— */}
-      <div className="flex flex-col gap-4 border border-rule bg-paper p-4 sm:p-5">
+      <div className="flex flex-col gap-4 rounded-2xl border border-rule bg-paper p-4 sm:p-5">
         <div className="flex flex-wrap items-center gap-2">
           {ASSETS.map((a) => {
             const active = a.slug === slug;
@@ -239,7 +239,7 @@ export function SpectrumExplorer() {
       </div>
 
       {/* ——— Mint split bar ——— */}
-      <div className="mt-4 border border-rule bg-paper p-4 sm:p-5">
+      <div className="mt-4 rounded-2xl border border-rule bg-paper p-4 sm:p-5">
         <div className="flex items-center justify-between">
           <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-mute">
             Deposit 1 {asset.ticker} → mint the spectrum
@@ -248,7 +248,7 @@ export function SpectrumExplorer() {
             Σ = {formatUsd(values.spot)}
           </span>
         </div>
-        <div className="mt-3 flex h-9 w-full overflow-hidden border border-rule">
+        <div className="mt-3 flex h-9 w-full overflow-hidden rounded-lg border border-rule">
           {TRANCHES.map((key) => {
             const v = values[key];
             const w = (v / values.spot) * 100;
@@ -313,7 +313,7 @@ export function SpectrumExplorer() {
       </div>
 
       {/* ——— Payoff chart ——— */}
-      <div className="mt-4 border border-rule bg-paper p-4 sm:p-5">
+      <div className="mt-4 rounded-2xl border border-rule bg-paper p-4 sm:p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-mute">
             Payoff at maturity · drag to set settlement price
@@ -561,7 +561,7 @@ function TrancheCard({
 }) {
   const meta = TRANCHE_META[k];
   return (
-    <div className="border border-rule bg-paper p-4">
+    <div className="rounded-xl border border-rule bg-paper p-4">
       <div className="flex items-start justify-between">
         <div>
           <div

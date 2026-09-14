@@ -23,6 +23,25 @@ export default function StocksPage() {
 
       <StockCatalog />
 
+      <div className="mt-6 rounded-2xl border border-rule p-5">
+        <p className="text-[11px] uppercase tracking-[0.2em] text-mute">
+          Real securities, one to one
+        </p>
+        <p className="mt-2 text-sm leading-relaxed text-mute">
+          In production the underlying is a real, custody-backed share, minted
+          and redeemed one to one via{" "}
+          <a
+            href="https://backpack.exchange"
+            target="_blank"
+            rel="noreferrer"
+            className="text-ink underline decoration-rule underline-offset-2 transition-opacity hover:opacity-70"
+          >
+            Backpack Securities
+          </a>
+          . Refract a real share, then recombine and redeem it for the stock.
+        </p>
+      </div>
+
       <p className="mt-6 text-xs text-mute">
         Prices from public DEX data. Not financial advice.
       </p>

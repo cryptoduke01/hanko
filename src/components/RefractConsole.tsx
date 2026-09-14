@@ -173,7 +173,7 @@ export function RefractConsole() {
     });
 
   return (
-    <div className="border border-rule bg-paper">
+    <div className="rounded-2xl border border-rule bg-paper">
       {/* header */}
       <div className="flex items-center justify-between border-b border-rule px-4 py-3 sm:px-5">
         <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink">
@@ -190,7 +190,7 @@ export function RefractConsole() {
               <button
                 type="button"
                 onClick={() => setVisible(true)}
-                className="btn-liquid border border-ink bg-ink px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+                className="btn-liquid rounded-lg border border-ink bg-ink px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
               >
                 Connect wallet
               </button>
@@ -294,7 +294,7 @@ export function RefractConsole() {
           <div
             role="dialog"
             aria-modal="true"
-            className="animate-modal relative w-full max-w-sm border border-rule bg-paper p-6"
+            className="animate-modal relative w-full max-w-sm rounded-2xl border border-rule bg-paper p-6"
           >
             <div className="flex h-9 w-9 items-center justify-center border border-up text-up">
               ✓
@@ -321,7 +321,7 @@ export function RefractConsole() {
               <button
                 type="button"
                 onClick={() => setSuccess(null)}
-                className="ml-auto border border-ink bg-ink px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+                className="ml-auto rounded-lg border border-ink bg-ink px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
               >
                 Done
               </button>
@@ -361,7 +361,7 @@ function Stat({
   tint?: string;
 }) {
   return (
-    <div className="border border-rule p-3">
+    <div className="rounded-xl border border-rule p-3">
       <div
         className="text-[10px] font-semibold uppercase tracking-[0.12em]"
         style={{ color: tint ?? "var(--mute)" }}
@@ -393,7 +393,7 @@ function ActionRow({
   button: React.ReactNode;
 }) {
   return (
-    <div className="border border-rule p-4">
+    <div className="rounded-xl border border-rule p-4">
       <div className="mb-2 flex items-center justify-between">
         <label className="text-[10px] uppercase tracking-[0.14em] text-mute">{label}</label>
         <button
@@ -411,7 +411,7 @@ function ActionRow({
           min={0}
           value={amount}
           onChange={(e) => onAmount(e.target.value)}
-          className="w-full border border-rule bg-transparent px-3 py-2.5 text-sm text-ink tabular-nums focus-visible:border-ink focus-visible:outline-none"
+          className="w-full rounded-lg border border-rule bg-transparent px-3 py-2.5 text-sm text-ink tabular-nums focus-visible:border-ink focus-visible:outline-none"
           aria-label={label}
         />
         {button}
@@ -436,7 +436,7 @@ function ActionButton({
 }) {
   const isBusy = busy === label;
   const base =
-    "shrink-0 whitespace-nowrap px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition-opacity duration-200 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
+    "shrink-0 whitespace-nowrap rounded-lg px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition-opacity duration-200 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
   const skin =
     variant === "solid"
       ? "border border-ink bg-ink text-paper hover:opacity-90"
