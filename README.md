@@ -1,6 +1,6 @@
 # Hanko (判子)
 
-**Split a tokenized stock into three tradeable parts, that always recombine into one share.**
+**Split a tokenized stock into three tradeable parts that always recombine into one share.**
 
 A share bundles three different things into one price: safety, exposure, and upside. Everyone is forced to buy all three at once. **Hanko** refracts one tokenized stock into three SPL tokens, **Shield**, **Core**, and **Edge**, so you can hold, buy, or sell only the part you want. Put the three back together and you get your whole share back.
 
@@ -14,17 +14,23 @@ Named after the seal (判子) a Japanese company presses onto a document to make
 
 Deposit `1` tokenized share into the Hanko vault with a floor `L` and a cap `U`. At settlement price `S`, each unit pays out:
 
-| Token      | Payoff                    | Who it's for                                         |
+| Token      | Payoff                    | Who it is for                                         |
 | ---------- | ------------------------- | ---------------------------------------------------- |
-| **Shield** | `min(S, L)`               | The safe part, holds value unless the stock crashes through the floor |
-| **Core**   | `clamp(S − L, 0, U − L)`  | The balanced part, plain exposure through the middle band |
-| **Edge**   | `max(S − U, 0)`           | The upside part, leveraged upside above the cap, and it can never be liquidated |
+| **Shield** | `min(S, L)`               | The safe part; holds value unless the stock crashes through the floor |
+| **Core**   | `clamp(S − L, 0, U − L)`  | The balanced part; plain exposure through the middle band |
+| **Edge**   | `max(S − U, 0)`           | The upside part; leveraged upside above the cap, and it can never be liquidated |
 
 ```
 Shield + Core + Edge  ≡  S        (recombine to get the share back)
 ```
 
-No external capital is created, it is a fully collateralized redistribution of one share's payoff. That conservation law is exactly why it is trustless and provable, unlike the opaque OTC structured notes it replaces. By put–call parity the three tranche *values* also sum to spot, so indicative primary prices (Black–Scholes) obey the same invariant.
+No external capital is created; it is a fully collateralized redistribution of one share's payoff. That conservation law is exactly why it is trustless and provable, unlike the opaque OTC structured notes it replaces. By put/call parity the three tranche *values* also sum to spot, so indicative primary prices (Black/Scholes) obey the same invariant.
+
+## See it in one minute
+
+The docs open with an interactive explainer: drag the price and watch the three parts fill, always adding up to one whole share.
+
+![Interactive explainer](docs/screenshots/explainer.jpg)
 
 ## Refract, model, trade
 
@@ -36,9 +42,19 @@ Once refracted, each part trades on its own **constant-product pool**. Buy just 
 
 ![Stocks](docs/screenshots/stocks.png)
 
-A **Portfolio** dashboard reads your holdings, each tranche's market price, and your recent on-chain activity live from devnet.
+## Portfolio
 
-The interface is theme-aware; the hero is the spectrum itself, cool Shield up top blooming to a warm Edge glow at the bottom.
+A dashboard reads your holdings, each tranche's market price, a net value in shares, and your recent on-chain activity, live from devnet. Each transaction is labeled ("Refracted a share", "Traded a tranche", "Redeemed a tranche") rather than shown as a bare hash.
+
+## Try it in 60 seconds (devnet)
+
+On [hankolabs.xyz](https://hankolabs.xyz):
+
+1. **Connect a wallet** (Phantom or Solflare on devnet).
+2. **Mint demo shares** on `/refract`. The app funds your wallet with a little devnet SOL, then mints you 100 test shares and opens a vault.
+3. **Refract** some shares into Shield, Core, and Edge.
+4. **Open a market** for one part and **buy just the Edge** (or sell just the Shield).
+5. Open **`/portfolio`** to see your holdings, prices, and the transactions you just made.
 
 ## On-chain
 
@@ -62,6 +78,26 @@ The end-to-end integration test proves the full lifecycle **and** the tranche ma
 cd hanko_vault
 anchor build
 RPC_URL="<your devnet rpc>" npm test
+```
+
+## Security
+
+An internal [Kensho](https://github.com/cryptoduke01) self-review of every instruction is in **[docs/security-review.md](docs/security-review.md)**. Summary: no permissionless theft, drain, or freeze was found; conservation and vault solvency hold across the lifecycle; access control (signer, PDA seeds, `has_one`, ATA constraints), PDA-signed payouts, and AMM slippage bounds are all present, with `overflow-checks` on. The two production-hardening items are trust/design, not permissionless bugs: settlement is authority-set with no oracle (use Pyth for mainnet), and seeded pool liquidity has no withdrawal path (add LP tokens for mainnet). Devnet demo uses freely mintable test shares.
+
+## Repo layout
+
+```
+hanko/
+├─ src/                      Next.js app (App Router)
+│  ├─ app/                   routes: /, /refract, /portfolio, /assets, /docs
+│  ├─ components/            UI (RefractConsole, TrancheMarket, Portfolio, SplitExplainer, ...)
+│  └─ lib/
+│     ├─ hanko/client.ts     program client: deposit, recombine, swap, fetch balances/pools/activity
+│     └─ spectrum.ts         tranche payoff + Black/Scholes pricing math
+├─ hanko_vault/              Anchor workspace
+│  ├─ programs/hanko_vault/  the on-chain program (one file per instruction)
+│  └─ tests/hanko_vault.ts   end-to-end lifecycle + market test
+└─ docs/                     screenshots + security review
 ```
 
 ## Stack
