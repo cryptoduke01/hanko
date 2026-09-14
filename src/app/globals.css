@@ -378,6 +378,33 @@ html.dark .grain::after {
   background: radial-gradient(52% 78% at 50% 118%, var(--glow-cool) 0%, transparent 66%);
 }
 
+/* The spectrum drifts like slow waves. Starts scaled up so the transform never
+   exposes a hard edge; the blooms fade to transparent well before the bounds. */
+@keyframes hero-wave {
+  0% {
+    transform: translate3d(-2.5%, 1.5%, 0) scale(1.06);
+  }
+  50% {
+    transform: translate3d(2.5%, -2%, 0) scale(1.12);
+  }
+  100% {
+    transform: translate3d(-2.5%, 1.5%, 0) scale(1.06);
+  }
+}
+
+.wave-anim {
+  animation: hero-wave 22s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Cutout feature card: a framed panel with the spectrum washed along its base. */
+.card-glow {
+  background:
+    radial-gradient(55% 88% at 14% 120%, var(--glow-shield) 0%, transparent 60%),
+    radial-gradient(60% 94% at 50% 130%, var(--glow-core) 0%, transparent 62%),
+    radial-gradient(55% 88% at 86% 120%, var(--glow-edge) 0%, transparent 60%);
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -442,8 +469,13 @@ html.dark .grain::after {
   .animate-fade-in,
   .animate-modal,
   .animate-slide-up,
+  .wave-anim,
   .skeleton {
     animation: none !important;
+  }
+
+  .wave-anim {
+    transform: scale(1.06);
   }
 
   .btn-liquid:hover {

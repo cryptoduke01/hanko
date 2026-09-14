@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { HeroBackdrop } from "@/components/HeroBackdrop";
+import { FeatureCard } from "@/components/FeatureCard";
 import { ArrowUpRight, ArrowRight } from "@/components/icons";
 
 const STEPS = [
@@ -216,13 +217,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Closing CTA */}
-      <section className="section-glow relative overflow-hidden border-t border-rule">
-        <div className="relative mx-auto max-w-3xl px-6 py-24 text-center sm:py-28">
-          <h2 className="font-sans text-3xl font-bold tracking-[-0.03em] text-ink sm:text-5xl">
-            Own only the part you want.
-          </h2>
-          <div className="mt-8">
+      {/* Closing CTA — cutout feature card */}
+      <section className="border-t border-rule">
+        <div className="mx-auto max-w-6xl px-6 py-20 sm:px-8 sm:py-24">
+          <FeatureCard
+            title="Own only the part you want."
+            body="Lock a share, hold Shield, Core and Edge, and trade only the part that fits your view."
+          >
             <Link
               href="/refract"
               className="press btn-liquid inline-flex items-center gap-2 rounded-full border border-ink bg-ink px-7 py-3.5 text-[14px] font-medium tracking-[0.01em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
@@ -230,7 +231,13 @@ export default function HomePage() {
               Refract a share
               <ArrowUpRight size={15} />
             </Link>
-          </div>
+            <Link
+              href="/docs"
+              className="press inline-flex items-center rounded-full border border-rule bg-paper/60 px-7 py-3.5 text-[14px] font-medium tracking-[0.01em] text-ink backdrop-blur transition-colors duration-200 hover:border-ink"
+            >
+              How it works
+            </Link>
+          </FeatureCard>
         </div>
       </section>
     </>
