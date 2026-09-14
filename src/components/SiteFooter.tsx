@@ -79,11 +79,19 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-2 border-t border-rule pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col gap-3 border-t border-rule pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-[11px] text-mute">
             Hanko on Solana. Not financial advice.
           </p>
-          <p className="text-[11px] text-mute tabular-nums">© 2026 Hanko</p>
+          <div className="flex items-center gap-4 text-[11px] text-mute">
+            <Link href="/terms" className="transition-colors hover:text-ink">
+              Terms
+            </Link>
+            <Link href="/privacy" className="transition-colors hover:text-ink">
+              Privacy
+            </Link>
+            <span className="tabular-nums">© 2026 Hanko</span>
+          </div>
         </div>
       </div>
     </footer>
