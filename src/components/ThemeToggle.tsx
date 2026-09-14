@@ -13,7 +13,7 @@ export function ThemeToggle() {
         theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
       }
       title={theme === "dark" ? "Light mode" : "Dark mode"}
-      className="flex h-8 w-8 items-center justify-center border border-rule text-ink transition-colors duration-300 hover:bg-haze"
+      className="press flex h-8 w-8 items-center justify-center rounded-lg border border-rule text-ink transition-colors duration-300 hover:bg-haze"
     >
       {!ready ? (
         <span className="h-3.5 w-3.5 rounded-full border border-mute/40" />

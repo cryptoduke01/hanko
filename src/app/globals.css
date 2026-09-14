@@ -107,6 +107,22 @@ button:disabled {
   cursor: not-allowed;
 }
 
+button,
+a,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Tactile press: a small give on click, motion-safe */
+@media (prefers-reduced-motion: no-preference) {
+  .press {
+    transition: transform 0.12s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .press:active {
+    transform: translateY(1px);
+  }
+}
+
 /* —— Liquid motion —— */
 @keyframes liquid-float {
   0%,

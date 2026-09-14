@@ -20,6 +20,7 @@ import {
 } from "@/lib/hanko/client";
 import { explorerUrl } from "@/lib/solana/config";
 import { Loader } from "@/components/Loader";
+import { ArrowUpRight, Check } from "@/components/icons";
 import { TRANCHE_META, type TrancheKey } from "@/lib/spectrum";
 
 const DEMO_KEY = (owner: string) => `hanko-demo-mint-${owner}`;
@@ -229,7 +230,7 @@ export function RefractConsole() {
               max={balances ? balances.underlying / ONE : 0}
               hint={
                 refractAmt
-                  ? `→ ${refractAmt} SHIELD + ${refractAmt} CORE + ${refractAmt} EDGE`
+                  ? `Mints ${refractAmt} Shield, ${refractAmt} Core and ${refractAmt} Edge`
                   : ""
               }
               button={
@@ -245,7 +246,7 @@ export function RefractConsole() {
               amount={recombineAmt}
               onAmount={setRecombineAmt}
               max={balances ? Math.min(balances.shield, balances.core, balances.edge) / ONE : 0}
-              hint={recombineAmt ? `→ ${recombineAmt} shares returned` : ""}
+              hint={recombineAmt ? `Returns ${recombineAmt} whole shares` : ""}
               button={
                 <ActionButton onClick={doRecombine} busy={busy} label="Recombining…" variant="ghost">
                   Recombine
@@ -274,9 +275,10 @@ export function RefractConsole() {
                 href={explorerUrl("tx", sig)}
                 target="_blank"
                 rel="noreferrer"
-                className="text-up underline-offset-2 hover:underline"
+                className="inline-flex items-center gap-1 text-up underline-offset-2 hover:underline"
               >
-                Confirmed ↗ view transaction
+                Confirmed, view transaction
+                <ArrowUpRight size={12} />
               </a>
             )}
           </div>
@@ -296,8 +298,8 @@ export function RefractConsole() {
             aria-modal="true"
             className="animate-modal relative w-full max-w-sm rounded-2xl border border-rule bg-paper p-6"
           >
-            <div className="flex h-9 w-9 items-center justify-center border border-up text-up">
-              ✓
+            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-up text-up">
+              <Check size={16} />
             </div>
             <h3 className="mt-4 font-sans text-lg font-bold tracking-tight text-ink">
               {success.title}
@@ -314,9 +316,10 @@ export function RefractConsole() {
                 href={explorerUrl("tx", success.sig)}
                 target="_blank"
                 rel="noreferrer"
-                className="text-[11px] uppercase tracking-[0.12em] text-mute transition-colors hover:text-ink"
+                className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.12em] text-mute transition-colors hover:text-ink"
               >
-                View transaction ↗
+                View transaction
+                <ArrowUpRight size={12} />
               </a>
               <button
                 type="button"

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMarket } from "@/hooks/useMarket";
 import { StockLogo } from "@/components/StockLogo";
+import { ArrowRight } from "@/components/icons";
 import { assets } from "@/lib/assets";
 import { formatChange, formatUsd } from "@/lib/market";
 
@@ -64,8 +65,9 @@ export function StockCatalog() {
                   {change == null ? "" : formatChange(change)}
                 </div>
 
-                <span className="hidden w-20 text-right text-[11px] uppercase tracking-[0.12em] text-mute transition-colors duration-150 group-hover:text-ink sm:inline">
-                  Refract →
+                <span className="hidden w-20 items-center justify-end gap-1.5 text-[11px] uppercase tracking-[0.12em] text-mute transition-colors duration-150 group-hover:text-ink sm:inline-flex">
+                  Refract
+                  <ArrowRight size={12} />
                 </span>
               </Link>
             </li>

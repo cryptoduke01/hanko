@@ -1,11 +1,6 @@
 import Link from "next/link";
 import { DitherSeal } from "@/components/DitherSeal";
-
-const CHIPS = [
-  { label: "Fully collateralized", varName: "--shield" },
-  { label: "No liquidation", varName: "--core" },
-  { label: "Recombine anytime", varName: "--edge" },
-];
+import { ArrowUpRight } from "@/components/icons";
 
 export default function HomePage() {
   return (
@@ -30,37 +25,20 @@ export default function HomePage() {
           an upside part. Own only the part you want.
         </p>
 
-        <div className="animate-fade-up-delay-2 mt-9 flex flex-wrap items-center justify-center gap-3">
+        <div className="animate-fade-up-delay-2 mt-10 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/refract"
-            className="btn-liquid inline-flex items-center gap-2 rounded-full border border-ink bg-ink px-6 py-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+            className="press btn-liquid inline-flex items-center gap-2 rounded-full border border-ink bg-ink px-6 py-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
           >
             Refract a share
-            <span aria-hidden>↗</span>
+            <ArrowUpRight size={14} />
           </Link>
           <Link
             href="/docs"
-            className="inline-flex items-center rounded-full border border-rule px-6 py-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-ink transition-colors duration-200 hover:border-ink"
+            className="press inline-flex items-center rounded-full border border-rule px-6 py-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-ink transition-colors duration-200 hover:border-ink"
           >
             How it works
           </Link>
-        </div>
-
-        <p className="animate-fade-up-delay-3 mt-12 text-[11px] uppercase tracking-[0.22em] text-mute">
-          Live on Solana devnet
-        </p>
-
-        <div className="animate-fade-up-delay-3 mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-          {CHIPS.map((c) => (
-            <span key={c.label} className="flex items-center gap-2 text-[12px] text-mute">
-              <span
-                className="h-1.5 w-1.5"
-                style={{ background: `var(${c.varName})` }}
-                aria-hidden
-              />
-              {c.label}
-            </span>
-          ))}
         </div>
       </div>
     </section>

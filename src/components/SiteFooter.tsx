@@ -1,49 +1,84 @@
 import Link from "next/link";
 
+const PRODUCT = [
+  { href: "/refract", label: "Refract" },
+  { href: "/assets", label: "Stocks" },
+  { href: "/docs", label: "Docs" },
+];
+
 export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-rule">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:flex-row sm:items-start sm:justify-between sm:px-6">
-        <div className="space-y-2">
-          <p className="text-xs leading-relaxed text-mute">
-            Hanko refracts a tokenized share into three tranche tokens on
-            Solana. Not financial advice.
-          </p>
-          <p className="font-mono text-[11px] text-mute">
-            Built by{" "}
-            <span className="text-ink">duke.sol</span>
-            {" · "}
-            <a
-              href="https://x.com/dukedotsol"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-ink underline decoration-rule underline-offset-2 transition-opacity duration-200 hover:opacity-60"
-            >
-              @dukedotsol
-            </a>
-          </p>
+      <div className="mx-auto max-w-6xl px-6 py-12 sm:px-8">
+        <div className="flex flex-col gap-10 sm:flex-row sm:justify-between">
+          <div className="max-w-xs">
+            <div className="font-sans text-sm font-semibold tracking-tight text-ink">
+              HANKO
+            </div>
+            <p className="mt-3 text-xs leading-relaxed text-mute">
+              Split a tokenized stock into a safe part, a balanced part, and an
+              upside part. Own only the part you want.
+            </p>
+            <div className="mt-5 flex h-1.5 w-40 overflow-hidden rounded-full">
+              <span className="flex-[0.5]" style={{ background: "var(--shield)" }} />
+              <span className="flex-[0.3]" style={{ background: "var(--core)" }} />
+              <span className="flex-[0.2]" style={{ background: "var(--edge)" }} />
+            </div>
+          </div>
+
+          <div className="flex gap-16">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-mute">
+                Product
+              </div>
+              <ul className="mt-4 space-y-2.5 text-xs text-mute">
+                {PRODUCT.map((l) => (
+                  <li key={l.href}>
+                    <Link
+                      href={l.href}
+                      className="transition-colors duration-200 hover:text-ink"
+                    >
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-mute">
+                More
+              </div>
+              <ul className="mt-4 space-y-2.5 text-xs text-mute">
+                <li>
+                  <a
+                    href="https://github.com/cryptoduke01/hanko"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="transition-colors duration-200 hover:text-ink"
+                  >
+                    GitHub
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://backpack.exchange"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="transition-colors duration-200 hover:text-ink"
+                  >
+                    Backpack
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-mute">
-          <Link
-            href="/refract"
-            className="transition-opacity duration-200 hover:text-ink"
-          >
-            Refract
-          </Link>
-          <Link
-            href="/docs"
-            className="transition-opacity duration-200 hover:text-ink"
-          >
-            Docs
-          </Link>
-          <a
-            href="https://github.com/cryptoduke01/hanko"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="transition-opacity duration-200 hover:text-ink"
-          >
-            GitHub
-          </a>
+
+        <div className="mt-12 flex flex-col gap-2 border-t border-rule pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[11px] text-mute">
+            Hanko on Solana. Not financial advice.
+          </p>
+          <p className="text-[11px] text-mute tabular-nums">© 2026 Hanko</p>
         </div>
       </div>
     </footer>

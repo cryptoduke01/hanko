@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowRight } from "@/components/icons";
 
 export const metadata: Metadata = {
   title: "How it works",
@@ -137,9 +138,10 @@ export default function DocsPage() {
       <p className="mt-14">
         <Link
           href="/refract"
-          className="text-xs uppercase tracking-[0.14em] text-ink underline decoration-rule underline-offset-4 transition-opacity duration-200 hover:opacity-60"
+          className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.14em] text-ink underline decoration-rule underline-offset-4 transition-opacity duration-200 hover:opacity-60"
         >
-          Refract a share →
+          Refract a share
+          <ArrowRight size={13} />
         </Link>
       </p>
 

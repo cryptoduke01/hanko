@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Close } from "@/components/icons";
 
 const KEY = "hanko-welcome-seen";
 
@@ -84,9 +85,9 @@ export function WelcomeModal() {
             type="button"
             aria-label="Close"
             onClick={close}
-            className="-mr-1 -mt-1 flex h-8 w-8 items-center justify-center text-mute transition-colors duration-150 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+            className="-mr-1 -mt-1 flex h-8 w-8 items-center justify-center rounded-full text-mute transition-colors duration-150 hover:bg-haze hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
           >
-            ✕
+            <Close size={16} />
           </button>
         </div>
 

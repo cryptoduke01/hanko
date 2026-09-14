@@ -242,7 +242,7 @@ export function SpectrumExplorer() {
       <div className="mt-4 rounded-2xl border border-rule bg-paper p-4 sm:p-5">
         <div className="flex items-center justify-between">
           <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-mute">
-            Deposit 1 {asset.ticker} → mint the spectrum
+            Deposit 1 {asset.ticker}, mint the spectrum
           </span>
           <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-mute">
             Σ = {formatUsd(values.spot)}
