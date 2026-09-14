@@ -175,24 +175,39 @@ export default function HomePage() {
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
             {PARTS.map((p) => (
-              <div key={p.name} className="rounded-2xl border border-rule p-6">
-                <div className="flex items-center gap-2.5">
-                  <span
-                    className="h-2.5 w-2.5 rounded-sm"
-                    style={{ background: `var(${p.varName})` }}
-                  />
-                  <span
-                    className="font-sans text-lg font-bold"
-                    style={{ color: `var(${p.varName})` }}
-                  >
-                    {p.name}
-                  </span>
+              <div
+                key={p.name}
+                className="relative overflow-hidden rounded-2xl border border-rule bg-haze p-6"
+              >
+                {/* cutout texture, tinted to the tranche */}
+                <div className="hero-dots pointer-events-none absolute inset-0" aria-hidden />
+                <div className="grain pointer-events-none absolute inset-0" aria-hidden />
+                <div
+                  className="pointer-events-none absolute inset-0"
+                  aria-hidden
+                  style={{
+                    background: `radial-gradient(78% 62% at 16% 118%, var(--glow-${p.name.toLowerCase()}) 0%, transparent 60%)`,
+                  }}
+                />
+                <div className="relative">
+                  <div className="flex items-center gap-2.5">
+                    <span
+                      className="h-2.5 w-2.5 rounded-sm"
+                      style={{ background: `var(${p.varName})` }}
+                    />
+                    <span
+                      className="font-sans text-lg font-bold"
+                      style={{ color: `var(${p.varName})` }}
+                    >
+                      {p.name}
+                    </span>
+                  </div>
+                  <div className="mt-1 text-[11px] tracking-[0.01em] text-mute">
+                    {p.role}
+                  </div>
+                  <div className="mt-4 text-xs tabular-nums text-ink">{p.pay}</div>
+                  <p className="mt-2 text-sm leading-relaxed text-mute">{p.d}</p>
                 </div>
-                <div className="mt-1 text-[11px] tracking-[0.01em] text-mute">
-                  {p.role}
-                </div>
-                <div className="mt-4 text-xs tabular-nums text-ink">{p.pay}</div>
-                <p className="mt-2 text-sm leading-relaxed text-mute">{p.d}</p>
               </div>
             ))}
           </div>
