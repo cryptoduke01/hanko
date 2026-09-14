@@ -71,6 +71,8 @@ The Anchor program `hanko_vault` is **deployed and tested on Solana devnet**.
 | `redeem`           | Burn one tranche for its intrinsic slice of the underlying                   |
 | `init_pool`        | Open a constant-product pool (a tranche vs. the underlying) and seed it      |
 | `swap`             | Trade one tranche on its pool, `x·y=k` with a 0.30% fee                      |
+| `withdraw_liquidity` | Reclaim seeded pool liquidity back to the provider                         |
+| `set_feed` / `settle_with_oracle` | Configure a Pyth feed, then settle permissionlessly from a signed Pyth price |
 
 The end-to-end integration test proves the full lifecycle **and** the tranche market on devnet: `deposit → recombine → settle → redeem` conservation stays intact, and a swap's on-chain output matches the constant-product formula to the base unit while `k` grows by exactly the fee.
 

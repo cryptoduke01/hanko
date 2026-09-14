@@ -36,7 +36,7 @@ At any price the three always sum to the whole share, so `Shield + Core + Edge â
 
 ## What we built
 
-- **On-chain Anchor program** (`hanko_vault`), deployed and tested on devnet: `initialize_vault`, `deposit`, `recombine`, `settle`, `redeem`, plus a constant-product AMM (`init_pool`, `swap`) so each tranche trades on its own pool.
+- **On-chain Anchor program** (`hanko_vault`), deployed and tested on devnet: `initialize_vault`, `deposit`, `recombine`, `settle`, `redeem`, a constant-product AMM (`init_pool`, `swap`, `withdraw_liquidity`) so each tranche trades on its own pool with reclaimable liquidity, and an **oracle settlement path** (`set_feed`, `settle_with_oracle`) that settles permissionlessly from a signed Pyth price (the `PriceUpdateV2` layout is read directly and was verified against a live SOL/USD feed).
 - **End-to-end integration test** proving the full lifecycle and a market swap on devnet (conservation holds; swap output matches `xÂ·y=k` to the base unit; `k` grows by the fee).
 - **The app** (Next.js): a landing page with an interactive "drag the price" explainer, `/refract` to lock a share and model the economics live, a tranche market to trade a single part, a `/stocks` catalog with live prices, and a `/portfolio` dashboard that reads holdings, market prices, and labeled on-chain activity live from devnet.
 - **Self-serve demo faucet** so any visitor can try the full flow with a fresh wallet.
@@ -70,7 +70,7 @@ Internal Kensho self-review in `docs/security-review.md`. No permissionless thef
 
 ## Roadmap (post-hackathon, before mainnet)
 
-1. Pyth xStocks oracle for settlement, replacing the interim authority-set price (a sanity bound already caps it).
+1. Pyth oracle settlement is **built and deployed** (`set_feed` + `settle_with_oracle`); wire it to real xStocks feeds and make it the default settle path (the interim authority price has a sanity bound today).
 2. Real Backpack Securities underlyings (mint/redeem integration); the program already accepts any SPL mint, so this is access + config, not a rewrite.
 3. **Shield as premium collateral**: the senior, safe slice is high-grade collateral other Solana lending protocols can accept, making Hanko a factory for a new safe-yield asset that composes across DeFi.
 4. LP tokens for multi-provider pools (single-LP `withdraw_liquidity` is shipped, so seeded liquidity is reclaimable).
