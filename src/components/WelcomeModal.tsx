@@ -94,7 +94,7 @@ export function WelcomeModal() {
         <ol className="mt-6 space-y-4">
           {STEPS.map((s) => (
             <li key={s.n} className="flex gap-3">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center border border-rule text-[11px] font-semibold text-ink tabular-nums">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-rule text-[11px] font-semibold text-ink tabular-nums">
                 {s.n}
               </span>
               <div>
@@ -107,7 +107,7 @@ export function WelcomeModal() {
           ))}
         </ol>
 
-        <div className="mt-6 flex h-1.5 w-full overflow-hidden">
+        <div className="mt-6 flex h-1.5 w-full overflow-hidden rounded-full">
           <span className="dither flex-[0.5]" style={{ background: "var(--shield)" }} />
           <span className="dither flex-[0.3]" style={{ background: "var(--core)" }} />
           <span className="dither flex-[0.2]" style={{ background: "var(--edge)" }} />
@@ -116,7 +116,7 @@ export function WelcomeModal() {
         <button
           type="button"
           onClick={close}
-          className="mt-6 w-full border border-ink bg-ink py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+          className="press mt-6 w-full rounded-lg border border-ink bg-ink py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-paper transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
         >
           Get started
         </button>
