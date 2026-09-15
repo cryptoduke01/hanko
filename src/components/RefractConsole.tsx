@@ -76,6 +76,46 @@ export function RefractConsole() {
     }
   }, [owner]);
 
+  // Pre-IPO tokens (PreStocks) are refractable too; fold them into the picker.
+  const [preStocks, setPreStocks] = useState<RefractableStock[]>([]);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/prestocks", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { tokens?: { symbol: string; name: string }[] } | null) => {
+        if (!alive || !d?.tokens) return;
+        setPreStocks(
+          d.tokens.map((t) => ({
+            slug: t.symbol.toLowerCase(),
+            ticker: t.symbol,
+            symbol: t.symbol,
+            name: t.name,
+          }))
+        );
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const allStocks = useMemo(() => [...STOCKS, ...preStocks], [preStocks]);
+
+  // Preselect from ?stock= (e.g. a link from the Pre-IPO board). window.location
+  // avoids needing a Suspense boundary for useSearchParams.
+  useEffect(() => {
+    try {
+      const q = new URLSearchParams(window.location.search).get("stock");
+      if (!q) return;
+      const found = allStocks.find(
+        (s) => s.symbol.toLowerCase() === q.toLowerCase()
+      );
+      if (found) setStock(found);
+    } catch {
+      /* no query params */
+    }
+  }, [allStocks]);
+
   const refresh = useCallback(async () => {
     if (!owner || !demoMint) {
       setBalances(null);
@@ -229,7 +269,7 @@ export function RefractConsole() {
                 Edge. They land in your wallet by name and recombine anytime.
               </p>
             </div>
-            <StockPicker stocks={STOCKS} selected={stock} onSelect={setStock} />
+            <StockPicker stocks={allStocks} selected={stock} onSelect={setStock} />
             <div>
               <ActionButton
                 onClick={getDemo}

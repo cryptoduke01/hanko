@@ -9,6 +9,14 @@ import { ArrowUpRight } from "@/components/icons";
 import { formatChange, formatCompact, formatUsd } from "@/lib/market";
 import type { Candle, ChartResponse } from "@/lib/types";
 
+interface PythResp {
+  symbol: string;
+  feedId?: string;
+  price: number | null;
+  conf?: number;
+  publishTime?: number;
+}
+
 const INTERVALS: { key: string; label: string }[] = [
   { key: "1H", label: "1H" },
   { key: "1D", label: "1D" },
@@ -36,6 +44,22 @@ export function StockDetail({
   const [candles, setCandles] = useState<Candle[] | null>(null);
   const [source, setSource] = useState<string>("fallback");
   const [loadingChart, setLoadingChart] = useState(true);
+  const [pyth, setPyth] = useState<PythResp | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    const load = () =>
+      fetch(`/api/pyth?symbol=${encodeURIComponent(symbol)}`, { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d: PythResp | null) => alive && setPyth(d))
+        .catch(() => {});
+    load();
+    const id = window.setInterval(load, 15_000); // Pyth refreshes ~sub-second; poll gently
+    return () => {
+      alive = false;
+      window.clearInterval(id);
+    };
+  }, [symbol]);
 
   useEffect(() => {
     let alive = true;
@@ -86,6 +110,28 @@ export function StockDetail({
           </div>
         </div>
       </div>
+
+      {/* Pyth: the oracle that settles the vault */}
+      {pyth?.price != null && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rule bg-haze/40 px-4 py-3">
+          <div className="flex items-center gap-2.5">
+            <span className="inline-flex h-6 items-center rounded-md bg-ink px-2 text-[10px] font-semibold tracking-[0.02em] text-paper">
+              Pyth
+            </span>
+            <span className="text-[12px] leading-snug text-mute">
+              Live oracle price. This is the feed that settles your vault at maturity.
+            </span>
+          </div>
+          <div className="flex items-baseline gap-2 tabular-nums">
+            <span className="text-lg font-semibold text-ink">
+              {formatUsd(pyth.price)}
+            </span>
+            {pyth.conf != null && (
+              <span className="text-[11px] text-mute">± {formatUsd(pyth.conf)}</span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* chart */}
       <div className="rounded-2xl border border-rule bg-paper p-4 sm:p-5">
