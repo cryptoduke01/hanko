@@ -19,8 +19,12 @@ a product until the checklist's legal + audit gates are signed off.
 
 ## 0. Prerequisites
 - The deployer wallet `hanko_vault/.deployer.json` (upgrade authority
-  `GrFc6mKZw57DkDKxSHfK4uwsG6urSQLwQG5eDvXR7tYy`) funded with **~4 mainnet SOL**
-  (program rent + upload buffer; the buffer rent refunds after deploy).
+  `GrFc6mKZw57DkDKxSHfK4uwsG6urSQLwQG5eDvXR7tYy`) funded with **~5 to 6 mainnet
+  SOL available** during the deploy. Of that, only **~2.3 SOL** stays locked as
+  the program's rent-exempt reserve (recoverable if you ever close the program);
+  the rest is a temporary upload buffer that refunds, plus a little in fees.
+  The size-optimized build (~449KB) sets the ~2.3 figure; run `solana rent
+  $(wc -c < target/deploy/hanko_vault.so)` to confirm before you deploy.
 - A paid mainnet RPC (e.g. Helius mainnet). Keep the URL out of the repo.
 - A wallet holding a small amount of one real xStock (e.g. TSLAx,
   mint `XsDoVfqeBukxuZHWhdvWHBhgEHjGNst4MLodqsJHzoB`).
