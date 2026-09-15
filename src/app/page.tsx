@@ -46,6 +46,27 @@ const PARTS = [
   },
 ];
 
+const WHO = [
+  {
+    name: "The saver",
+    part: "holds Shield",
+    varName: "--shield",
+    d: "Wants equity-backed yield without the swings. Shield keeps its value unless the stock falls below the floor, so it behaves like the safe, bond-like part of the share.",
+  },
+  {
+    name: "The holder",
+    part: "holds Core",
+    varName: "--core",
+    d: "Wants plain exposure for less. Core is the middle band of the stock's moves, a cheaper entry than buying the whole share outright.",
+  },
+  {
+    name: "The believer",
+    part: "holds Edge",
+    varName: "--edge",
+    d: "Is bullish and wants leverage that can never be liquidated. Edge is pure upside above the cap. The worst case is only what they paid for it.",
+  },
+];
+
 const WHY = [
   {
     t: "Fully collateralized",
@@ -78,14 +99,15 @@ export default function HomePage() {
 
         <div className="relative mx-auto flex w-full max-w-3xl flex-col items-center px-6 py-16 text-center">
           <h1 className="animate-fade-up font-sans text-[2.7rem] font-bold leading-[0.98] tracking-[-0.04em] text-ink sm:text-7xl sm:leading-[0.96]">
-            Trade a stock
+            Own only the part
             <br />
-            <span className="text-mute">as three tokens.</span>
+            <span className="text-mute">of a stock you want.</span>
           </h1>
 
-          <p className="animate-fade-up-delay-1 mt-7 max-w-lg text-base leading-relaxed text-ink/70 sm:text-lg">
-            Hanko splits a tokenized stock into a safe part, a balanced part, and
-            an upside part. Own only the part you want.
+          <p className="animate-fade-up-delay-1 mt-7 max-w-xl text-base leading-relaxed text-ink/70 sm:text-lg">
+            Hanko splits a tokenized share into three tokens you can hold on their
+            own: Shield for safety, Core for plain exposure, Edge for upside. Keep
+            the part that fits your view, sell the rest, recombine anytime.
           </p>
 
           <div className="animate-fade-up-delay-2 mt-10 flex flex-wrap items-center justify-center gap-3">
@@ -102,6 +124,40 @@ export default function HomePage() {
             >
               How it works
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Who it's for */}
+      <section className="border-t border-rule">
+        <div className="mx-auto max-w-6xl px-6 py-20 sm:px-8 sm:py-24">
+          <p className={eyebrow}>Who it&apos;s for</p>
+          <h2 className={`${heading} max-w-2xl`}>
+            One share bundles three appetites. Hanko lets each buy their part.
+          </h2>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-mute">
+            A stock price mixes safety, exposure and upside into one number. Some
+            people want only one of those. Refract the share and each holds the
+            part they came for.
+          </p>
+
+          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            {WHO.map((w) => (
+              <CutCard key={w.name} tint={`var(--glow-${w.varName.replace("--", "")})`}>
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="font-sans text-lg font-bold text-ink">
+                    {w.name}
+                  </span>
+                  <span
+                    className="text-[11px] font-medium tracking-[0.01em]"
+                    style={{ color: `var(${w.varName})` }}
+                  >
+                    {w.part}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-mute">{w.d}</p>
+              </CutCard>
+            ))}
           </div>
         </div>
       </section>

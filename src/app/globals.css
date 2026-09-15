@@ -33,6 +33,19 @@
   --glow-shield: rgba(47, 87, 212, 0.38);
   --glow-core: rgba(14, 143, 134, 0.34);
   --glow-edge: rgba(194, 65, 12, 0.34);
+
+  /* Hero bloom: one rich radial from the bottom, refracted through the spectrum
+     (Edge warm at the base, up through Core, to Shield cool near the top), then
+     fading to paper. Our own colours, grain layered over it. */
+  --hero-bloom: radial-gradient(
+    128% 120% at 50% 107%,
+    rgba(224, 82, 18, 0.42) 6%,
+    rgba(224, 100, 30, 0.26) 15%,
+    rgba(16, 150, 140, 0.25) 33%,
+    rgba(47, 87, 212, 0.27) 53%,
+    rgba(47, 87, 212, 0.1) 70%,
+    transparent 84%
+  );
 }
 
 html.dark {
@@ -62,6 +75,16 @@ html.dark {
   --glow-shield: rgba(109, 155, 255, 0.42);
   --glow-core: rgba(45, 212, 191, 0.36);
   --glow-edge: rgba(251, 146, 60, 0.36);
+
+  --hero-bloom: radial-gradient(
+    128% 120% at 50% 107%,
+    rgba(251, 146, 60, 0.34) 6%,
+    rgba(251, 146, 60, 0.19) 15%,
+    rgba(45, 212, 191, 0.22) 33%,
+    rgba(109, 155, 255, 0.28) 53%,
+    rgba(109, 155, 255, 0.08) 70%,
+    transparent 84%
+  );
 }
 
 @theme inline {
@@ -342,6 +365,12 @@ a,
     radial-gradient(80% 62% at 50% 34%, var(--lift) 0%, transparent 72%);
 }
 
+/* The signature hero bloom: one rich spectrum radial from the bottom (Basket-
+   style grainy aurora, Hanko's colours). Grain sits above it via `.grain`. */
+.hero-bloom {
+  background: var(--hero-bloom);
+}
+
 .hero-dots {
   background-image: radial-gradient(var(--dot-strong) 1px, transparent 1.3px);
   background-size: 22px 22px;
@@ -382,18 +411,18 @@ html.dark .grain::after {
    exposes a hard edge; the blooms fade to transparent well before the bounds. */
 @keyframes hero-wave {
   0% {
-    transform: translate3d(-2.5%, 1.5%, 0) scale(1.06);
+    transform: translate3d(-1.4%, 1%, 0) scale(1.05);
   }
   50% {
-    transform: translate3d(2.5%, -2%, 0) scale(1.12);
+    transform: translate3d(1.6%, -1.4%, 0) scale(1.09);
   }
   100% {
-    transform: translate3d(-2.5%, 1.5%, 0) scale(1.06);
+    transform: translate3d(-1.4%, 1%, 0) scale(1.05);
   }
 }
 
 .wave-anim {
-  animation: hero-wave 22s ease-in-out infinite;
+  animation: hero-wave 30s ease-in-out infinite;
   will-change: transform;
 }
 

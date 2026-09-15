@@ -1,7 +1,8 @@
 /**
- * Hero backdrop, Hanko's own: the spectrum drifting like slow waves, a dither
- * grid, film grain, and the seal pressed faintly *around* the edges with the
- * centre kept clear for the headline. Decorative.
+ * Hero backdrop, Hanko's own: one rich spectrum bloom rising from the bottom
+ * (a share, refracted), a film-grain texture over it, and the seal pressed
+ * faintly *around* the edges with the centre kept clear for the headline.
+ * Decorative.
  */
 export function HeroBackdrop() {
   return (
@@ -9,8 +10,7 @@ export function HeroBackdrop() {
       className="grain pointer-events-none absolute inset-0 overflow-hidden"
       aria-hidden
     >
-      <div className="hero-depth wave-anim absolute inset-0" />
-      <div className="hero-dots absolute inset-0" />
+      <div className="hero-bloom wave-anim absolute inset-0" />
       <SealField className="absolute inset-0 h-full w-full" />
     </div>
   );
@@ -53,7 +53,7 @@ function SealField({ className = "" }: { className?: string }) {
         width="100%"
         height="100%"
         fill="url(#hero-seal-tile)"
-        opacity="0.06"
+        opacity="0.045"
         mask="url(#hero-seal-clear)"
       />
     </svg>
