@@ -1,6 +1,11 @@
 import fs from "fs";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
-import { getMint, TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import {
+  getMint,
+  getTransferFeeConfig,
+  TOKEN_2022_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
 
 /** Env helpers shared by the two pool scripts. Both run on MAINNET with real
  *  funds, so everything is explicit and nothing has a silent default that could
@@ -37,6 +42,20 @@ export async function mintMeta(
     ? TOKEN_2022_PROGRAM_ID
     : TOKEN_PROGRAM_ID;
   const m = await getMint(conn, mint, "confirmed", programId);
+
+  // These scripts deposit gross amounts and do not net Token-2022 transfer fees,
+  // so a fee-bearing mint would seed the pool at a slightly wrong ratio. Reject
+  // it up front rather than open a mispriced pool.
+  if (programId.equals(TOKEN_2022_PROGRAM_ID)) {
+    const fee = getTransferFeeConfig(m);
+    const bps = fee?.newerTransferFee.transferFeeBasisPoints ?? 0;
+    if (bps > 0) {
+      throw new Error(
+        `Mint ${mint.toBase58()} charges a ${bps} bps transfer fee; these scripts do not net transfer fees and would seed the pool at a wrong ratio. Not supported.`
+      );
+    }
+  }
+
   return { decimals: m.decimals, programId };
 }
 
