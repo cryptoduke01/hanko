@@ -1,56 +1,69 @@
-# Hanko demo video script (60 to 90 seconds)
+# Hanko demo + pitch video (about 2 to 3 minutes)
 
-A tight, judge-facing walkthrough. Record the live devnet app at hankolabs.xyz
-with a wallet set to Devnet. Screen recording plus a calm voiceover. No slides.
+A screen recording of the live devnet app at hankolabs.xyz with a calm voiceover.
+No slides needed; the product carries it. This one script covers both the pitch
+(problem and idea) and the demo (it working live).
 
-## Before you record
-- Wallet on **Devnet**, empty is fine (the in-app faucet funds it).
-- Fresh browser profile so the welcome modal shows once, then dismiss it.
-- Have Phantom (or Solflare) open in a side panel so the named tokens are visible.
+## Setup before you record
+- Record with QuickTime (File > New Screen Recording) or Loom. Enable the mic.
+- Wallet on **Devnet**, Phantom visible in a side panel so the named tokens show.
+- Do the mint + refract once as a dry run so the faucet has already funded you;
+  the real take is then instant.
+- Fresh browser tab so the welcome modal shows once, then dismiss it.
 
-## Shot list + voiceover
+## Structure (target ~2:30)
+- Pitch: 0:00 to 0:40
+- Demo: 0:40 to 2:10
+- Close: 2:10 to 2:30
 
-**0:00 to 0:10 · The hook (home hero)**
-> "A stock price bundles three things into one: safety, exposure, and upside. You're forced to buy all three. Hanko lets you own only the part you want."
+---
 
-Show the hero, then scroll once past the three personas (saver, holder, believer).
+## PITCH (0:00 to 0:40)
 
-**0:10 to 0:22 · The idea (How it works strip)**
-> "One tokenized share refracts into three tokens: Shield, the safe part; Core, plain exposure; Edge, pure upside. They always recombine back into one whole share."
+**0:00 to 0:12 · Hook + problem** (home hero)
+> "A stock price bundles three different things into one number: safety, exposure, and upside. When you buy a share, you are forced to buy all three at once, even if you only want one."
 
-Show the "One share -> Shield / Core / Edge" diagram.
+**0:12 to 0:28 · The idea** (scroll to the three personas)
+> "Hanko refracts a tokenized stock into three tradeable tokens: Shield, the safe part; Core, plain exposure; Edge, pure upside. The saver holds Shield, the believer holds Edge, and the three always recombine into one whole share. No leverage, no liquidation."
 
-**0:22 to 0:40 · Do it live (Refract)**
-> "Here it is on Solana devnet. I pick a stock, mint a demo share, and refract it."
+**0:28 to 0:40 · Why it is credible** (scroll to How it works)
+> "It is a fully collateralized redistribution of one share's payoff, enforced on-chain: Shield plus Core plus Edge always equals the share. And settlement runs on a Pyth oracle."
 
-- Go to Refract, connect wallet.
-- Pick **Tesla**, click **Mint 100 TSLA shares** (faucet funds the wallet).
-- Enter 25, click **Refract**.
+---
 
-**0:40 to 0:52 · The payoff (wallet)**
+## DEMO (0:40 to 2:10)
+
+**0:40 to 1:00 · Refract live** (Refract page)
+> "Here it is on Solana devnet. I pick Tesla, mint a demo share, and refract 25 of them."
+- Connect wallet, pick Tesla, Mint 100 TSLA shares, enter 25, click Refract.
+
+**1:00 to 1:15 · Named tokens in the wallet** (Phantom)
 > "And there they are in my wallet, by name: Hanko TSLA Shield, Core, and Edge. Real SPL tokens, each tradeable on its own."
 
-Cut to Phantom showing the three named tokens with their icons.
+**1:15 to 1:30 · Trade one part** (tranche market)
+> "I am bullish, so I keep Edge and sell my Shield into its pool. One part moves, the others do not."
 
-**0:52 to 1:05 · Trade one part**
-> "I'm bullish, so I keep Edge and sell my Shield into the tranche pool. One part moves, the others don't."
+**1:30 to 1:45 · Recombine**
+> "Whenever I want the whole share back, I recombine all three. Shield plus Core plus Edge is always exactly one share."
 
-Show a swap in the tranche market, balances updating.
+**1:45 to 2:10 · Pyth + Pre-IPO** (a stock detail page, then /prestocks)
+> "Every stock shows its live Pyth price, the same feed that settles the vault. And it is not just public stocks: Hanko refracts pre-IPO tokens too, pulling live valuations for Anthropic, OpenAI and SpaceX from PreStocks. A believer can hold Edge on OpenAI while someone else takes the safe part."
+- Show a detail page (the Pyth strip), then the Pre-IPO page.
 
-**1:05 to 1:18 · Put it back**
-> "Whenever I want the whole share back, I recombine all three. Shield plus Core plus Edge is always exactly one share. Fully backed, no leverage, no liquidation."
+---
 
-Show Recombine, balances returning to a whole share.
+## CLOSE (2:10 to 2:30)
+> "Hanko: own only the part of a stock you want. Pyth-settled structured products on Solana, live on devnet, open source. One share, refracted into three."
+- End on the home hero.
 
-**1:18 to 1:30 · Close**
-> "Hanko: own only the part of a stock you want. Live on devnet, open source, built for Stocklana."
+---
 
-Show the home hero again, or the stock detail page with the live chart.
-
-## If you only have 60 seconds
-Cut the trade step (0:52 to 1:05). The must-haves are: the hook, the refract, the named tokens in the wallet, and the recombine.
+## If you only have 90 seconds
+Cut the trade step and the Pre-IPO segment. Keep: hook, the idea, refract, named
+tokens in the wallet, recombine, and one line on Pyth.
 
 ## Recording tips
-- Do the mint + refract once as a dry run so the faucet has already funded you; the real take is then instant.
-- Keep the cursor calm; pause half a second on each result before moving.
-- Toggle to the stock detail page once to show the live candlestick chart if you have a Tokens.xyz key; otherwise skip it.
+- Keep the cursor calm; pause half a second on each result before moving on.
+- Speak a little slower than feels natural; it reads as confident.
+- Show the wallet's named tokens clearly; that is the moment that lands.
+- 1080p, landscape. Trim dead air at the start and end.
