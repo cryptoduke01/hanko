@@ -1,14 +1,24 @@
 # Stocklana submission kit
 
-Everything needed to submit Hanko, ready to paste. Deadline: **Fri Sep 18, 4:00pm ET.**
-Edits are allowed until close, so submit early and keep polishing.
+Everything needed to submit Hanko, ready to paste. Deadline: **Thu Sep 25, 9:00pm**
+(per the submit page). Edits are allowed until close, so submit early and keep polishing.
 
 ## Track and wedge
 - **Main track** (Solana Foundation, $100k pool).
 - **Wedge:** Credit and yield -> **structured products**. Hanko is a fully
   collateralized structured product over a tokenized stock.
-- **Bounties:** skip both. Meteora DBC and Clawpump need mainnet + a different
-  build; not worth diluting a strong main-track entry with no funds available.
+
+### Bounties we qualify for (enter these)
+- **Best use of Pyth market data.** Settlement runs on a Pyth pull oracle
+  (`settle_with_oracle`), and the UI shows the live Pyth xStock price labeled as
+  the feed that settles the vault. Pyth is the settlement engine, not decoration.
+- **Best use of PreStocks.** The `/prestocks` page pulls live pre-IPO tokens from
+  the PreStocks API and refracts them (Anthropic, OpenAI, SpaceX, ...) into
+  Shield/Core/Edge. Pre-IPO exposure is the purest bundled-risk case for tranching.
+
+### Bounties to skip
+- **Meteora DBC, Clawpump, Tessera** need a different primitive (bonding-curve
+  launches / agents) and mainnet funds we do not have. Do not dilute the main entry.
 
 ## The links (need at least one; we have all three)
 - **GitHub:** https://github.com/cryptoduke01/hanko  (public, MIT-ish, README + About set)
