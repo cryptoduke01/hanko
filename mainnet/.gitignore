@@ -1,6 +1,6 @@
 node_modules/
-package-lock.json
-# never commit a wallet
-*wallet*.json
-*keypair*.json
-.deployer.json
+# Never commit any local JSON here (wallet keys, dumps). Allowlist only the
+# config files; everything else, including a stray id.json/owner.json, is ignored.
+*.json
+!package.json
+!tsconfig.json

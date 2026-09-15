@@ -29,9 +29,31 @@ const IP_MAX = 3; // requests per IP per window
 const GLOBAL_WINDOW_MS = 60 * 60_000; // 1 hour
 const GLOBAL_MAX = 40; // drips per instance per hour (~2 SOL)
 
+// Genesis hash of mainnet-beta. The faucet refuses to run on it: this is a
+// devnet demo tool and must never send real SOL, even if RPC is misconfigured.
+const MAINNET_GENESIS = "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d";
+let genesisChecked = false;
+let onMainnet = false;
+
 // Best-effort, per-instance memory. Not shared across serverless instances.
 const ipHits = new Map<string, number[]>();
 let globalHits: number[] = [];
+// Drips sent but not yet settled. Counted against the reserve floor and global
+// cap so a concurrent burst cannot all pass the same balance check and undershoot
+// the reserve (closes the check-then-act window within this instance).
+let inFlight = 0;
+
+async function refuseIfMainnet(conn: Connection): Promise<boolean> {
+  if (!genesisChecked) {
+    try {
+      onMainnet = (await conn.getGenesisHash()) === MAINNET_GENESIS;
+    } catch {
+      onMainnet = false; // cannot tell: default RPC is devnet, so do not block
+    }
+    genesisChecked = true;
+  }
+  return onMainnet;
+}
 
 function prune(list: number[], windowMs: number, now: number): number[] {
   return list.filter((t) => now - t < windowMs);
@@ -44,9 +66,10 @@ function clientIp(req: NextRequest): string {
 }
 
 /**
- * Load the funding key. Prefer an env secret (production); fall back to the
- * local deployer keypair in dev. The key stays server-side; it is never sent
- * to the client.
+ * Load the funding key from a dedicated env secret. The key stays server-side
+ * and is never sent to the client. In production this MUST be a throwaway
+ * devnet key (`HANKO_FAUCET_SECRET`), never the program's deploy authority. Only
+ * in local dev do we fall back to the deployer keypair for convenience.
  */
 function loadFunder(): Keypair | null {
   const env = process.env.HANKO_FAUCET_SECRET;
@@ -57,6 +80,8 @@ function loadFunder(): Keypair | null {
       /* fall through */
     }
   }
+  // Never fall back to the on-disk deploy authority in production.
+  if (process.env.NODE_ENV === "production") return null;
   try {
     const p = path.join(process.cwd(), "hanko_vault", ".deployer.json");
     return Keypair.fromSecretKey(
@@ -94,7 +119,8 @@ export async function POST(req: NextRequest) {
       if (prune(v, IP_WINDOW_MS, now).length === 0) ipHits.delete(k);
     }
   }
-  if (globalHits.length >= GLOBAL_MAX) {
+  // In-flight drips count toward the cap so a concurrent burst cannot slip past.
+  if (globalHits.length + inFlight >= GLOBAL_MAX) {
     return NextResponse.json(
       { funded: false, reason: "faucet busy, try again later" },
       { status: 429 }
@@ -110,39 +136,53 @@ export async function POST(req: NextRequest) {
   }
 
   const conn = new Connection(RPC, "confirmed");
+
+  // Hard stop: this is a devnet tool and must never send real SOL.
+  if (await refuseIfMainnet(conn)) {
+    return NextResponse.json(
+      { funded: false, reason: "faucet is disabled on mainnet" },
+      { status: 503 }
+    );
+  }
+
   try {
     const balance = await conn.getBalance(to);
     if (balance >= MIN) {
       return NextResponse.json({ funded: false, reason: "sufficient balance" });
     }
 
-    // Circuit breaker: never let the faucet drain past its reserve. This bounds
-    // total payout regardless of how many fresh wallets ask, and is enforced on
-    // every instance because it reads the on-chain funder balance.
+    // Circuit breaker: never let the faucet drain past its reserve. Accounts for
+    // drips already in flight, so N concurrent requests reading the same balance
+    // cannot each pass and undershoot the floor together.
     const funderBalance = await conn.getBalance(funder.publicKey);
-    if (funderBalance - FUND < RESERVE_FLOOR) {
+    if (funderBalance - FUND * (inFlight + 1) < RESERVE_FLOOR) {
       return NextResponse.json(
         { funded: false, reason: "faucet reserve low, ask the team to top it up" },
         { status: 503 }
       );
     }
 
-    const tx = new Transaction().add(
-      SystemProgram.transfer({
-        fromPubkey: funder.publicKey,
-        toPubkey: to,
-        lamports: FUND,
-      })
-    );
-    const sig = await conn.sendTransaction(tx, [funder]);
-    await conn.confirmTransaction(sig, "confirmed");
+    inFlight += 1;
+    try {
+      const tx = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: funder.publicKey,
+          toPubkey: to,
+          lamports: FUND,
+        })
+      );
+      const sig = await conn.sendTransaction(tx, [funder]);
+      await conn.confirmTransaction(sig, "confirmed");
 
-    // Record only successful drips against the limits.
-    hits.push(now);
-    ipHits.set(ip, hits);
-    globalHits.push(now);
+      // Record only successful drips against the limits.
+      hits.push(now);
+      ipHits.set(ip, hits);
+      globalHits.push(now);
 
-    return NextResponse.json({ funded: true, sig });
+      return NextResponse.json({ funded: true, sig });
+    } finally {
+      inFlight -= 1;
+    }
   } catch (e) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Faucet failed" },

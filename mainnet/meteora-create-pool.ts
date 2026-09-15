@@ -28,17 +28,23 @@ import {
 import { BN } from "@coral-xyz/anchor";
 import {
   CpAmm,
-  CollectFeeMode,
   getSqrtPriceFromPrice,
   derivePoolAddress,
   derivePositionAddress,
 } from "@meteora-ag/cp-amm-sdk";
 import { getMint, type Mint, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
-import { connection, env, loadKeypair, mintMeta, requireMainnet } from "./shared";
+import {
+  confirmOrExit,
+  connection,
+  env,
+  loadKeypair,
+  mintMeta,
+  requireMainnet,
+} from "./shared";
 
 async function main() {
   const conn = connection();
-  requireMainnet(conn);
+  await requireMainnet(conn);
   const wallet = loadKeypair();
   const cpAmm = new CpAmm(conn);
 
@@ -47,9 +53,15 @@ async function main() {
   const a = await mintMeta(conn, mintA);
   const b = await mintMeta(conn, mintB);
 
-  const config = process.env.DAMM_CONFIG
-    ? new PublicKey(process.env.DAMM_CONFIG)
-    : (await cpAmm.getStaticConfigs())[0].publicKey; // first permissionless config
+  let config: PublicKey;
+  if (process.env.DAMM_CONFIG) {
+    config = new PublicKey(process.env.DAMM_CONFIG);
+  } else {
+    const statics = await cpAmm.getStaticConfigs();
+    if (!statics?.length)
+      throw new Error("No permissionless DAMM v2 configs found; pass DAMM_CONFIG");
+    config = statics[0].publicKey; // first permissionless config
+  }
   const configState = await cpAmm.fetchConfigState(config);
 
   const tokenAAmount = new BN(env("AMOUNT_A")).mul(new BN(10).pow(new BN(a.decimals)));
@@ -74,13 +86,19 @@ async function main() {
     sqrtMinPrice: configState.sqrtMinPrice,
     sqrtMaxPrice: configState.sqrtMaxPrice,
     tokenAInfo,
-    collectFeeMode: CollectFeeMode.BothToken,
+    collectFeeMode: configState.collectFeeMode,
   });
 
   const positionNft = Keypair.generate(); // must co-sign
-  console.log(
-    `Creating DAMM v2 pool  ${env("AMOUNT_A")} A : ${env("AMOUNT_B")} B  @ ${env("INIT_PRICE")} B/A`
-  );
+  const price = Number(env("INIT_PRICE"));
+  confirmOrExit("Meteora DAMM v2 pool  (MAINNET, real funds):", [
+    `wallet    ${wallet.publicKey.toBase58()}`,
+    `mint A    ${mintA.toBase58()}  (${a.decimals} dp)  deposit ${env("AMOUNT_A")}`,
+    `mint B    ${mintB.toBase58()}  (${b.decimals} dp)  deposit ${env("AMOUNT_B")}`,
+    `price     1 A = ${price} B   |   1 B = ${(1 / price).toPrecision(6)} A`,
+    `config    ${config.toBase58()}`,
+    `pool      ${derivePoolAddress(config, mintA, mintB).toBase58()}`,
+  ]);
 
   const tx = await cpAmm.createPool({
     payer: wallet.publicKey,

@@ -40,11 +40,42 @@ export async function mintMeta(
   return { decimals: m.decimals, programId };
 }
 
-export function requireMainnet(conn: Connection): void {
-  // A cheap guard against pointing a real-funds script at the wrong RPC.
-  if (!/mainnet/i.test(env("RPC_URL"))) {
-    console.warn(
-      "! RPC_URL does not look like a mainnet endpoint. These scripts are for mainnet real liquidity."
+const MAINNET_GENESIS = "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d";
+
+/** Hard stop unless the RPC is genuinely mainnet-beta (verified by genesis hash,
+ *  not a URL substring). Set ALLOW_NON_MAINNET=1 to override when testing. */
+export async function requireMainnet(conn: Connection): Promise<void> {
+  if (process.env.ALLOW_NON_MAINNET === "1") {
+    console.warn("! ALLOW_NON_MAINNET=1: skipping the mainnet check.");
+    return;
+  }
+  let genesis: string;
+  try {
+    genesis = await conn.getGenesisHash();
+  } catch (e) {
+    throw new Error(
+      `Could not read the genesis hash to confirm the cluster: ${
+        e instanceof Error ? e.message : e
+      }`
     );
   }
+  if (genesis !== MAINNET_GENESIS) {
+    throw new Error(
+      "Refusing to run: RPC_URL is not mainnet-beta. Set ALLOW_NON_MAINNET=1 to override for testing."
+    );
+  }
+}
+
+/** Print the exact plan and refuse to send unless CONFIRM=1. Run once to review
+ *  the resolved mints/wallet/amounts/price, then re-run with CONFIRM=1 to send. */
+export function confirmOrExit(title: string, lines: string[]): void {
+  console.log(`\n${title}`);
+  for (const l of lines) console.log(`  ${l}`);
+  if (process.env.CONFIRM !== "1") {
+    console.log(
+      "\nReview the above. Re-run the SAME command with CONFIRM=1 to send. Nothing was sent."
+    );
+    process.exit(0);
+  }
+  console.log("\nCONFIRM=1 set, sending...\n");
 }

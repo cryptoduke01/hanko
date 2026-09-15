@@ -25,11 +25,18 @@ import {
 } from "@raydium-io/raydium-sdk-v2";
 import { PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
-import { connection, env, loadKeypair, mintMeta, requireMainnet } from "./shared";
+import {
+  confirmOrExit,
+  connection,
+  env,
+  loadKeypair,
+  mintMeta,
+  requireMainnet,
+} from "./shared";
 
 async function main() {
   const conn = connection();
-  requireMainnet(conn);
+  await requireMainnet(conn);
   const owner = loadKeypair();
 
   const mintAAddr = new PublicKey(env("MINT_A"));
@@ -62,11 +69,18 @@ async function main() {
   };
 
   const feeConfigs = await raydium.api.getCpmmConfigs(); // [0] is the 0.25% tier on mainnet
-  console.log(
-    `Creating CPMM pool  ${env("AMOUNT_A")} A : ${env("AMOUNT_B")} B  (fee ${
-      feeConfigs[0].tradeFeeRate / 10000
-    }%)`
-  );
+  if (!feeConfigs?.length) throw new Error("Raydium returned no CPMM fee configs");
+  const fee = feeConfigs[0];
+
+  const amtA = Number(env("AMOUNT_A"));
+  const amtB = Number(env("AMOUNT_B"));
+  confirmOrExit("Raydium CPMM pool  (MAINNET, real funds):", [
+    `wallet    ${owner.publicKey.toBase58()}`,
+    `mint A    ${mintAAddr.toBase58()}  (${a.decimals} dp)  deposit ${amtA}`,
+    `mint B    ${mintBAddr.toBase58()}  (${b.decimals} dp)  deposit ${amtB}`,
+    `price     1 A = ${(amtB / amtA).toPrecision(6)} B   |   1 B = ${(amtA / amtB).toPrecision(6)} A`,
+    `fee tier  ${fee.tradeFeeRate / 10000}%`,
+  ]);
 
   const { execute, extInfo } = await raydium.cpmm.createPool({
     programId: CREATE_CPMM_POOL_PROGRAM,
@@ -76,7 +90,7 @@ async function main() {
     mintAAmount: amountA,
     mintBAmount: amountB,
     startTime: new BN(0), // start immediately
-    feeConfig: feeConfigs[0],
+    feeConfig: fee,
     addSupportMintExt: false,
     associatedOnly: false,
     ownerInfo: { useSOLBalance: true },

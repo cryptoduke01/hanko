@@ -10,6 +10,16 @@ SDK out of the program's deps).
 > already hold both tokens in the pair. Claude does not run them for you. Read
 > the parameters before sending. Start with a small amount.
 
+**Safety rails built in:**
+- Each script **refuses to run unless the RPC is genuinely mainnet-beta** (checked
+  by genesis hash, not a URL guess). Override for testing with `ALLOW_NON_MAINNET=1`.
+- Each script **prints the resolved mints, decimals, wallet, amounts and price,
+  then does nothing** until you re-run the same command with `CONFIRM=1`. So run
+  once to review the plan, then re-run with `CONFIRM=1` to actually send.
+- **Never put a key file inside this folder.** Pass `KEYPAIR` as an absolute path
+  to a wallet *outside* the repo; the `.gitignore` here ignores every JSON except
+  the config files as a backstop.
+
 ## When to run
 After you have:
 1. deployed `hanko_vault` to mainnet (see [`../docs/mainnet-deploy.md`](../docs/mainnet-deploy.md)),
