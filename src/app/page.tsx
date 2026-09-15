@@ -101,10 +101,10 @@ export default function HomePage() {
           <h1 className="animate-fade-up font-sans text-[2.7rem] font-bold leading-[0.98] tracking-[-0.04em] text-ink sm:text-7xl sm:leading-[0.96]">
             Own only the part
             <br />
-            <span className="text-mute">of a stock you want.</span>
+            of a stock you want.
           </h1>
 
-          <p className="animate-fade-up-delay-1 mt-7 max-w-xl text-base leading-relaxed text-ink/70 sm:text-lg">
+          <p className="animate-fade-up-delay-1 mt-7 max-w-xl text-base leading-relaxed text-ink/85 sm:text-lg">
             Hanko splits a tokenized share into three tokens you can hold on their
             own: Shield for safety, Core for plain exposure, Edge for upside. Keep
             the part that fits your view, sell the rest, recombine anytime.
