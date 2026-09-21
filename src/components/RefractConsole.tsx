@@ -68,9 +68,6 @@ export function RefractConsole() {
     try {
       const stored = localStorage.getItem(DEMO_KEY(owner.toBase58()));
       setDemoMint(stored ? new PublicKey(stored) : null);
-      const sym = localStorage.getItem(SYM_KEY(owner.toBase58()));
-      const found = sym ? STOCKS.find((s) => s.symbol === sym) : null;
-      if (found) setStock(found);
     } catch {
       setDemoMint(null);
     }
@@ -104,20 +101,39 @@ export function RefractConsole() {
 
   const allStocks = useMemo(() => [...STOCKS, ...preStocks], [preStocks]);
 
-  // Preselect from ?stock= (e.g. a link from the Pre-IPO board). window.location
-  // avoids needing a Suspense boundary for useSearchParams.
+  // The shown stock follows the active demo when one exists (so the label always
+  // matches the minted shares); otherwise it follows the ?stock= param (e.g. a
+  // link from the Pre-IPO board) so the picker opens on the right one.
   useEffect(() => {
+    if (!owner) return;
     try {
-      const q = new URLSearchParams(window.location.search).get("stock");
-      if (!q) return;
-      const found = allStocks.find(
-        (s) => s.symbol.toLowerCase() === q.toLowerCase()
-      );
-      if (found) setStock(found);
+      if (demoMint) {
+        const sym = localStorage.getItem(SYM_KEY(owner.toBase58()));
+        const found = sym && allStocks.find((s) => s.symbol === sym);
+        if (found) setStock(found);
+      } else {
+        const q = new URLSearchParams(window.location.search).get("stock");
+        const found =
+          q && allStocks.find((s) => s.symbol.toLowerCase() === q.toLowerCase());
+        if (found) setStock(found);
+      }
     } catch {
-      /* no query params */
+      /* storage / query unavailable */
     }
-  }, [allStocks]);
+  }, [owner, demoMint, allStocks]);
+
+  // Clear the current demo so a different stock (including pre-IPO) can be minted.
+  const startOver = () => {
+    if (!owner) return;
+    try {
+      localStorage.removeItem(DEMO_KEY(owner.toBase58()));
+      localStorage.removeItem(SYM_KEY(owner.toBase58()));
+    } catch {
+      /* storage blocked */
+    }
+    setDemoMint(null);
+    setBalances(null);
+  };
 
   const refresh = useCallback(async () => {
     if (!owner || !demoMint) {
@@ -286,16 +302,25 @@ export function RefractConsole() {
         ) : (
           <div className="space-y-5">
             {/* selected stock */}
-            <div className="flex items-center gap-3">
-              <StockLogo symbol={stock.symbol} src={stock.image} size={28} />
-              <div className="min-w-0">
-                <div className="truncate text-sm font-semibold text-ink">
-                  {stock.name}
-                </div>
-                <div className="text-[11px] tracking-[0.01em] text-mute">
-                  Hanko {stock.symbol} demo · {stock.ticker}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <StockLogo symbol={stock.symbol} src={stock.image} size={28} />
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-semibold text-ink">
+                    {stock.name}
+                  </div>
+                  <div className="text-[11px] tracking-[0.01em] text-mute">
+                    Hanko {stock.symbol} demo · {stock.ticker}
+                  </div>
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={startOver}
+                className="shrink-0 text-[11px] tracking-[0.01em] text-mute underline decoration-rule underline-offset-2 transition-colors hover:text-ink"
+              >
+                Refract a different stock
+              </button>
             </div>
 
             {/* balances */}
