@@ -24,6 +24,10 @@ interface AssetOpt {
   underlying: string;
   vol: number;
   fallback: number;
+  /** Direct spot price (pre-IPO tokens are not in the DexScreener feed). */
+  price?: number;
+  /** Explicit logo (pre-IPO token image). */
+  image?: string;
 }
 
 const ASSETS: AssetOpt[] = [
@@ -73,7 +77,54 @@ export function SpectrumExplorer() {
   const [settle, setSettle] = useState(1.3); // fraction of spot
   const [dragging, setDragging] = useState(false);
 
-  const asset = ASSETS.find((a) => a.slug === slug) ?? ASSETS[0];
+  // Pre-IPO tokens (PreStocks) can be modelled and refracted too; their spot is
+  // the token price (they are not in the DexScreener feed).
+  const [preAssets, setPreAssets] = useState<AssetOpt[]>([]);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/prestocks", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then(
+        (d: {
+          tokens?: { symbol: string; name: string; price: number | null; image: string | null }[];
+        } | null) => {
+          if (!alive || !d?.tokens) return;
+          setPreAssets(
+            d.tokens.map((t) => ({
+              slug: t.symbol.toLowerCase(),
+              ticker: t.symbol,
+              symbol: t.symbol,
+              underlying: t.name.replace(/\s*PreStocks\s*$/i, "").trim(),
+              vol: 0.9, // pre-IPO is high-variance
+              fallback: t.price ?? 100,
+              price: t.price ?? undefined,
+              image: t.image ?? undefined,
+            }))
+          );
+        }
+      )
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const allAssets = useMemo(() => [...ASSETS, ...preAssets], [preAssets]);
+  const asset = allAssets.find((a) => a.slug === slug) ?? ASSETS[0];
+
+  // Preselect from ?stock= (e.g. a link from a stock or Pre-IPO page).
+  useEffect(() => {
+    try {
+      const q = new URLSearchParams(window.location.search).get("stock");
+      if (!q) return;
+      const found = allAssets.find(
+        (a) => a.symbol.toLowerCase() === q.toLowerCase()
+      );
+      if (found) setSlug(found.slug);
+    } catch {
+      /* no query */
+    }
+  }, [allAssets]);
 
   // Reset vol to the asset's default when the asset changes.
   useEffect(() => {
@@ -81,7 +132,7 @@ export function SpectrumExplorer() {
   }, [asset.vol]);
 
   const liveSpot = quotes[slug]?.priceUsd ?? null;
-  const spot = liveSpot && liveSpot > 0 ? liveSpot : asset.fallback;
+  const spot = liveSpot && liveSpot > 0 ? liveSpot : asset.price ?? asset.fallback;
 
   const cfg: SpectrumConfig = useMemo(
     () => ({ spot, floorPct, capPct, tYears: days / 365, vol, rate: 0.04 }),
@@ -155,7 +206,7 @@ export function SpectrumExplorer() {
       {/* --- Controls row --- */}
       <div className="flex flex-col gap-4 rounded-2xl border border-rule bg-paper p-4 sm:p-5">
         <div className="flex flex-wrap items-center gap-2">
-          {ASSETS.map((a) => {
+          {allAssets.map((a) => {
             const active = a.slug === slug;
             return (
               <button
@@ -169,7 +220,7 @@ export function SpectrumExplorer() {
                     : "border-rule text-mute hover:border-ink hover:text-ink"
                 }`}
               >
-                <StockLogo symbol={a.symbol} size={15} />
+                <StockLogo symbol={a.symbol} src={a.image} size={15} />
                 {a.ticker}
               </button>
             );
@@ -178,7 +229,7 @@ export function SpectrumExplorer() {
 
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="flex items-center gap-3">
-            <StockLogo symbol={asset.symbol} size={36} />
+            <StockLogo symbol={asset.symbol} src={asset.image} size={36} />
             <div>
               <div className="font-mono text-[10px] tracking-[0.01em] text-mute">
                 {asset.underlying} · 1 {asset.ticker}
