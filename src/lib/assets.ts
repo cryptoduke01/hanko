@@ -129,47 +129,6 @@ function preStock(opts: {
 export const assets: Asset[] = [
   // -- Registered / issuer-sponsored --
   {
-    ticker: "SPCX",
-    slug: "spcx",
-    name: "SpaceX Tokenized Equity",
-    underlying: "SpaceX",
-    network: "Solana",
-    grade: "A",
-    category: "Registered",
-    mint: "SPCXxcqXj6e5dJDVNovHN8744zkbhM2bYudU45BimGb",
-    fields: {
-      issuer: field("Backpack Securities", [1, 2]),
-      jurisdiction: field("United States"),
-      custodian: field("Regulated custody (named in disclosures)"),
-      authorizedByCompany: field(
-        "Yes, issuer-sponsored via Backpack Securities",
-        [1, 2]
-      ),
-      redeemableIntoRealShare: field(
-        "Yes, via ACATS to a brokerage account",
-        [1, 2]
-      ),
-      votingRights: undisclosed(),
-      dividendTreatment: undisclosed(),
-      whoMayLegallyHold: field("Eligible customers of Backpack Securities"),
-    },
-    sources: [
-      {
-        id: 1,
-        label: "Backpack Securities, SpaceX tokenized equity announcement",
-        url: "https://backpack.exchange",
-      },
-      {
-        id: 2,
-        label:
-          "Backpack, 1:1 real shares, redeemable via ACATS (public thesis)",
-        url: "https://x.com/Backpack",
-      },
-    ],
-    summary:
-      "You hold a claim on a real SpaceX share held in regulated custody, redeemable into a standard brokerage account through ACATS, not a synthetic tracker.",
-  },
-  {
     ticker: "SECZ",
     slug: "secz",
     name: "Securitize Tokenized NYSE Equity",
@@ -318,14 +277,6 @@ export const assets: Asset[] = [
     underlying: "Broadcom (AVGO)",
     company: "Broadcom",
     mint: "XsgSaSvNSqLTtFuyWPBhK9196Xb9Bbdyjj4fH3cPJGo",
-  }),
-  xStock({
-    ticker: "SPCXx",
-    slug: "spcxx",
-    name: "SpaceX xStock",
-    underlying: "SpaceX",
-    company: "SpaceX",
-    mint: "Xs3oZwbHvqis4NYcf4YKWmEia2eC84wSiVrcYcTqpH8",
   }),
 
   // -- PreStocks --
