@@ -52,9 +52,15 @@ export async function fetchPythPrice(symbol: string): Promise<PythPrice | null> 
   const feedId = pythFeedId(symbol);
   if (!feedId) return null;
   try {
+    // Pyth Pro (Terminal) key authenticates the price endpoint, which is 401 for
+    // anonymous datacenter callers. Sent server-side only; never expose it.
+    const key = process.env.PYTH_API_KEY;
     const res = await fetch(
       `${HERMES}/v2/updates/price/latest?ids[]=${feedId}`,
-      { next: { revalidate: 15 } }
+      {
+        headers: key ? { Authorization: `Bearer ${key}` } : {},
+        next: { revalidate: 15 },
+      }
     );
     if (!res.ok) return null;
     const data = (await res.json()) as HermesParsed;
