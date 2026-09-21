@@ -11,10 +11,9 @@ import type { Candle, ChartResponse, TokensQuote } from "@/lib/types";
 
 interface PythResp {
   symbol: string;
-  feedId?: string;
+  feedSymbol: string;
   price: number | null;
-  conf?: number;
-  publishTime?: number;
+  publishTime?: number | null;
 }
 
 const INTERVALS: { key: string; label: string }[] = [
@@ -122,27 +121,31 @@ export function StockDetail({
         </div>
       </div>
 
-      {/* Pyth: the oracle that settles the vault on-chain */}
-      {pyth?.feedId && (
+      {/* Pyth: the oracle Hanko settles from on-chain */}
+      {pyth && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rule bg-haze/40 px-4 py-3">
           <div className="flex items-center gap-2.5">
             <span className="inline-flex h-6 items-center rounded-md bg-ink px-2 text-[10px] font-semibold tracking-[0.02em] text-paper">
               Pyth
             </span>
             <span className="text-[12px] leading-snug text-mute">
-              Settlement oracle{" "}
-              <span className="text-ink">Crypto.{symbol.toUpperCase()}X/USD</span>. Hanko
-              settles this stock&apos;s vaults from this Pyth feed on-chain.
+              {pyth.price != null ? (
+                <>
+                  Live oracle price ·{" "}
+                  <span className="text-ink">{pyth.feedSymbol}</span>. Hanko settles
+                  vaults on-chain from Pyth.
+                </>
+              ) : (
+                <>
+                  Hanko settles vaults on-chain from Pyth ·{" "}
+                  <span className="text-ink">{pyth.feedSymbol}</span>.
+                </>
+              )}
             </span>
           </div>
           {pyth.price != null && (
-            <div className="flex items-baseline gap-2 tabular-nums">
-              <span className="text-lg font-semibold text-ink">
-                {formatUsd(pyth.price)}
-              </span>
-              {pyth.conf != null && (
-                <span className="text-[11px] text-mute">± {formatUsd(pyth.conf)}</span>
-              )}
+            <div className="text-lg font-semibold text-ink tabular-nums">
+              {formatUsd(pyth.price)}
             </div>
           )}
         </div>

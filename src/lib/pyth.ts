@@ -1,80 +1,63 @@
 /**
  * Pyth price data (server-side). Hanko settles on-chain from a Pyth pull oracle
- * (`settle_with_oracle`); this reads the SAME feeds off-chain via Hermes so the
- * UI can show the live price a position will resolve against.
+ * (`settle_with_oracle`); this reads Pyth's off-chain price so the UI can show
+ * the live number a position resolves against.
  *
- * Feeds are the tokenized-stock (xStock) prices, `Crypto.{TICKER}X/USD`. Ids
- * resolved from Hermes `/v2/price_feeds`; kept as a static map so a page render
- * is a single price fetch.
+ * Uses the Pyth Pro / Terminal API (pyth.dourolabs.app) with a Bearer key. It is
+ * symbol-based: `Equity.US.{TICKER}/USD` for equities and ETFs (the same regular
+ * equity feed the Pyth track highlights). Which symbols return data depends on
+ * the plan behind PYTH_API_KEY; unavailable ones return null and the UI still
+ * names the feed. Key is server-side only, never exposed.
  */
-const HERMES = "https://hermes.pyth.network";
+const PYTH_PRO = "https://pyth.dourolabs.app";
 
-/** Base ticker -> Pyth xStock feed id (Crypto.{TICKER}X/USD). */
-export const PYTH_FEEDS: Record<string, string> = {
-  TSLA: "47a156470288850a440df3a6ce85a55917b813a19bb5b31128a33a986566a362",
-  NVDA: "4244d07890e4610f46bbde67de8f43a4bf8b569eebe904f136b469f148503b7f",
-  SPY: "2817b78438c769357182c04346fddaad1178c82f4048828fe0997c3c64624e14",
-  MSTR: "53f95ba4e23ed15ea56083e2ee9a5eec48055d6f59033d4bb95f1ca2a2349c28",
-  COIN: "641435d5dffb5311140b480517c79986d8488d5cf08a11eec53b83ad02cab33f",
-  GOOGL: "b911b0329028cd0283e4259c33809d62942bd2716a58084e5f31d64c00b5424e",
-  AMZN: "7148fbe6e493ff2580305c92a8d7f8628c9943b11b9b253aebc24863fec290e8",
-  MSFT: "bb723a70af731ab56b9a650eb7e8ac22b7bc07ea77f8670bd1fa9a37bf6df3f5",
-  META: "bf3e5871be3f80ab7a4d1f1fd039145179fb58569e159aee1ccd472868ea5900",
-  HOOD: "dd49a9ac6df5cbfa9d8fc6371f7ae927a74d5c6763c1c01b4220d70314c647f9",
-  CRCL: "c13184461c0c80d98ffcd89be627c2220b94a96c7c67f0c4b16bc12fd3b17758",
-  GLD: "e7d1138d0083368634087268c64b7bea0b4101a6365f83915cba9e76a8364b96",
-  QQQ: "178a6f73a5aede9d0d682e86b0047c9f333ed0efe5c6537ca937565219c4054d",
-};
+/** The Pyth feed symbol Hanko shows for a stock ticker. */
+export function pythSymbol(ticker: string): string {
+  return `Equity.US.${ticker.toUpperCase()}/USD`;
+}
 
 export interface PythPrice {
   symbol: string;
-  feedId: string;
-  price: number;
-  /** 1-sigma confidence interval, in price units. */
-  conf: number;
-  publishTime: number;
+  feedSymbol: string;
+  price: number | null;
+  publishTime: number | null;
 }
 
-export function pythFeedId(symbol: string): string | null {
-  return PYTH_FEEDS[symbol.toUpperCase()] ?? null;
+interface UdfHistory {
+  s?: string; // "ok" | "no_data" | "error"
+  t?: number[];
+  c?: number[];
 }
 
-interface HermesParsed {
-  parsed?: {
-    id: string;
-    price: { price: string; conf: string; expo: number; publish_time: number };
-  }[];
-}
-
-/** Latest Pyth price for a Hanko ticker, or null when there is no feed / it is
- *  unavailable. Price and conf are scaled by the feed's exponent. */
-export async function fetchPythPrice(symbol: string): Promise<PythPrice | null> {
-  const feedId = pythFeedId(symbol);
-  if (!feedId) return null;
+/** Latest Pyth price for a stock ticker via the Pro history endpoint (last
+ *  close). Returns price null when no key or the plan does not cover the feed. */
+export async function fetchPythPrice(ticker: string): Promise<PythPrice | null> {
+  const feedSymbol = pythSymbol(ticker);
+  const key = process.env.PYTH_API_KEY;
+  if (!key) return { symbol: ticker.toUpperCase(), feedSymbol, price: null, publishTime: null };
   try {
-    // Pyth Pro (Terminal) key authenticates the price endpoint, which is 401 for
-    // anonymous datacenter callers. Sent server-side only; never expose it.
-    const key = process.env.PYTH_API_KEY;
-    const res = await fetch(
-      `${HERMES}/v2/updates/price/latest?ids[]=${feedId}`,
-      {
-        headers: key ? { Authorization: `Bearer ${key}` } : {},
-        next: { revalidate: 15 },
-      }
-    );
-    if (!res.ok) return null;
-    const data = (await res.json()) as HermesParsed;
-    const p = data.parsed?.[0]?.price;
-    if (!p) return null;
-    const scale = 10 ** p.expo;
+    const now = Math.floor(Date.now() / 1000);
+    const from = now - 10 * 86400; // small window; we take the most recent close
+    const url =
+      `${PYTH_PRO}/v1/fixed_rate@1000ms/history` +
+      `?symbol=${encodeURIComponent(feedSymbol)}&from=${from}&to=${now}&resolution=1D`;
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${key}` },
+      next: { revalidate: 30 },
+    });
+    if (!res.ok) return { symbol: ticker.toUpperCase(), feedSymbol, price: null, publishTime: null };
+    const data = (await res.json()) as UdfHistory;
+    if (data.s !== "ok" || !data.c?.length || !data.t?.length) {
+      return { symbol: ticker.toUpperCase(), feedSymbol, price: null, publishTime: null };
+    }
+    const i = data.c.length - 1;
     return {
-      symbol: symbol.toUpperCase(),
-      feedId,
-      price: Number(p.price) * scale,
-      conf: Number(p.conf) * scale,
-      publishTime: p.publish_time,
+      symbol: ticker.toUpperCase(),
+      feedSymbol,
+      price: data.c[i] ?? null,
+      publishTime: data.t[i] ?? null,
     };
   } catch {
-    return null;
+    return { symbol: ticker.toUpperCase(), feedSymbol, price: null, publishTime: null };
   }
 }
