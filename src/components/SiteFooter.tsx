@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { PoweredByBackpack } from "@/components/PoweredByBackpack";
 import { DataIntegrations } from "@/components/DataIntegrations";
 
 const PRODUCT = [
@@ -27,10 +26,7 @@ export function SiteFooter() {
               <span className="flex-[0.3]" style={{ background: "var(--core)" }} />
               <span className="flex-[0.2]" style={{ background: "var(--edge)" }} />
             </div>
-            <div className="mt-6">
-              <PoweredByBackpack />
-            </div>
-            <DataIntegrations className="mt-5" />
+            <DataIntegrations className="mt-6" />
           </div>
 
           <div className="flex gap-16">

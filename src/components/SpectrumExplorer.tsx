@@ -76,6 +76,9 @@ export function SpectrumExplorer() {
   const [vol, setVol] = useState(0.6);
   const [settle, setSettle] = useState(1.3); // fraction of spot
   const [dragging, setDragging] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerQuery, setPickerQuery] = useState("");
+  const pickerRef = useRef<HTMLDivElement>(null);
 
   // Pre-IPO tokens (PreStocks) can be modelled and refracted too; their spot is
   // the token price (they are not in the DexScreener feed).
@@ -131,8 +134,28 @@ export function SpectrumExplorer() {
     setVol(asset.vol);
   }, [asset.vol]);
 
+  // Close the asset dropdown on outside click / Escape.
+  useEffect(() => {
+    if (!pickerOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setPickerOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setPickerOpen(false);
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [pickerOpen]);
+
   const liveSpot = quotes[slug]?.priceUsd ?? null;
-  const spot = liveSpot && liveSpot > 0 ? liveSpot : asset.price ?? asset.fallback;
+  // Pre-IPO tokens carry their PreStocks price directly (authoritative, and
+  // consistent with the Pre-IPO page); xStocks use the live DexScreener quote.
+  const spot =
+    asset.price ?? (liveSpot && liveSpot > 0 ? liveSpot : asset.fallback);
 
   const cfg: SpectrumConfig = useMemo(
     () => ({ spot, floorPct, capPct, tYears: days / 365, vol, rate: 0.04 }),
@@ -201,30 +224,122 @@ export function SpectrumExplorer() {
     { label: "Moon +50%", f: 1.5 },
   ];
 
+  const renderOption = (a: AssetOpt) => (
+    <button
+      key={a.slug}
+      type="button"
+      role="option"
+      aria-selected={a.slug === slug}
+      onClick={() => {
+        setSlug(a.slug);
+        setPickerOpen(false);
+      }}
+      className={`flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left transition-colors duration-150 ${
+        a.slug === slug ? "bg-haze" : "hover:bg-haze"
+      }`}
+    >
+      <StockLogo symbol={a.symbol} src={a.image} size={18} />
+      <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-ink">
+        {a.ticker}
+      </span>
+      <span className="shrink-0 truncate text-[10px] tracking-[0.01em] text-mute">
+        {a.underlying}
+      </span>
+    </button>
+  );
+
+  const q = pickerQuery.trim().toLowerCase();
+  const matchAsset = (a: AssetOpt) =>
+    !q ||
+    a.ticker.toLowerCase().includes(q) ||
+    a.symbol.toLowerCase().includes(q) ||
+    a.underlying.toLowerCase().includes(q);
+  const stocksFiltered = ASSETS.filter(matchAsset);
+  const preFiltered = preAssets.filter(matchAsset);
+
   return (
     <div className="w-full">
       {/* --- Controls row --- */}
       <div className="flex flex-col gap-4 rounded-2xl border border-rule bg-paper p-4 sm:p-5">
-        <div className="flex flex-wrap items-center gap-2">
-          {allAssets.map((a) => {
-            const active = a.slug === slug;
-            return (
-              <button
-                key={a.slug}
-                type="button"
-                onClick={() => setSlug(a.slug)}
-                data-active={active}
-                className={`inline-flex items-center gap-1.5 rounded-lg press border px-2.5 py-1.5 text-[11px] tracking-[0.01em] transition-colors duration-200 ${
-                  active
-                    ? "border-ink bg-ink text-paper"
-                    : "border-rule text-mute hover:border-ink hover:text-ink"
-                }`}
-              >
-                <StockLogo symbol={a.symbol} src={a.image} size={15} />
-                {a.ticker}
-              </button>
-            );
-          })}
+        {/* asset dropdown */}
+        <div className="relative w-full max-w-xs" ref={pickerRef}>
+          <label className="mb-1 block text-[10px] font-medium uppercase tracking-[0.08em] text-mute">
+            Asset
+          </label>
+          <button
+            type="button"
+            onClick={() => {
+              setPickerQuery("");
+              setPickerOpen((v) => !v);
+            }}
+            aria-haspopup="listbox"
+            aria-expanded={pickerOpen}
+            className="press flex w-full items-center gap-2.5 rounded-lg border border-rule px-3 py-2 text-left transition-colors duration-200 hover:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+          >
+            <StockLogo symbol={asset.symbol} src={asset.image} size={20} />
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[13px] font-semibold text-ink">
+                {asset.ticker}
+              </span>
+              <span className="block truncate text-[10px] tracking-[0.01em] text-mute">
+                {asset.underlying}
+              </span>
+            </span>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`shrink-0 text-mute transition-transform duration-200 ${
+                pickerOpen ? "rotate-180" : ""
+              }`}
+              aria-hidden
+            >
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+          {pickerOpen && (
+            <div className="animate-modal absolute left-0 z-30 mt-2 w-72 overflow-hidden rounded-xl border border-rule bg-paper shadow-lg shadow-ink/5">
+              <div className="border-b border-rule p-2">
+                <input
+                  type="text"
+                  autoFocus
+                  value={pickerQuery}
+                  onChange={(e) => setPickerQuery(e.target.value)}
+                  placeholder="Search assets…"
+                  aria-label="Search assets"
+                  className="w-full rounded-md border border-rule bg-transparent px-2.5 py-1.5 text-[13px] text-ink placeholder:text-mute focus-visible:border-ink focus-visible:outline-none"
+                />
+              </div>
+              <div role="listbox" className="max-h-72 overflow-auto p-1">
+                {stocksFiltered.length > 0 && (
+                  <>
+                    <div className="px-2.5 pb-1 pt-1.5 text-[10px] uppercase tracking-[0.08em] text-mute">
+                      Stocks
+                    </div>
+                    {stocksFiltered.map(renderOption)}
+                  </>
+                )}
+                {preFiltered.length > 0 && (
+                  <>
+                    <div className="mt-1 border-t border-rule px-2.5 pb-1 pt-2 text-[10px] uppercase tracking-[0.08em] text-mute">
+                      Pre-IPO
+                    </div>
+                    {preFiltered.map(renderOption)}
+                  </>
+                )}
+                {stocksFiltered.length === 0 && preFiltered.length === 0 && (
+                  <div className="px-2.5 py-6 text-center text-[12px] text-mute">
+                    No assets match “{pickerQuery}”.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-wrap items-end justify-between gap-4">
