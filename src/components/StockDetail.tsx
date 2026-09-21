@@ -7,7 +7,7 @@ import { CandleChart } from "@/components/CandleChart";
 import { StockLogo } from "@/components/StockLogo";
 import { ArrowUpRight } from "@/components/icons";
 import { formatChange, formatCompact, formatUsd } from "@/lib/market";
-import type { Candle, ChartResponse } from "@/lib/types";
+import type { Candle, ChartResponse, TokensQuote } from "@/lib/types";
 
 interface PythResp {
   symbol: string;
@@ -44,6 +44,7 @@ export function StockDetail({
   const [candles, setCandles] = useState<Candle[] | null>(null);
   const [source, setSource] = useState<string>("fallback");
   const [loadingChart, setLoadingChart] = useState(true);
+  const [quote, setQuote] = useState<TokensQuote | null>(null);
   const [pyth, setPyth] = useState<PythResp | null>(null);
 
   useEffect(() => {
@@ -72,6 +73,7 @@ export function StockDetail({
         if (!alive) return;
         setCandles(d?.candles ?? null);
         setSource(d?.source ?? "fallback");
+        setQuote(d?.quote ?? null);
       })
       .catch(() => alive && setCandles(null))
       .finally(() => alive && setLoadingChart(false));
@@ -80,9 +82,13 @@ export function StockDetail({
     };
   }, [symbol, interval]);
 
-  const price = q?.priceUsd ?? null;
-  const change = q?.change24h ?? null;
+  // Prefer Tokens.xyz (real market data) when a key is set; else DexScreener.
+  const price = quote?.tokenPrice ?? q?.priceUsd ?? null;
+  const change = quote?.change24h ?? q?.change24h ?? null;
   const up = (change ?? 0) >= 0;
+  const stockPrice = quote?.stockPrice ?? null;
+  const vol = quote?.volume24h ?? q?.volume24h ?? null;
+  const liq = quote?.liquidity ?? q?.liquidityUsd ?? null;
 
   return (
     <div className="space-y-6">
@@ -108,28 +114,37 @@ export function StockDetail({
           >
             {formatChange(change)} · 24h
           </div>
+          {stockPrice != null && (
+            <div className="mt-0.5 text-[11px] text-mute tabular-nums">
+              underlying stock {formatUsd(stockPrice)}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Pyth: the oracle that settles the vault */}
-      {pyth?.price != null && (
+      {/* Pyth: the oracle that settles the vault on-chain */}
+      {pyth?.feedId && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rule bg-haze/40 px-4 py-3">
           <div className="flex items-center gap-2.5">
             <span className="inline-flex h-6 items-center rounded-md bg-ink px-2 text-[10px] font-semibold tracking-[0.02em] text-paper">
               Pyth
             </span>
             <span className="text-[12px] leading-snug text-mute">
-              Live oracle price. This is the feed that settles your vault at maturity.
+              Settlement oracle{" "}
+              <span className="text-ink">Crypto.{symbol.toUpperCase()}X/USD</span>. Hanko
+              settles this stock&apos;s vaults from this Pyth feed on-chain.
             </span>
           </div>
-          <div className="flex items-baseline gap-2 tabular-nums">
-            <span className="text-lg font-semibold text-ink">
-              {formatUsd(pyth.price)}
-            </span>
-            {pyth.conf != null && (
-              <span className="text-[11px] text-mute">± {formatUsd(pyth.conf)}</span>
-            )}
-          </div>
+          {pyth.price != null && (
+            <div className="flex items-baseline gap-2 tabular-nums">
+              <span className="text-lg font-semibold text-ink">
+                {formatUsd(pyth.price)}
+              </span>
+              {pyth.conf != null && (
+                <span className="text-[11px] text-mute">± {formatUsd(pyth.conf)}</span>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -172,8 +187,8 @@ export function StockDetail({
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Price" value={formatUsd(price)} />
         <Stat label="24h change" value={formatChange(change)} tint={change == null ? undefined : up ? "var(--up)" : "var(--down)"} />
-        <Stat label="24h volume" value={q?.volume24h != null ? `$${formatCompact(q.volume24h)}` : "-"} />
-        <Stat label="Liquidity" value={q?.liquidityUsd != null ? `$${formatCompact(q.liquidityUsd)}` : "-"} />
+        <Stat label="24h volume" value={vol != null ? `$${formatCompact(vol)}` : "-"} />
+        <Stat label="Liquidity" value={liq != null ? `$${formatCompact(liq)}` : "-"} />
       </div>
 
       {/* what you hold + refract CTA */}

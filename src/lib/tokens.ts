@@ -1,4 +1,4 @@
-import type { Candle } from "./types";
+import type { Candle, TokensQuote } from "./types";
 
 /**
  * Tokens.xyz Assets API client (server-side only).
@@ -38,7 +38,7 @@ interface SearchResp {
 }
 interface OhlcvResp {
   candles?: {
-    timestamp: number;
+    time: number;
     open: number;
     high: number;
     low: number;
@@ -50,7 +50,7 @@ interface OhlcvResp {
 /** Resolve a ticker (e.g. "TSLA") to a Tokens.xyz canonical assetId. */
 async function resolveAssetId(symbol: string): Promise<string | null> {
   const data = await call<SearchResp>(
-    `/assets/search?q=${encodeURIComponent(symbol)}&category=stock&limit=5`
+    `/assets/search?q=${encodeURIComponent(symbol)}&limit=5`
   );
   const hit =
     data?.results?.find(
@@ -70,18 +70,64 @@ export async function fetchOhlcv(
   if (!tokensXyzConfigured()) return null;
   const assetId = await resolveAssetId(symbol);
   if (!assetId) return null;
+  // Widen the window so the chart has enough candles to read well.
+  const now = Math.floor(Date.now() / 1000);
+  const span =
+    interval === "1H" ? 5 * 86400 : interval === "1W" ? 730 * 86400 : 120 * 86400;
   const data = await call<OhlcvResp>(
-    `/assets/${encodeURIComponent(assetId)}/ohlcv?interval=${encodeURIComponent(interval)}`
+    `/assets/${encodeURIComponent(assetId)}/ohlcv?interval=${encodeURIComponent(interval)}&from=${now - span}&to=${now}`
   );
   if (!data?.candles?.length) return null;
   return data.candles
     .filter((c) => Number.isFinite(c.close))
     .map((c) => ({
-      t: c.timestamp,
+      t: c.time,
       o: c.open,
       h: c.high,
       l: c.low,
       c: c.close,
       v: typeof c.volume === "number" ? c.volume : null,
     }));
+}
+
+interface AssetStats {
+  price?: number;
+  liquidity?: number;
+  volume24hUSD?: number;
+  marketCap?: number;
+  priceChange24hPercent?: number;
+}
+interface SearchResultFull {
+  assetId: string;
+  name: string;
+  symbol?: string;
+  imageUrl?: string;
+  stats?: AssetStats;
+  canonicalMarket?: { price?: number; priceChange24hPercent?: number };
+}
+
+export async function fetchTokensQuote(
+  symbol: string
+): Promise<TokensQuote | null> {
+  if (!tokensXyzConfigured()) return null;
+  const data = await call<{ results?: SearchResultFull[] }>(
+    `/assets/search?q=${encodeURIComponent(symbol)}&limit=5`
+  );
+  const hit =
+    data?.results?.find(
+      (r) => r.symbol?.toUpperCase() === symbol.toUpperCase()
+    ) ?? data?.results?.[0];
+  if (!hit) return null;
+  const s = hit.stats ?? {};
+  return {
+    symbol: hit.symbol?.toUpperCase() ?? symbol.toUpperCase(),
+    name: hit.name,
+    tokenPrice: s.price ?? null,
+    stockPrice: hit.canonicalMarket?.price ?? null,
+    change24h: s.priceChange24hPercent ?? null,
+    volume24h: s.volume24hUSD ?? null,
+    liquidity: s.liquidity ?? null,
+    marketCap: s.marketCap ?? null,
+    image: hit.imageUrl ?? null,
+  };
 }

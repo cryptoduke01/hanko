@@ -75,6 +75,20 @@ export interface Candle {
   v: number | null;
 }
 
+/** Rich quote from Tokens.xyz: the on-chain token price and the underlying
+ *  stock's canonical market price, plus volume/liquidity. */
+export interface TokensQuote {
+  symbol: string;
+  name: string;
+  tokenPrice: number | null;
+  stockPrice: number | null;
+  change24h: number | null;
+  volume24h: number | null;
+  liquidity: number | null;
+  marketCap: number | null;
+  image: string | null;
+}
+
 export interface ChartResponse {
   symbol: string;
   interval: string;
@@ -82,6 +96,8 @@ export interface ChartResponse {
   candles: Candle[] | null;
   /** Coarse price line (oldest → newest) when only quote-level data exists. */
   line: number[] | null;
+  /** Rich Tokens.xyz quote (token + underlying stock price) when a key is set. */
+  quote: TokensQuote | null;
   /** "tokens.xyz" for real candles, else the fallback provider. */
   source: string;
   fetchedAt: string;
