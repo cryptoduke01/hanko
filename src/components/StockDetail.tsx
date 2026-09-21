@@ -204,6 +204,16 @@ export function StockDetail({
         />
       </div>
 
+      {/* about the company (Tokens.xyz) */}
+      {quote?.description && (
+        <div className="rounded-2xl border border-rule p-5">
+          <div className="text-[11px] tracking-[0.01em] text-mute">About {name}</div>
+          <p className="mt-2 text-sm leading-relaxed text-mute">
+            {quote.description}
+          </p>
+        </div>
+      )}
+
       {/* what you hold + refract CTA */}
       <div className="rounded-2xl border border-rule p-5">
         <div className="flex items-center gap-2">
@@ -214,7 +224,7 @@ export function StockDetail({
         </div>
         <p className="mt-2 text-sm leading-relaxed text-mute">{summary}</p>
         <Link
-          href="/refract"
+          href={`/refract?stock=${encodeURIComponent(symbol)}`}
           className="press mt-4 inline-flex items-center gap-1.5 rounded-lg border border-ink bg-ink px-4 py-2.5 text-[12px] font-semibold tracking-[0.01em] text-paper transition-opacity hover:opacity-90"
         >
           Refract {ticker} into Shield, Core, Edge

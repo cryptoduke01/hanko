@@ -119,6 +119,14 @@ export async function fetchTokensQuote(
     ) ?? data?.results?.[0];
   if (!hit) return null;
   const s = hit.stats ?? {};
+
+  // The company description lives on the asset detail, not the search result.
+  let description: string | null = null;
+  const detail = await call<{ asset?: { description?: string } }>(
+    `/assets/${encodeURIComponent(hit.assetId)}`
+  );
+  if (detail?.asset?.description) description = detail.asset.description;
+
   return {
     symbol: hit.symbol?.toUpperCase() ?? symbol.toUpperCase(),
     name: hit.name,
@@ -129,5 +137,6 @@ export async function fetchTokensQuote(
     liquidity: s.liquidity ?? null,
     marketCap: s.marketCap ?? null,
     image: hit.imageUrl ?? null,
+    description,
   };
 }

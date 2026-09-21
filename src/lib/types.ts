@@ -87,6 +87,7 @@ export interface TokensQuote {
   liquidity: number | null;
   marketCap: number | null;
   image: string | null;
+  description: string | null;
 }
 
 export interface ChartResponse {

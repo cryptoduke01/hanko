@@ -31,6 +31,8 @@ export interface PreStock {
   valuation: number | null;
   image: string | null;
   url: string | null;
+  description: string | null;
+  supply: number | null;
 }
 
 export async function GET() {
@@ -52,6 +54,8 @@ export async function GET() {
           : t.markValuation ?? null,
       image: t.image ?? null,
       url: t.external_url ?? null,
+      description: t.description ?? null,
+      supply: typeof t.supply === "number" ? t.supply : null,
     }));
     return NextResponse.json(
       { tokens, source: "prestocks", fetchedAt: new Date().toISOString() },

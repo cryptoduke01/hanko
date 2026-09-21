@@ -42,7 +42,7 @@ export function PreStocksBoard() {
       {tokens.map((t) => (
         <Link
           key={t.mint}
-          href={`/refract?stock=${encodeURIComponent(t.symbol)}`}
+          href={`/prestocks/${encodeURIComponent(t.symbol)}`}
           className="group flex items-center justify-between gap-4 rounded-2xl border border-rule p-5 transition-colors hover:border-ink/40"
         >
           <div className="flex min-w-0 items-center gap-3">
@@ -61,7 +61,7 @@ export function PreStocksBoard() {
               {formatUsd(t.price)}
             </div>
             <div className="inline-flex items-center gap-1 text-[11px] tracking-[0.01em] text-mute transition-colors group-hover:text-ink">
-              Refract
+              View
               <ArrowUpRight size={12} />
             </div>
           </div>
