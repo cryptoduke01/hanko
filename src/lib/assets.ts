@@ -391,6 +391,8 @@ export interface RefractableStock {
   ticker: string;
   symbol: string;
   name: string;
+  /** Explicit logo URL (e.g. a PreStocks token image); optional. */
+  image?: string;
 }
 
 /** Stocks offered in the refract picker: those with a clean ticker symbol we

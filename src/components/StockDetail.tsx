@@ -88,6 +88,7 @@ export function StockDetail({
   const stockPrice = quote?.stockPrice ?? null;
   const vol = quote?.volume24h ?? q?.volume24h ?? null;
   const liq = quote?.liquidity ?? q?.liquidityUsd ?? null;
+  const mcap = quote?.marketCap ?? null;
 
   return (
     <div className="space-y-6">
@@ -191,7 +192,16 @@ export function StockDetail({
         <Stat label="Price" value={formatUsd(price)} />
         <Stat label="24h change" value={formatChange(change)} tint={change == null ? undefined : up ? "var(--up)" : "var(--down)"} />
         <Stat label="24h volume" value={vol != null ? `$${formatCompact(vol)}` : "-"} />
-        <Stat label="Liquidity" value={liq != null ? `$${formatCompact(liq)}` : "-"} />
+        <Stat
+          label={mcap != null ? "Market cap" : "Liquidity"}
+          value={
+            mcap != null
+              ? `$${formatCompact(mcap)}`
+              : liq != null
+                ? `$${formatCompact(liq)}`
+                : "-"
+          }
+        />
       </div>
 
       {/* what you hold + refract CTA */}

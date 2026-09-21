@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PoweredByBackpack } from "@/components/PoweredByBackpack";
+import { DataIntegrations } from "@/components/DataIntegrations";
 
 const PRODUCT = [
   { href: "/refract", label: "Refract" },
@@ -29,6 +30,7 @@ export function SiteFooter() {
             <div className="mt-6">
               <PoweredByBackpack />
             </div>
+            <DataIntegrations className="mt-5" />
           </div>
 
           <div className="flex gap-16">

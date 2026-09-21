@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowUpRight } from "@/components/icons";
+import { StockLogo } from "@/components/StockLogo";
 import { formatCompact, formatUsd } from "@/lib/market";
 import type { PreStock } from "@/app/api/prestocks/route";
 
@@ -44,12 +45,15 @@ export function PreStocksBoard() {
           href={`/refract?stock=${encodeURIComponent(t.symbol)}`}
           className="group flex items-center justify-between gap-4 rounded-2xl border border-rule p-5 transition-colors hover:border-ink/40"
         >
-          <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-ink">{t.name}</div>
-            <div className="mt-0.5 text-[11px] tracking-[0.01em] text-mute">
-              {t.valuation != null
-                ? `~$${formatCompact(t.valuation)} implied valuation`
-                : "pre-IPO"}
+          <div className="flex min-w-0 items-center gap-3">
+            <StockLogo symbol={t.symbol} src={t.image ?? undefined} size={32} />
+            <div className="min-w-0">
+              <div className="truncate text-sm font-semibold text-ink">{t.name}</div>
+              <div className="mt-0.5 text-[11px] tracking-[0.01em] text-mute">
+                {t.valuation != null
+                  ? `~$${formatCompact(t.valuation)} implied valuation`
+                  : "pre-IPO"}
+              </div>
             </div>
           </div>
           <div className="shrink-0 text-right">

@@ -82,17 +82,20 @@ export function RefractConsole() {
     let alive = true;
     fetch("/api/prestocks", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
-      .then((d: { tokens?: { symbol: string; name: string }[] } | null) => {
-        if (!alive || !d?.tokens) return;
-        setPreStocks(
-          d.tokens.map((t) => ({
-            slug: t.symbol.toLowerCase(),
-            ticker: t.symbol,
-            symbol: t.symbol,
-            name: t.name,
-          }))
-        );
-      })
+      .then(
+        (d: { tokens?: { symbol: string; name: string; image?: string }[] } | null) => {
+          if (!alive || !d?.tokens) return;
+          setPreStocks(
+            d.tokens.map((t) => ({
+              slug: t.symbol.toLowerCase(),
+              ticker: t.symbol,
+              symbol: t.symbol,
+              name: t.name,
+              image: t.image,
+            }))
+          );
+        }
+      )
       .catch(() => {});
     return () => {
       alive = false;
@@ -284,7 +287,7 @@ export function RefractConsole() {
           <div className="space-y-5">
             {/* selected stock */}
             <div className="flex items-center gap-3">
-              <StockLogo symbol={stock.symbol} size={28} />
+              <StockLogo symbol={stock.symbol} src={stock.image} size={28} />
               <div className="min-w-0">
                 <div className="truncate text-sm font-semibold text-ink">
                   {stock.name}
@@ -470,7 +473,7 @@ function StockPicker({
                 : "border-rule hover:border-ink/40"
             }`}
           >
-            <StockLogo symbol={s.symbol} size={22} />
+            <StockLogo symbol={s.symbol} src={s.image} size={22} />
             <span className="min-w-0">
               <span className="block truncate text-[12px] font-semibold text-ink">
                 {s.symbol}
