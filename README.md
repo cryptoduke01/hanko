@@ -8,9 +8,9 @@ Three people, three appetites: the **saver** holds Shield for equity-backed yiel
 
 Named after the seal (判子) a Japanese company presses onto a document to make it real: Hanko reads the hidden structure inside a tokenized stock, lets you separate it, and the seal is what makes each piece authentic.
 
-🔗 **Live:** [hankolabs.xyz](https://hankolabs.xyz) · Built for the Solana Foundation **Stocklana** hackathon.
+**Live:** [hankolabs.xyz](https://hankolabs.xyz) · Built for the Solana Foundation **Stocklana** hackathon.
 
-![Hanko](docs/screenshots/hero-dark.jpg)
+![Hanko](docs/screenshots/hero.png)
 
 ## The three parts
 
@@ -28,21 +28,23 @@ Shield + Core + Edge  ≡  S        (recombine to get the share back)
 
 No external capital is created; it is a fully collateralized redistribution of one share's payoff. That conservation law is exactly why it is trustless and provable, unlike the opaque OTC structured notes it replaces. By put/call parity the three tranche *values* also sum to spot, so indicative primary prices (Black/Scholes) obey the same invariant.
 
-## See it in one minute
+## Refract and model any stock, or pre-IPO
 
-The docs open with an interactive explainer: drag the price and watch the three parts fill, always adding up to one whole share.
-
-![Interactive explainer](docs/screenshots/explainer.jpg)
-
-## Refract, model, trade
-
-Pick a live tokenized stock, model the economics (floor / cap / vol / maturity), and watch the share refract into three priced tokens, with conservation shown on screen.
+Pick a stock or a pre-IPO token, model the economics (floor / cap / vol / maturity), and watch the share refract into three priced tokens, conservation shown on screen. Refract it for real and each part trades on its own **constant-product pool**: buy just the Edge, sell just the Shield, no need to touch the others.
 
 ![Refract](docs/screenshots/refract.png)
 
-Once refracted, each part trades on its own **constant-product pool**. Buy just the Edge, sell just the Shield, no need to touch the others.
+## Live market data, and Pyth settlement
 
-![Stocks](docs/screenshots/stocks.png)
+Every stock page shows a **live Pyth price** (`Equity.US.<TICKER>/USD`, the feed the vault settles from on-chain), a **real candlestick chart and market data** from Tokens.xyz, the underlying stock price next to the on-chain token price, market cap, and a company description.
+
+![Stock detail](docs/screenshots/stock.png)
+
+## Pre-IPO, via PreStocks
+
+Pre-IPO exposure is the purest bundled risk: enormous upside, a real chance of zero, priced as one number. Hanko refracts it. The Pre-IPO page pulls live tokens straight from the PreStocks API, each with a detail page (description, implied valuation, supply) and a refract flow, so a believer can hold Edge on OpenAI while someone else takes the safe part.
+
+![Pre-IPO](docs/screenshots/prestocks.png)
 
 ## Portfolio
 
@@ -86,14 +88,14 @@ RPC_URL="<your devnet rpc>" npm test
 
 ## Security
 
-An internal [Kensho](https://github.com/cryptoduke01) self-review of every instruction is in **[docs/security-review.md](docs/security-review.md)**. Summary: no permissionless theft, drain, or freeze was found; conservation and vault solvency hold across the lifecycle; access control (signer, PDA seeds, `has_one`, ATA constraints), PDA-signed payouts, and AMM slippage bounds are all present, with `overflow-checks` on. The two production-hardening items are trust/design, not permissionless bugs: settlement is authority-set with no oracle (use Pyth for mainnet), and seeded pool liquidity has no withdrawal path (add LP tokens for mainnet). Devnet demo uses freely mintable test shares.
+A multi-agent internal [Kensho](https://github.com/cryptoduke01) self-review of every instruction is in **[docs/security-review.md](docs/security-review.md)**. Summary: no permissionless theft, drain, or freeze was found; conservation and vault solvency hold across the lifecycle; access control (signer, PDA seeds, `has_one`, ATA constraints), PDA-signed payouts, and AMM slippage bounds are all present, with `overflow-checks` on. Settlement can run permissionlessly from a Pyth pull oracle (`settle_with_oracle`, with confidence + staleness checks). The remaining production-hardening items are trust/design, not permissionless bugs: a vault with a feed can still be settled by the authority (mainnet should make the oracle authoritative), and pools are single-provider (add LP-token accounting for public multi-LP markets). Devnet demo uses freely mintable test shares.
 
 ## Repo layout
 
 ```
 hanko/
 ├─ src/                      Next.js app (App Router)
-│  ├─ app/                   routes: /, /refract, /portfolio, /assets, /docs
+│  ├─ app/                   routes: /, /refract, /assets/[slug], /prestocks/[symbol], /portfolio, /docs
 │  ├─ components/            UI (RefractConsole, TrancheMarket, Portfolio, SplitExplainer, ...)
 │  └─ lib/
 │     ├─ hanko/client.ts     program client: deposit, recombine, swap, fetch balances/pools/activity
@@ -106,7 +108,7 @@ hanko/
 
 ## Stack
 
-Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Anchor / Solana · wallet-adapter. Live prices via DexScreener (public, no key); tranche math in [`src/lib/spectrum.ts`](src/lib/spectrum.ts).
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Anchor / Solana · wallet-adapter. Live data: **Pyth** (on-chain settlement + Pyth Pro live prices), **Tokens.xyz** (candlestick charts + market data), **PreStocks** (pre-IPO tokens), with DexScreener as a fallback. Tranche math in [`src/lib/spectrum.ts`](src/lib/spectrum.ts).
 
 ## Run locally
 
@@ -120,9 +122,12 @@ Create `.env.local`:
 ```bash
 NEXT_PUBLIC_CLUSTER=devnet
 NEXT_PUBLIC_RPC_URL=https://devnet.helius-rpc.com/?api-key=YOUR_KEY
+# optional, server-side only (the app degrades gracefully without them):
+TOKENS_XYZ_API_KEY=...   # real candlestick charts + market data
+PYTH_API_KEY=...         # live Pyth prices (free at pythdata.app)
 ```
 
-The self-serve demo faucet (`/api/faucet`) funds a new wallet with a little devnet SOL so it can mint demo shares. It needs a funded key server-side, provided as `HANKO_FAUCET_SECRET` (a JSON array of the keypair's secret bytes); in local dev it falls back to `hanko_vault/.deployer.json`.
+The self-serve demo faucet (`/api/faucet`) funds a new wallet with a little devnet SOL so it can mint demo shares. It needs a funded key server-side, provided as `HANKO_FAUCET_SECRET` (a JSON array of the keypair's secret bytes); in local dev it falls back to `hanko_vault/.deployer.json`. See [`.env.example`](.env.example) for the full list.
 
 ---
 

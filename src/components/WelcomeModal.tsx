@@ -27,6 +27,8 @@ export function WelcomeModal() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    // Build-time opt-out (used for clean screenshots); inert unless set.
+    if (process.env.NEXT_PUBLIC_HIDE_ONBOARDING === "1") return;
     try {
       if (!localStorage.getItem(KEY)) setOpen(true);
     } catch {

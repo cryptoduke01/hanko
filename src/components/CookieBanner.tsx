@@ -9,6 +9,7 @@ export function CookieBanner() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
+    if (process.env.NEXT_PUBLIC_HIDE_ONBOARDING === "1") return;
     try {
       if (!localStorage.getItem(KEY)) setShow(true);
     } catch {
