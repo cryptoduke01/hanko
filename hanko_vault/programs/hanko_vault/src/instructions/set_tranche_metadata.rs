@@ -75,21 +75,21 @@ pub fn handle_set_tranche_metadata(
             ctx.accounts.shield_metadata.to_account_info(),
             format!("Hanko {sym} Shield"),
             format!("{sym}-S"),
-            SHIELD_URI,
+            format!("{METADATA_BASE_URI}?s={sym}&p=shield"),
         ),
         (
             ctx.accounts.core_mint.to_account_info(),
             ctx.accounts.core_metadata.to_account_info(),
             format!("Hanko {sym} Core"),
             format!("{sym}-C"),
-            CORE_URI,
+            format!("{METADATA_BASE_URI}?s={sym}&p=core"),
         ),
         (
             ctx.accounts.edge_mint.to_account_info(),
             ctx.accounts.edge_metadata.to_account_info(),
             format!("Hanko {sym} Edge"),
             format!("{sym}-E"),
-            EDGE_URI,
+            format!("{METADATA_BASE_URI}?s={sym}&p=edge"),
         ),
     ] {
         let cpi = CpiContext::new_with_signer(
@@ -110,7 +110,7 @@ pub fn handle_set_tranche_metadata(
             DataV2 {
                 name,
                 symbol: tick,
-                uri: uri.to_string(),
+                uri,
                 seller_fee_basis_points: 0,
                 creators: None,
                 collection: None,

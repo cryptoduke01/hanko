@@ -86,10 +86,6 @@ export const METADATA_PROGRAM_ID = new PublicKey(
   "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 );
 
-/** Off-chain metadata JSON for the demo share (the three tranche URIs are set
- *  on-chain by the program). */
-const SHARE_URI = "https://hankolabs.xyz/token/share.json";
-
 /** Metaplex metadata PDA for a mint: ["metadata", program, mint]. */
 export function metadataPda(mint: PublicKey): PublicKey {
   const [pda] = PublicKey.findProgramAddressSync(
@@ -388,7 +384,7 @@ export async function createDemoShares(
         updateAuthority: owner,
         name: `Hanko ${sym} Share`,
         symbol: `h${sym}`.slice(0, 10),
-        uri: SHARE_URI,
+        uri: `https://hankolabs.xyz/token/meta?s=${sym}&p=share`,
       })
     );
   }

@@ -34,8 +34,7 @@ pub const PYTH_CONF_RATIO: u128 = 50;
 /// derived Metaplex `name`/`symbol` inside their 32/10 byte limits.
 pub const MAX_SYMBOL_LEN: usize = 6;
 
-/// Off-chain metadata JSON for each tranche (image + description). The on-chain
-/// `name`/`symbol` carry the specific ticker; these stay ticker-agnostic.
-pub const SHIELD_URI: &str = "https://hankolabs.xyz/token/shield.json";
-pub const CORE_URI: &str = "https://hankolabs.xyz/token/core.json";
-pub const EDGE_URI: &str = "https://hankolabs.xyz/token/edge.json";
+/// Base URL for per-stock, per-tranche off-chain metadata JSON. The instruction
+/// appends `?s=<ticker>&p=<shield|core|edge>`, so each tranche token resolves to
+/// its own stock logo + tranche badge in wallets.
+pub const METADATA_BASE_URI: &str = "https://hankolabs.xyz/token/meta";
