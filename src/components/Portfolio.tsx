@@ -8,7 +8,7 @@ import {
 } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey } from "@solana/web3.js";
-import { useCallback, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import {
   type ActivityItem,
   type Balances,
@@ -22,11 +22,13 @@ import {
   solBalance,
 } from "@/lib/hanko/client";
 import { explorerUrl, truncate } from "@/lib/solana/config";
+import { formatUsd } from "@/lib/market";
 import { CutCard } from "@/components/CutCard";
 import { Loader } from "@/components/Loader";
-import { StockLogo } from "@/components/StockLogo";
+import { StockLogo, TrancheLogo } from "@/components/StockLogo";
 import { ArrowUpRight } from "@/components/icons";
 import { TRANCHE_META, type TrancheKey } from "@/lib/spectrum";
+import { fallbackSpot, indicativeTranches } from "@/lib/stockModel";
 import { getRefractableStocks, type RefractableStock } from "@/lib/assets";
 
 const DEMO_KEY = (owner: string) => `hanko-demo-mint-${owner}`;
@@ -40,7 +42,28 @@ type Position = {
   stock: RefractableStock | null;
   balances: Balances;
   pools: Record<TrancheKey, PoolReserves>;
+  /** Live underlying stock price in USD (falls back to an indicative spot). */
+  spot: number | null;
 };
+
+/** Live underlying price for a stock, falling back to an indicative spot. */
+async function fetchSpot(stock: RefractableStock | null): Promise<number | null> {
+  if (!stock) return null;
+  try {
+    const r = await fetch(
+      `/api/chart?symbol=${encodeURIComponent(stock.symbol)}`,
+      { cache: "no-store" },
+    );
+    if (r.ok) {
+      const j = await r.json();
+      const p = j?.quote?.stockPrice;
+      if (typeof p === "number" && p > 0) return p;
+    }
+  } catch {
+    /* fall through to indicative spot */
+  }
+  return fallbackSpot(stock.symbol);
+}
 
 const num = (n: number, dp = 2) =>
   n.toLocaleString(undefined, { maximumFractionDigits: dp });
@@ -105,18 +128,21 @@ export function Portfolio() {
       const data = await Promise.all(
         list.map(async (p): Promise<Position> => {
           const m = pdas(p.mint);
-          const [bal, sh, co, ed] = await Promise.all([
+          const stock = resolveStock(p.sym);
+          const [bal, sh, co, ed, spot] = await Promise.all([
             fetchBalances(connection, owner, p.mint),
             fetchPool(connection, m.shieldMint, p.mint),
             fetchPool(connection, m.coreMint, p.mint),
             fetchPool(connection, m.edgeMint, p.mint),
+            fetchSpot(stock),
           ]);
           return {
             mint: p.mint,
             sym: p.sym,
-            stock: resolveStock(p.sym),
+            stock,
             balances: bal,
             pools: { shield: sh, core: co, edge: ed },
+            spot,
           };
         }),
       );
@@ -337,21 +363,36 @@ function PositionBlock({
   busy: boolean;
   showRefresh: boolean;
 }) {
-  const { stock, sym, balances, pools } = position;
+  const { stock, sym, balances, pools, spot } = position;
   const ticker = stock?.ticker ?? sym;
   const stockName = stock?.name ?? sym;
   const stockSymbol = stock?.symbol ?? sym;
 
   const balOf = (k: TrancheKey) => balances[k] / ONE;
-  const priceOf = (k: TrancheKey) => {
+  const shares = balances.underlying / ONE;
+
+  // Indicative fair value of each tranche today (USD), used when no market has
+  // been opened yet. shield + core + edge === spot.
+  const indicative =
+    spot != null ? indicativeTranches(stockSymbol, spot) : null;
+
+  // A tranche's USD price: the live pool rate (in shares) × spot when a market
+  // exists, otherwise the indicative fair value. Both are in USD.
+  const priceUsd = (k: TrancheKey): number | null => {
     const p = pools[k];
-    return p?.exists && p.tranche > 0 ? p.underlying / p.tranche : null;
+    if (p?.exists && p.tranche > 0 && spot != null) {
+      return (p.underlying / p.tranche) * spot;
+    }
+    return indicative ? indicative[k] : null;
   };
-  const valueOf = (k: TrancheKey) => {
-    const pr = priceOf(k);
+  const isMarket = (k: TrancheKey) => {
+    const p = pools[k];
+    return !!(p?.exists && p.tranche > 0 && spot != null);
+  };
+  const valueUsd = (k: TrancheKey): number | null => {
+    const pr = priceUsd(k);
     return pr != null ? balOf(k) * pr : null;
   };
-  const shares = balances.underlying / ONE;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-start">
@@ -366,6 +407,15 @@ function PositionBlock({
               </span>
               <span className="text-[11px] text-mute">
                 Your three parts of {ticker}
+                {spot != null && (
+                  <>
+                    {" · "}
+                    <span className="tabular-nums text-ink">
+                      {formatUsd(spot)}
+                    </span>{" "}
+                    a share
+                  </>
+                )}
               </span>
             </span>
           </span>
@@ -380,20 +430,37 @@ function PositionBlock({
             </button>
           ) : null}
         </div>
-        <div className="grid grid-cols-[1.3fr_1fr_1fr] gap-2 border-t border-rule px-5 py-2.5 text-[10px] tracking-[0.04em] text-mute">
+        <div className="grid grid-cols-[1.5fr_0.8fr_1fr] gap-2 border-t border-rule px-5 py-2.5 text-[10px] tracking-[0.04em] text-mute">
           <span>Token</span>
           <span className="text-right">Balance</span>
-          <span className="text-right">Value (shares)</span>
+          <span className="text-right">Value</span>
         </div>
-        <Row name="Whole shares" color="var(--ink)" balance={shares} value={shares} />
+        <Row
+          logo={<StockLogo symbol={stockSymbol} src={stock?.image} size={22} />}
+          name="Whole shares"
+          color="var(--ink)"
+          balance={shares}
+          price={spot}
+          value={spot != null ? shares * spot : null}
+        />
         {KEYS.map((k) => (
           <Row
             key={k}
+            logo={
+              <TrancheLogo
+                symbol={stockSymbol}
+                src={stock?.image}
+                letter={TRANCHE_META[k].name.charAt(0)}
+                color={TRANCHE_META[k].colorVar}
+                size={22}
+              />
+            }
             name={TRANCHE_META[k].name}
             color={TRANCHE_META[k].colorVar}
             balance={balOf(k)}
-            value={valueOf(k)}
-            price={priceOf(k)}
+            price={priceUsd(k)}
+            value={valueUsd(k)}
+            indicative={!isMarket(k)}
           />
         ))}
       </CutCard>
@@ -405,33 +472,47 @@ function PositionBlock({
         </p>
         {KEYS.map((k) => {
           const p = pools[k];
-          const price = priceOf(k);
+          const open = isMarket(k);
+          const price = priceUsd(k);
           return (
             <CutCard key={k} tint={`var(--glow-${k})`} padding="p-4">
-              <div className="flex items-center justify-between">
-                <span
-                  className="text-sm font-semibold"
-                  style={{ color: TRANCHE_META[k].colorVar }}
-                >
-                  {ticker} {TRANCHE_META[k].name}
+              <div className="flex items-center justify-between gap-2">
+                <span className="flex min-w-0 items-center gap-2">
+                  <TrancheLogo
+                    symbol={stockSymbol}
+                    src={stock?.image}
+                    letter={TRANCHE_META[k].name.charAt(0)}
+                    color={TRANCHE_META[k].colorVar}
+                    size={20}
+                  />
+                  <span
+                    className="truncate text-sm font-semibold"
+                    style={{ color: TRANCHE_META[k].colorVar }}
+                  >
+                    {ticker} {TRANCHE_META[k].name}
+                  </span>
                 </span>
-                <span className="text-[11px] text-mute">
-                  {p?.exists ? "Market open" : "No market"}
+                <span className="shrink-0 text-[11px] text-mute">
+                  {open ? "Market" : "Indicative"}
                 </span>
               </div>
-              {p?.exists ? (
+              {price != null ? (
                 <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] tabular-nums">
-                  <Stat small label="Price" value={`${num(price ?? 0, 4)} sh`} />
+                  <Stat small label="Price" value={formatUsd(price)} />
                   <Stat
                     small
-                    label="Pool"
-                    value={`${num(p.tranche / ONE, 0)} / ${num(p.underlying / ONE, 0)}`}
+                    label={open ? "Pool" : "Basis"}
+                    value={
+                      open
+                        ? `${num(p.tranche / ONE, 0)} / ${num(p.underlying / ONE, 0)}`
+                        : "BS model"
+                    }
                   />
                 </div>
               ) : (
                 <p className="mt-2 text-[11px] leading-relaxed text-mute">
                   Open a market for {ticker} {TRANCHE_META[k].name} in Refract to
-                  price and trade it.
+                  trade it live.
                 </p>
               )}
             </CutCard>
@@ -470,32 +551,41 @@ function Metric({
 }
 
 function Row({
+  logo,
   name,
   color,
   balance,
   value,
   price,
+  indicative,
 }: {
+  logo: ReactNode;
   name: string;
   color: string;
   balance: number;
   value: number | null;
   price?: number | null;
+  indicative?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-[1.3fr_1fr_1fr] items-center gap-2 border-t border-rule/60 px-5 py-3.5">
-      <div className="flex items-center gap-2.5">
-        <span className="h-2.5 w-2.5 rounded-sm" style={{ background: color }} />
-        <span className="text-sm font-semibold" style={{ color }}>
-          {name}
+    <div className="grid grid-cols-[1.5fr_0.8fr_1fr] items-center gap-2 border-t border-rule/60 px-5 py-3.5">
+      <div className="flex min-w-0 items-center gap-2.5">
+        {logo}
+        <span className="flex min-w-0 flex-col">
+          <span className="text-sm font-semibold" style={{ color }}>
+            {name}
+          </span>
+          {price != null && (
+            <span className="text-[10px] text-mute tabular-nums">
+              {formatUsd(price)}
+              {indicative ? " indic." : ""}
+            </span>
+          )}
         </span>
-        {price != null && (
-          <span className="text-[10px] text-mute tabular-nums">@ {num(price, 3)}</span>
-        )}
       </div>
       <div className="text-right text-sm tabular-nums text-ink">{num(balance)}</div>
       <div className="text-right text-sm tabular-nums text-mute">
-        {value == null ? "-" : num(value)}
+        {value == null ? "-" : formatUsd(value)}
       </div>
     </div>
   );

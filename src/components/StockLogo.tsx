@@ -54,3 +54,45 @@ export function StockLogo({
     />
   );
 }
+
+/**
+ * A stock logo with a small tranche badge (S / C / E) in the tranche colour,
+ * pinned to the corner. Shows which part of a given stock a token is.
+ */
+export function TrancheLogo({
+  symbol,
+  src,
+  letter,
+  color,
+  size = 26,
+}: {
+  symbol: string;
+  src?: string;
+  letter: string;
+  color: string;
+  size?: number;
+}) {
+  const badge = Math.max(11, Math.round(size * 0.52));
+  return (
+    <span
+      className="relative inline-flex shrink-0"
+      style={{ width: size, height: size }}
+    >
+      <StockLogo symbol={symbol} src={src} size={size} />
+      <span
+        className="absolute inline-flex items-center justify-center rounded-full font-sans font-bold leading-none text-white ring-2 ring-paper"
+        style={{
+          background: color,
+          width: badge,
+          height: badge,
+          fontSize: Math.round(badge * 0.62),
+          right: -badge * 0.28,
+          bottom: -badge * 0.28,
+        }}
+        aria-hidden
+      >
+        {letter}
+      </span>
+    </span>
+  );
+}
