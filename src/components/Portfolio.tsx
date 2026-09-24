@@ -23,10 +23,14 @@ import {
 import { explorerUrl, truncate } from "@/lib/solana/config";
 import { CutCard } from "@/components/CutCard";
 import { Loader } from "@/components/Loader";
+import { StockLogo } from "@/components/StockLogo";
 import { ArrowUpRight } from "@/components/icons";
 import { TRANCHE_META, type TrancheKey } from "@/lib/spectrum";
+import { getRefractableStocks } from "@/lib/assets";
 
 const DEMO_KEY = (owner: string) => `hanko-demo-mint-${owner}`;
+const SYM_KEY = (owner: string) => `hanko-demo-sym-${owner}`;
+const STOCKS = getRefractableStocks();
 const KEYS: TrancheKey[] = ["shield", "core", "edge"];
 
 const num = (n: number, dp = 2) =>
@@ -49,6 +53,7 @@ export function Portfolio() {
   const owner = wallet?.publicKey ?? null;
 
   const [demoMint, setDemoMint] = useState<PublicKey | null>(null);
+  const [sym, setSym] = useState<string | null>(null);
   const [balances, setBalances] = useState<Balances | null>(null);
   const [sol, setSol] = useState<number | null>(null);
   const [pools, setPools] = useState<Record<TrancheKey, PoolReserves> | null>(null);
@@ -57,12 +62,18 @@ export function Portfolio() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (!owner) return setDemoMint(null);
+    if (!owner) {
+      setDemoMint(null);
+      setSym(null);
+      return;
+    }
     try {
       const s = localStorage.getItem(DEMO_KEY(owner.toBase58()));
       setDemoMint(s ? new PublicKey(s) : null);
+      setSym(localStorage.getItem(SYM_KEY(owner.toBase58())));
     } catch {
       setDemoMint(null);
+      setSym(null);
     }
   }, [owner]);
 
@@ -127,6 +138,16 @@ export function Portfolio() {
   const totalValue = shares + trancheValue;
   const recombinable = Math.min(balOf("shield"), balOf("core"), balOf("edge"));
 
+  // The stock these parts were refracted from, so the portfolio reads as
+  // "your three parts of TSLAx" instead of a nameless Shield / Core / Edge.
+  const stock = useMemo(
+    () => (sym ? (STOCKS.find((s) => s.symbol === sym) ?? null) : null),
+    [sym],
+  );
+  const ticker = stock?.ticker ?? sym ?? null;
+  const stockName = stock?.name ?? ticker ?? null;
+  const stockSymbol = stock?.symbol ?? sym ?? null;
+
   if (!connected) {
     return (
       <CutCard tint="var(--glow-cool)" padding="p-10 sm:p-14">
@@ -152,7 +173,7 @@ export function Portfolio() {
     <div className="space-y-6">
       {/* summary */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric label="Portfolio value" value={balances == null && demoMint ? null : num(totalValue)} unit="shares" />
+        <Metric label="Portfolio value" value={balances == null && demoMint ? null : num(totalValue)} unit={ticker ? `${ticker} shares` : "shares"} />
         <Metric label="Recombinable" value={balances == null && demoMint ? null : num(recombinable)} unit="whole shares" />
         <Metric label="SOL" value={sol == null ? null : num(sol, 4)} unit="devnet" />
         <div className="relative overflow-hidden rounded-2xl border border-rule bg-haze p-5">
@@ -199,14 +220,24 @@ export function Portfolio() {
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-start">
           {/* holdings */}
           <CutCard padding="p-0">
-            <div className="flex items-center justify-between px-5 py-4">
-              <span className="text-[12px] font-medium tracking-[0.02em] text-ink">
-                Holdings
+            <div className="flex items-center justify-between gap-3 px-5 py-4">
+              <span className="flex min-w-0 items-center gap-2.5">
+                {stockSymbol ? (
+                  <StockLogo symbol={stockSymbol} src={stock?.image} size={30} />
+                ) : null}
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate text-[13px] font-semibold text-ink">
+                    {stockName ?? "Holdings"}
+                  </span>
+                  <span className="text-[11px] text-mute">
+                    {ticker ? `Your three parts of ${ticker}` : "Holdings"}
+                  </span>
+                </span>
               </span>
               <button
                 type="button"
                 onClick={load}
-                className="inline-flex items-center gap-1.5 text-[11px] text-mute transition-colors hover:text-ink"
+                className="inline-flex shrink-0 items-center gap-1.5 text-[11px] text-mute transition-colors hover:text-ink"
               >
                 {busy ? <Loader size={12} /> : null}
                 Refresh
@@ -217,7 +248,7 @@ export function Portfolio() {
               <span className="text-right">Balance</span>
               <span className="text-right">Value (shares)</span>
             </div>
-            <Row name="Shares" color="var(--ink)" balance={shares} value={shares} />
+            <Row name="Whole shares" color="var(--ink)" balance={shares} value={shares} />
             {KEYS.map((k) => (
               <Row
                 key={k}
@@ -243,6 +274,7 @@ export function Portfolio() {
                       className="text-sm font-semibold"
                       style={{ color: TRANCHE_META[k].colorVar }}
                     >
+                      {ticker ? `${ticker} ` : ""}
                       {TRANCHE_META[k].name}
                     </span>
                     <span className="text-[11px] text-mute">
@@ -256,7 +288,8 @@ export function Portfolio() {
                     </div>
                   ) : (
                     <p className="mt-2 text-[11px] leading-relaxed text-mute">
-                      Open a market for {TRANCHE_META[k].name} in Refract to price and trade it.
+                      Open a market for {ticker ? `${ticker} ` : ""}
+                      {TRANCHE_META[k].name} in Refract to price and trade it.
                     </p>
                   )}
                 </CutCard>
