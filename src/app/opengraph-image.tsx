@@ -4,38 +4,61 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const alt = "Hanko, trade a stock as three tokens";
 
-/** Load a one-glyph (判) subset of Noto Serif JP for the seal. next/og cannot
- *  render CJK from its built-in Latin font, so we fetch a subset and pass it in.
- *  An unrecognised User-Agent makes Google Fonts serve TTF (Satori cannot parse
- *  woff2, which we reject). On any failure we return null and draw no seal, so
- *  the card never shows an empty square. */
-async function loadSealGlyph(): Promise<ArrayBuffer | null> {
+/** Fetch a subset of a Google font as raw bytes for next/og. Satori has only a
+ *  built-in Latin fallback, so the brand faces (Inter Tight, and Noto Serif JP
+ *  for the seal glyph) have to be supplied. An unrecognised User-Agent makes
+ *  Google serve TTF; we reject woff2, which Satori cannot parse, and return null
+ *  on any failure so the card degrades to the default font instead of breaking. */
+async function loadGoogleFont(
+  family: string,
+  weight: number,
+  text: string,
+): Promise<ArrayBuffer | null> {
   try {
     const cssRes = await fetch(
-      "https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700&text=%E5%88%A4",
+      `https://fonts.googleapis.com/css2?family=${family}:wght@${weight}&text=${encodeURIComponent(text)}`,
       { headers: { "User-Agent": "HankoOG/1.0" } },
     );
     if (!cssRes.ok) return null;
     const css = await cssRes.text();
-    const url = css.match(/src:\s*url\(([^)]+)\)/)?.[1];
-    if (!url) return null;
-    const fontRes = await fetch(url);
+    const src = css.match(/src:\s*url\(([^)]+)\)/)?.[1];
+    if (!src) return null;
+    const fontRes = await fetch(src);
     if (!fontRes.ok) return null;
     const buf = await fontRes.arrayBuffer();
     const s = new Uint8Array(buf.slice(0, 4));
-    // reject woff2 ("wOF2"), which Satori cannot parse
-    if (s[0] === 0x77 && s[1] === 0x4f && s[2] === 0x46 && s[3] === 0x32) return null;
+    if (s[0] === 0x77 && s[1] === 0x4f && s[2] === 0x46 && s[3] === 0x32) return null; // "wOF2"
     return buf;
   } catch {
     return null;
   }
 }
 
+const TEXT =
+  "Trade a stock as three tokens. One share becomes a safe part, a balanced part, and an upside part. HANKO hankolabs.xyz";
+
+type Font = {
+  name: string;
+  data: ArrayBuffer;
+  weight: 400 | 600 | 700 | 800;
+  style: "normal";
+};
+
 export default async function OpengraphImage() {
-  const glyph = await loadSealGlyph();
-  const fonts = glyph
-    ? [{ name: "Seal", data: glyph, weight: 700 as const, style: "normal" as const }]
-    : undefined;
+  const [seal, w400, w600, w800] = await Promise.all([
+    loadGoogleFont("Noto+Serif+JP", 700, "判"),
+    loadGoogleFont("Inter+Tight", 400, TEXT),
+    loadGoogleFont("Inter+Tight", 600, TEXT),
+    loadGoogleFont("Inter+Tight", 800, TEXT),
+  ]);
+
+  const fonts: Font[] = [];
+  if (seal) fonts.push({ name: "Seal", data: seal, weight: 700, style: "normal" });
+  if (w400) fonts.push({ name: "Inter Tight", data: w400, weight: 400, style: "normal" });
+  if (w600) fonts.push({ name: "Inter Tight", data: w600, weight: 600, style: "normal" });
+  if (w800) fonts.push({ name: "Inter Tight", data: w800, weight: 800, style: "normal" });
+
+  const family = w400 || w600 || w800 ? "'Inter Tight', sans-serif" : "sans-serif";
 
   return new ImageResponse(
     (
@@ -49,12 +72,12 @@ export default async function OpengraphImage() {
           padding: "84px",
           backgroundColor: "#fafafa",
           color: "#0a0a0a",
-          fontFamily: "sans-serif",
+          fontFamily: family,
         }}
       >
         {/* Seal + wordmark lockup */}
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          {glyph ? (
+          {seal ? (
             <div
               style={{
                 position: "relative",
@@ -94,6 +117,7 @@ export default async function OpengraphImage() {
           <div
             style={{
               fontSize: 26,
+              fontWeight: 600,
               letterSpacing: 8,
               textTransform: "uppercase",
               color: "#8a8a8a",
@@ -128,6 +152,7 @@ export default async function OpengraphImage() {
             width: 720,
             marginTop: 26,
             fontSize: 27,
+            fontWeight: 400,
             lineHeight: 1.4,
             color: "#5a5a5a",
           }}
@@ -151,11 +176,13 @@ export default async function OpengraphImage() {
           <div style={{ display: "flex", flex: 0.2, backgroundColor: "#c2410c" }} />
         </div>
 
-        <div style={{ display: "flex", marginTop: 30, fontSize: 24, color: "#9a9a9a" }}>
+        <div
+          style={{ display: "flex", marginTop: 30, fontSize: 24, fontWeight: 400, color: "#9a9a9a" }}
+        >
           hankolabs.xyz
         </div>
       </div>
     ),
-    { ...size, fonts },
+    { ...size, fonts: fonts.length ? fonts : undefined },
   );
 }
