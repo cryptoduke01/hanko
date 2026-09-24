@@ -8,12 +8,13 @@ import {
 } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey } from "@solana/web3.js";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   type ActivityItem,
   type Balances,
   type PoolReserves,
   ONE,
+  discoverPositions,
   fetchBalances,
   fetchPool,
   pdas,
@@ -26,12 +27,20 @@ import { Loader } from "@/components/Loader";
 import { StockLogo } from "@/components/StockLogo";
 import { ArrowUpRight } from "@/components/icons";
 import { TRANCHE_META, type TrancheKey } from "@/lib/spectrum";
-import { getRefractableStocks } from "@/lib/assets";
+import { getRefractableStocks, type RefractableStock } from "@/lib/assets";
 
 const DEMO_KEY = (owner: string) => `hanko-demo-mint-${owner}`;
 const SYM_KEY = (owner: string) => `hanko-demo-sym-${owner}`;
 const STOCKS = getRefractableStocks();
 const KEYS: TrancheKey[] = ["shield", "core", "edge"];
+
+type Position = {
+  mint: PublicKey;
+  sym: string;
+  stock: RefractableStock | null;
+  balances: Balances;
+  pools: Record<TrancheKey, PoolReserves>;
+};
 
 const num = (n: number, dp = 2) =>
   n.toLocaleString(undefined, { maximumFractionDigits: dp });
@@ -45,6 +54,15 @@ function ago(unix: number | null): string {
   return `${Math.floor(s / 86400)}d ago`;
 }
 
+function resolveStock(sym: string): RefractableStock | null {
+  const s = sym.toUpperCase();
+  return (
+    STOCKS.find((x) => x.symbol.toUpperCase().slice(0, 6) === s) ??
+    STOCKS.find((x) => x.symbol.toUpperCase() === s) ??
+    null
+  );
+}
+
 export function Portfolio() {
   const { connection } = useConnection();
   const wallet = useAnchorWallet();
@@ -52,64 +70,79 @@ export function Portfolio() {
   const { setVisible } = useWalletModal();
   const owner = wallet?.publicKey ?? null;
 
-  const [demoMint, setDemoMint] = useState<PublicKey | null>(null);
-  const [sym, setSym] = useState<string | null>(null);
-  const [balances, setBalances] = useState<Balances | null>(null);
+  const [positions, setPositions] = useState<Position[] | null>(null);
   const [sol, setSol] = useState<number | null>(null);
-  const [pools, setPools] = useState<Record<TrancheKey, PoolReserves> | null>(null);
   const [activity, setActivity] = useState<ActivityItem[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    if (!owner) {
-      setDemoMint(null);
-      setSym(null);
-      return;
-    }
-    try {
-      const s = localStorage.getItem(DEMO_KEY(owner.toBase58()));
-      setDemoMint(s ? new PublicKey(s) : null);
-      setSym(localStorage.getItem(SYM_KEY(owner.toBase58())));
-    } catch {
-      setDemoMint(null);
-      setSym(null);
-    }
-  }, [owner]);
-
-  const mintFor = useMemo(() => {
-    if (!demoMint) return null;
-    const m = pdas(demoMint);
-    return { shield: m.shieldMint, core: m.coreMint, edge: m.edgeMint };
-  }, [demoMint]);
 
   const load = useCallback(async () => {
     if (!owner) return;
     setBusy(true);
     try {
-      const [s, act] = await Promise.all([
+      const ownerStr = owner.toBase58();
+      const [s, act, found] = await Promise.all([
         solBalance(connection, owner),
         recentActivity(connection, owner, 12),
+        discoverPositions(connection, owner),
       ]);
       setSol(s);
       setActivity(act);
-      if (demoMint && mintFor) {
-        const [bal, ...pool] = await Promise.all([
-          fetchBalances(connection, owner, demoMint),
-          fetchPool(connection, mintFor.shield, demoMint),
-          fetchPool(connection, mintFor.core, demoMint),
-          fetchPool(connection, mintFor.edge, demoMint),
-        ]);
-        setBalances(bal);
-        setPools({ shield: pool[0], core: pool[1], edge: pool[2] });
+
+      // Fall back to the active localStorage demo if on-chain discovery is empty.
+      let list = found;
+      if (list.length === 0) {
+        try {
+          const m = localStorage.getItem(DEMO_KEY(ownerStr));
+          if (m) {
+            list = [{ mint: new PublicKey(m), sym: localStorage.getItem(SYM_KEY(ownerStr)) ?? "" }];
+          }
+        } catch {
+          /* storage blocked */
+        }
       }
+
+      const data = await Promise.all(
+        list.map(async (p): Promise<Position> => {
+          const m = pdas(p.mint);
+          const [bal, sh, co, ed] = await Promise.all([
+            fetchBalances(connection, owner, p.mint),
+            fetchPool(connection, m.shieldMint, p.mint),
+            fetchPool(connection, m.coreMint, p.mint),
+            fetchPool(connection, m.edgeMint, p.mint),
+          ]);
+          return {
+            mint: p.mint,
+            sym: p.sym,
+            stock: resolveStock(p.sym),
+            balances: bal,
+            pools: { shield: sh, core: co, edge: ed },
+          };
+        }),
+      );
+
+      // Keep only positions the wallet still holds something in.
+      setPositions(
+        data
+          .filter(
+            (d) =>
+              d.balances.underlying > 0 ||
+              d.balances.shield > 0 ||
+              d.balances.core > 0 ||
+              d.balances.edge > 0,
+          )
+          .sort((a, b) => b.balances.underlying - a.balances.underlying),
+      );
     } finally {
       setBusy(false);
     }
-  }, [connection, owner, demoMint, mintFor]);
+  }, [connection, owner]);
 
   useEffect(() => {
-    load();
+    const t = setTimeout(() => {
+      load();
+    }, 0);
+    return () => clearTimeout(t);
   }, [load]);
 
   const copy = async () => {
@@ -123,30 +156,12 @@ export function Portfolio() {
     }
   };
 
-  // Derived, value each tranche at its pool's mid-price, in shares.
-  const balOf = (k: TrancheKey) => (balances?.[k] ?? 0) / ONE;
-  const priceOf = (k: TrancheKey) => {
-    const p = pools?.[k];
-    return p?.exists && p.tranche > 0 ? p.underlying / p.tranche : null;
-  };
-  const valueOf = (k: TrancheKey) => {
-    const pr = priceOf(k);
-    return pr != null ? balOf(k) * pr : null;
-  };
-  const shares = (balances?.underlying ?? 0) / ONE;
-  const trancheValue = KEYS.reduce((sum, k) => sum + (valueOf(k) ?? 0), 0);
-  const totalValue = shares + trancheValue;
-  const recombinable = Math.min(balOf("shield"), balOf("core"), balOf("edge"));
-
-  // The stock these parts were refracted from, so the portfolio reads as
-  // "your three parts of TSLAx" instead of a nameless Shield / Core / Edge.
-  const stock = useMemo(
-    () => (sym ? (STOCKS.find((s) => s.symbol === sym) ?? null) : null),
-    [sym],
+  const pos = positions ?? [];
+  const recombinable = pos.reduce(
+    (s, p) =>
+      s + Math.min(p.balances.shield, p.balances.core, p.balances.edge) / ONE,
+    0,
   );
-  const ticker = stock?.ticker ?? sym ?? null;
-  const stockName = stock?.name ?? ticker ?? null;
-  const stockSymbol = stock?.symbol ?? sym ?? null;
 
   if (!connected) {
     return (
@@ -173,8 +188,16 @@ export function Portfolio() {
     <div className="space-y-6">
       {/* summary */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric label="Portfolio value" value={balances == null && demoMint ? null : num(totalValue)} unit={ticker ? `${ticker} shares` : "shares"} />
-        <Metric label="Recombinable" value={balances == null && demoMint ? null : num(recombinable)} unit="whole shares" />
+        <Metric
+          label="Positions"
+          value={positions == null ? null : String(pos.length)}
+          unit={pos.length === 1 ? "stock" : "stocks"}
+        />
+        <Metric
+          label="Recombinable"
+          value={positions == null ? null : num(recombinable)}
+          unit="whole shares"
+        />
         <Metric label="SOL" value={sol == null ? null : num(sol, 4)} unit="devnet" />
         <div className="relative overflow-hidden rounded-2xl border border-rule bg-haze p-5">
           <div className="hero-dots pointer-events-none absolute inset-0" aria-hidden />
@@ -202,12 +225,20 @@ export function Portfolio() {
         </div>
       </div>
 
-      {!demoMint ? (
+      {positions == null ? (
+        <CutCard padding="p-6">
+          <div className="space-y-2">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="skeleton h-10 w-full rounded-lg" />
+            ))}
+          </div>
+        </CutCard>
+      ) : pos.length === 0 ? (
         <CutCard padding="p-10">
           <h2 className="font-sans text-lg font-bold text-ink">No Hanko position yet</h2>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-mute">
-            Mint demo shares and refract one to start a position. It comes back
-            here with live prices and activity.
+            Mint demo shares and refract one to start a position. Every stock you
+            refract shows up here with live prices and activity.
           </p>
           <Link
             href="/refract"
@@ -217,85 +248,31 @@ export function Portfolio() {
           </Link>
         </CutCard>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-start">
-          {/* holdings */}
-          <CutCard padding="p-0">
-            <div className="flex items-center justify-between gap-3 px-5 py-4">
-              <span className="flex min-w-0 items-center gap-2.5">
-                {stockSymbol ? (
-                  <StockLogo symbol={stockSymbol} src={stock?.image} size={30} />
-                ) : null}
-                <span className="flex min-w-0 flex-col">
-                  <span className="truncate text-[13px] font-semibold text-ink">
-                    {stockName ?? "Holdings"}
-                  </span>
-                  <span className="text-[11px] text-mute">
-                    {ticker ? `Your three parts of ${ticker}` : "Holdings"}
-                  </span>
-                </span>
+        <div className="space-y-6">
+          {pos.length > 1 && (
+            <div className="flex items-center justify-between px-1">
+              <span className="text-[12px] font-medium tracking-[0.02em] text-mute">
+                {pos.length} refracted stocks
               </span>
               <button
                 type="button"
                 onClick={load}
-                className="inline-flex shrink-0 items-center gap-1.5 text-[11px] text-mute transition-colors hover:text-ink"
+                className="inline-flex items-center gap-1.5 text-[11px] text-mute transition-colors hover:text-ink"
               >
                 {busy ? <Loader size={12} /> : null}
                 Refresh
               </button>
             </div>
-            <div className="grid grid-cols-[1.3fr_1fr_1fr] gap-2 border-t border-rule px-5 py-2.5 text-[10px] tracking-[0.04em] text-mute">
-              <span>Token</span>
-              <span className="text-right">Balance</span>
-              <span className="text-right">Value (shares)</span>
-            </div>
-            <Row name="Whole shares" color="var(--ink)" balance={shares} value={shares} />
-            {KEYS.map((k) => (
-              <Row
-                key={k}
-                name={TRANCHE_META[k].name}
-                color={TRANCHE_META[k].colorVar}
-                balance={balOf(k)}
-                value={valueOf(k)}
-                price={priceOf(k)}
-              />
-            ))}
-          </CutCard>
-
-          {/* markets */}
-          <div className="space-y-4">
-            <p className="text-[12px] font-medium tracking-[0.02em] text-mute">Markets</p>
-            {KEYS.map((k) => {
-              const p = pools?.[k];
-              const price = priceOf(k);
-              return (
-                <CutCard key={k} tint={`var(--glow-${k})`} padding="p-4">
-                  <div className="flex items-center justify-between">
-                    <span
-                      className="text-sm font-semibold"
-                      style={{ color: TRANCHE_META[k].colorVar }}
-                    >
-                      {ticker ? `${ticker} ` : ""}
-                      {TRANCHE_META[k].name}
-                    </span>
-                    <span className="text-[11px] text-mute">
-                      {p?.exists ? "Market open" : "No market"}
-                    </span>
-                  </div>
-                  {p?.exists ? (
-                    <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] tabular-nums">
-                      <Stat small label="Price" value={`${num(price ?? 0, 4)} sh`} />
-                      <Stat small label="Pool" value={`${num(p.tranche / ONE, 0)} / ${num(p.underlying / ONE, 0)}`} />
-                    </div>
-                  ) : (
-                    <p className="mt-2 text-[11px] leading-relaxed text-mute">
-                      Open a market for {ticker ? `${ticker} ` : ""}
-                      {TRANCHE_META[k].name} in Refract to price and trade it.
-                    </p>
-                  )}
-                </CutCard>
-              );
-            })}
-          </div>
+          )}
+          {pos.map((p) => (
+            <PositionBlock
+              key={p.mint.toBase58()}
+              position={p}
+              onRefresh={load}
+              busy={busy}
+              showRefresh={pos.length === 1}
+            />
+          ))}
         </div>
       )}
 
@@ -345,6 +322,122 @@ export function Portfolio() {
           </ul>
         )}
       </CutCard>
+    </div>
+  );
+}
+
+function PositionBlock({
+  position,
+  onRefresh,
+  busy,
+  showRefresh,
+}: {
+  position: Position;
+  onRefresh: () => void;
+  busy: boolean;
+  showRefresh: boolean;
+}) {
+  const { stock, sym, balances, pools } = position;
+  const ticker = stock?.ticker ?? sym;
+  const stockName = stock?.name ?? sym;
+  const stockSymbol = stock?.symbol ?? sym;
+
+  const balOf = (k: TrancheKey) => balances[k] / ONE;
+  const priceOf = (k: TrancheKey) => {
+    const p = pools[k];
+    return p?.exists && p.tranche > 0 ? p.underlying / p.tranche : null;
+  };
+  const valueOf = (k: TrancheKey) => {
+    const pr = priceOf(k);
+    return pr != null ? balOf(k) * pr : null;
+  };
+  const shares = balances.underlying / ONE;
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-start">
+      {/* holdings */}
+      <CutCard padding="p-0">
+        <div className="flex items-center justify-between gap-3 px-5 py-4">
+          <span className="flex min-w-0 items-center gap-2.5">
+            <StockLogo symbol={stockSymbol} src={stock?.image} size={30} />
+            <span className="flex min-w-0 flex-col">
+              <span className="truncate text-[13px] font-semibold text-ink">
+                {stockName}
+              </span>
+              <span className="text-[11px] text-mute">
+                Your three parts of {ticker}
+              </span>
+            </span>
+          </span>
+          {showRefresh ? (
+            <button
+              type="button"
+              onClick={onRefresh}
+              className="inline-flex shrink-0 items-center gap-1.5 text-[11px] text-mute transition-colors hover:text-ink"
+            >
+              {busy ? <Loader size={12} /> : null}
+              Refresh
+            </button>
+          ) : null}
+        </div>
+        <div className="grid grid-cols-[1.3fr_1fr_1fr] gap-2 border-t border-rule px-5 py-2.5 text-[10px] tracking-[0.04em] text-mute">
+          <span>Token</span>
+          <span className="text-right">Balance</span>
+          <span className="text-right">Value (shares)</span>
+        </div>
+        <Row name="Whole shares" color="var(--ink)" balance={shares} value={shares} />
+        {KEYS.map((k) => (
+          <Row
+            key={k}
+            name={TRANCHE_META[k].name}
+            color={TRANCHE_META[k].colorVar}
+            balance={balOf(k)}
+            value={valueOf(k)}
+            price={priceOf(k)}
+          />
+        ))}
+      </CutCard>
+
+      {/* markets */}
+      <div className="space-y-4">
+        <p className="text-[12px] font-medium tracking-[0.02em] text-mute">
+          {ticker} markets
+        </p>
+        {KEYS.map((k) => {
+          const p = pools[k];
+          const price = priceOf(k);
+          return (
+            <CutCard key={k} tint={`var(--glow-${k})`} padding="p-4">
+              <div className="flex items-center justify-between">
+                <span
+                  className="text-sm font-semibold"
+                  style={{ color: TRANCHE_META[k].colorVar }}
+                >
+                  {ticker} {TRANCHE_META[k].name}
+                </span>
+                <span className="text-[11px] text-mute">
+                  {p?.exists ? "Market open" : "No market"}
+                </span>
+              </div>
+              {p?.exists ? (
+                <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] tabular-nums">
+                  <Stat small label="Price" value={`${num(price ?? 0, 4)} sh`} />
+                  <Stat
+                    small
+                    label="Pool"
+                    value={`${num(p.tranche / ONE, 0)} / ${num(p.underlying / ONE, 0)}`}
+                  />
+                </div>
+              ) : (
+                <p className="mt-2 text-[11px] leading-relaxed text-mute">
+                  Open a market for {ticker} {TRANCHE_META[k].name} in Refract to
+                  price and trade it.
+                </p>
+              )}
+            </CutCard>
+          );
+        })}
+      </div>
     </div>
   );
 }

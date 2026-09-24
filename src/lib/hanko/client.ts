@@ -492,6 +492,43 @@ export async function fetchBalances(
   return { underlying, shield, core, edge };
 }
 
+/** Every Hanko demo-share position the wallet has ever opened, discovered on-chain
+ *  from the owner's Metaplex metadata (each demo share is named "Hanko <SYM> Share").
+ *  Lets the portfolio show all refracted stocks, not just the last one in localStorage. */
+export async function discoverPositions(
+  connection: Connection,
+  owner: PublicKey
+): Promise<{ mint: PublicKey; sym: string }[]> {
+  try {
+    const accts = await connection.getProgramAccounts(METADATA_PROGRAM_ID, {
+      filters: [{ memcmp: { offset: 1, bytes: owner.toBase58() } }],
+    });
+    const out: { mint: PublicKey; sym: string }[] = [];
+    const seen = new Set<string>();
+    for (const { account } of accts) {
+      const data = account.data as Buffer;
+      if (data.length < 70) continue;
+      const mint = new PublicKey(data.subarray(33, 65));
+      const nameLen = data.readUInt32LE(65);
+      if (nameLen === 0 || nameLen > 64 || 69 + nameLen > data.length) continue;
+      const name = data
+        .subarray(69, 69 + nameLen)
+        .toString("utf8")
+        .replace(/\0/g, "")
+        .trim();
+      const m = /^Hanko (.+) Share$/.exec(name);
+      if (!m) continue;
+      const key = mint.toBase58();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push({ mint, sym: m[1].trim() });
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
+
 /** The wallet's native SOL balance, in whole SOL. */
 export async function solBalance(
   connection: Connection,
