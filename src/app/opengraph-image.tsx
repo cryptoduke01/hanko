@@ -46,11 +46,9 @@ export default async function OpengraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          padding: "80px",
-          backgroundColor: "#0a0a0a",
-          backgroundImage:
-            "radial-gradient(1100px 520px at 50% 118%, rgba(109,155,255,0.30), rgba(45,212,191,0.16) 46%, rgba(251,146,60,0.22) 72%, rgba(10,10,10,0) 100%)",
-          color: "#f2f2f2",
+          padding: "84px",
+          backgroundColor: "#fafafa",
+          color: "#0a0a0a",
           fontFamily: "sans-serif",
         }}
       >
@@ -98,7 +96,7 @@ export default async function OpengraphImage() {
               fontSize: 26,
               letterSpacing: 8,
               textTransform: "uppercase",
-              color: "#9a9a9a",
+              color: "#8a8a8a",
             }}
           >
             Hanko
@@ -116,7 +114,7 @@ export default async function OpengraphImage() {
               fontWeight: 800,
               lineHeight: 1.06,
               letterSpacing: -3,
-              color: "#8a8a8a",
+              color: "#9a9a9a",
             }}
           >
             as three tokens.
@@ -131,7 +129,7 @@ export default async function OpengraphImage() {
             marginTop: 26,
             fontSize: 27,
             lineHeight: 1.4,
-            color: "#b5b5b5",
+            color: "#5a5a5a",
           }}
         >
           One share becomes a safe part, a balanced part, and an upside part.
@@ -148,12 +146,12 @@ export default async function OpengraphImage() {
             overflow: "hidden",
           }}
         >
-          <div style={{ display: "flex", flex: 0.5, backgroundColor: "#6d9bff" }} />
-          <div style={{ display: "flex", flex: 0.3, backgroundColor: "#2dd4bf" }} />
-          <div style={{ display: "flex", flex: 0.2, backgroundColor: "#fb923c" }} />
+          <div style={{ display: "flex", flex: 0.5, backgroundColor: "#2f57d4" }} />
+          <div style={{ display: "flex", flex: 0.3, backgroundColor: "#0e8f86" }} />
+          <div style={{ display: "flex", flex: 0.2, backgroundColor: "#c2410c" }} />
         </div>
 
-        <div style={{ display: "flex", marginTop: 30, fontSize: 24, color: "#8a8a8a" }}>
+        <div style={{ display: "flex", marginTop: 30, fontSize: 24, color: "#9a9a9a" }}>
           hankolabs.xyz
         </div>
       </div>
