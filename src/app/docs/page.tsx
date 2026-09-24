@@ -108,7 +108,7 @@ const SECTIONS = [
         Securities has opened a public mint and redeem API, so a real US share
         can be issued on Solana and redeemed back one to one. Hanko refracts that
         security into its three parts; recombine the parts into a whole share and
-        redeem it for the real stock. The demo uses test shares in place of this.
+        redeem it for the real stock. On devnet this uses test shares in place of this.
       </p>
     ),
   },

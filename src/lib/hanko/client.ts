@@ -492,37 +492,55 @@ export async function fetchBalances(
   return { underlying, shield, core, edge };
 }
 
-/** Every Hanko demo-share position the wallet has ever opened, discovered on-chain
- *  from the owner's Metaplex metadata (each demo share is named "Hanko <SYM> Share").
+/** Every Hanko share position the wallet currently holds, discovered on-chain from
+ *  the owner's token accounts + Metaplex metadata (each share is named "Hanko <SYM> Share").
  *  Lets the portfolio show all refracted stocks, not just the last one in localStorage. */
 export async function discoverPositions(
   connection: Connection,
   owner: PublicKey
 ): Promise<{ mint: PublicKey; sym: string }[]> {
   try {
-    const accts = await connection.getProgramAccounts(METADATA_PROGRAM_ID, {
-      filters: [{ memcmp: { offset: 1, bytes: owner.toBase58() } }],
+    // 1. Every SPL token the wallet holds a nonzero balance of. Cheap and allowed
+    //    on every RPC (unlike getProgramAccounts on the metadata program).
+    const resp = await connection.getParsedTokenAccountsByOwner(owner, {
+      programId: TOKEN_PROGRAM_ID,
     });
-    const out: { mint: PublicKey; sym: string }[] = [];
+    const mints: PublicKey[] = [];
     const seen = new Set<string>();
-    for (const { account } of accts) {
-      const data = account.data as Buffer;
-      if (data.length < 70) continue;
-      const mint = new PublicKey(data.subarray(33, 65));
-      const nameLen = data.readUInt32LE(65);
-      if (nameLen === 0 || nameLen > 64 || 69 + nameLen > data.length) continue;
-      const name = data
+    for (const { account } of resp.value) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const info = (account.data as any)?.parsed?.info;
+      const amount = Number(info?.tokenAmount?.amount ?? 0);
+      const mintStr: string | undefined = info?.mint;
+      if (!mintStr || amount <= 0 || seen.has(mintStr)) continue;
+      seen.add(mintStr);
+      mints.push(new PublicKey(mintStr));
+    }
+    if (mints.length === 0) return [];
+
+    // 2. Read each token's Metaplex metadata (batched). A Hanko share is named
+    //    "Hanko <SYM> Share"; that name marks a refracted position and its stock.
+    const metaPdas = mints.map(metadataPda);
+    const data: (Buffer | null)[] = [];
+    for (let i = 0; i < metaPdas.length; i += 100) {
+      const chunk = await connection.getMultipleAccountsInfo(metaPdas.slice(i, i + 100));
+      for (const a of chunk) data.push(a ? a.data : null);
+    }
+
+    const out: { mint: PublicKey; sym: string }[] = [];
+    mints.forEach((mint, i) => {
+      const d = data[i];
+      if (!d || d.length < 70) return;
+      const nameLen = d.readUInt32LE(65);
+      if (nameLen === 0 || nameLen > 64 || 69 + nameLen > d.length) return;
+      const name = d
         .subarray(69, 69 + nameLen)
         .toString("utf8")
         .replace(/\0/g, "")
         .trim();
       const m = /^Hanko (.+) Share$/.exec(name);
-      if (!m) continue;
-      const key = mint.toBase58();
-      if (seen.has(key)) continue;
-      seen.add(key);
-      out.push({ mint, sym: m[1].trim() });
-    }
+      if (m) out.push({ mint, sym: m[1].trim() });
+    });
     return out;
   } catch {
     return [];
@@ -576,7 +594,7 @@ function labelFromTx(
   const instrs: any[] = tx?.transaction?.message?.instructions ?? [];
   const types = instrs.map((ix) => ix?.parsed?.type).filter(Boolean);
   if (types.some((t) => t === "initializeMint" || t === "initializeMint2"))
-    return "Minted demo shares";
+    return "Minted shares";
   if (types.some((t) => t === "mintTo" || t === "mintToChecked"))
     return "Minted tokens";
   if (types.some((t) => t === "transfer" || t === "transferChecked"))

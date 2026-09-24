@@ -18,11 +18,11 @@ const SECTIONS: { t: string; body: React.ReactNode }[] = [
     ),
   },
   {
-    t: "Demo",
+    t: "Devnet",
     body: (
       <p>
-        The demo runs on Solana devnet with test tokens that have no monetary
-        value. Anything you mint or trade there is for demonstration only.
+        Hanko runs on Solana devnet. The tokens are real on-chain devnet tokens
+        with no monetary value, meant for evaluating the protocol.
       </p>
     ),
   },

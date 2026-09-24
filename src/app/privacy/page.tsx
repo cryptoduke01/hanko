@@ -20,7 +20,7 @@ const SECTIONS: { t: string; body: React.ReactNode }[] = [
     t: "Your browser",
     body: (
       <p>
-        Small preferences are stored only in your browser (theme, a demo mint
+        Small preferences are stored only in your browser (theme, a mint
         reference, and whether you have seen the welcome and cookie notices).
         They never leave your device and we cannot read them.
       </p>

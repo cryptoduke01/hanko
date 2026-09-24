@@ -167,7 +167,7 @@ export function RefractConsole() {
   };
 
   const getDemo = () =>
-    run("Minting demo shares…", async () => {
+    run("Minting shares…", async () => {
       if (!program || !owner) return;
       // Fund the wallet with devnet SOL for rent + fees via the server faucet.
       try {
@@ -284,7 +284,7 @@ export function RefractConsole() {
                 Pick a stock to refract
               </h3>
               <p className="mt-1 max-w-md text-sm leading-relaxed text-mute">
-                Mint 100 demo shares of it, then split them into Shield, Core and
+                Mint 100 shares of it on devnet, then split them into Shield, Core and
                 Edge. They land in your wallet by name and recombine anytime.
               </p>
             </div>
@@ -310,7 +310,7 @@ export function RefractConsole() {
                     {stock.name}
                   </div>
                   <div className="text-[11px] tracking-[0.01em] text-mute">
-                    Hanko {stock.symbol} demo · {stock.ticker}
+                    Hanko {stock.symbol} · {stock.ticker}
                   </div>
                 </div>
               </div>

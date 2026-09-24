@@ -9,7 +9,7 @@ const STEPS = [
   {
     n: "1",
     t: "Connect a wallet",
-    d: "Connect to begin. You can mint yourself demo shares to try the flow.",
+    d: "Connect to begin. You can mint yourself shares on devnet to try the flow.",
   },
   {
     n: "2",

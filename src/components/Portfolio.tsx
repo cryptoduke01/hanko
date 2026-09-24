@@ -89,7 +89,7 @@ export function Portfolio() {
       setSol(s);
       setActivity(act);
 
-      // Fall back to the active localStorage demo if on-chain discovery is empty.
+      // Fall back to the active localStorage position if on-chain discovery is empty.
       let list = found;
       if (list.length === 0) {
         try {
@@ -237,7 +237,7 @@ export function Portfolio() {
         <CutCard padding="p-10">
           <h2 className="font-sans text-lg font-bold text-ink">No Hanko position yet</h2>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-mute">
-            Mint demo shares and refract one to start a position. Every stock you
+            Mint shares on devnet and refract one to start a position. Every stock you
             refract shows up here with live prices and activity.
           </p>
           <Link
