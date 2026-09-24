@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DataIntegrations } from "@/components/DataIntegrations";
+import { HankoMark } from "@/components/HankoMark";
 
 const PRODUCT = [
   { href: "/refract", label: "Refract" },
@@ -14,7 +15,8 @@ export function SiteFooter() {
       <div className="mx-auto max-w-6xl px-6 py-12 sm:px-8">
         <div className="flex flex-col gap-10 sm:flex-row sm:justify-between">
           <div className="max-w-xs">
-            <div className="font-sans text-[15px] font-semibold tracking-tight text-ink">
+            <div className="flex items-center gap-2 font-sans text-[15px] font-semibold tracking-tight text-ink">
+              <HankoMark size={22} className="rounded-[5px]" />
               Hanko
             </div>
             <p className="mt-3 text-xs leading-relaxed text-mute">

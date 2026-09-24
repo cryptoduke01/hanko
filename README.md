@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/brand/seal.svg" alt="Hanko" width="72" height="72" />
+</p>
+
 # Hanko (判子)
 
 **Split a tokenized stock into three tradeable parts that always recombine into one share.**

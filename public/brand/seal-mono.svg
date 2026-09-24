@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Hanko seal" style="color:#17120e">
+  <defs>
+    <mask id="knock">
+      <rect x="8" y="8" width="184" height="184" rx="30" fill="#fff"/>
+      <rect x="21.5" y="21.5" width="157" height="157" rx="21" fill="none" stroke="#000" stroke-width="3.4"/>
+      <text x="100" y="104" text-anchor="middle" dominant-baseline="central" font-family="'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP',serif" font-weight="600" font-size="126" fill="#000">判</text>
+    </mask>
+  </defs>
+  <rect x="8" y="8" width="184" height="184" rx="30" fill="currentColor" mask="url(#knock)"/>
+</svg>

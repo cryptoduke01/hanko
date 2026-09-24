@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 200" width="620" height="200" role="img" aria-label="Hanko" style="color:#17120e">
+  <g transform="translate(16,16) scale(0.84)">
+    <rect x="8" y="8" width="184" height="184" rx="30" fill="#c8402f"/>
+    <rect x="21.5" y="21.5" width="157" height="157" rx="21" fill="none" stroke="#fbf5f0" stroke-opacity="0.92" stroke-width="3.4"/>
+    <text x="100" y="104" text-anchor="middle" dominant-baseline="central" font-family="'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP',serif" font-weight="600" font-size="126" fill="#fbf5f0">判</text>
+  </g>
+  <text x="212" y="130" font-family="'Inter Tight','Helvetica Neue',Arial,sans-serif" font-weight="700" font-size="116" letter-spacing="-5" fill="currentColor">Hanko</text>
+</svg>

@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect x="3" y="3" width="26" height="26" rx="7.5" fill="#c8402f" />
-  <rect x="3.5" y="3.5" width="25" height="25" rx="7" fill="none" stroke="#ffffff" stroke-opacity="0.28" stroke-width="1" />
-  <text x="16" y="16.6" text-anchor="middle" dominant-baseline="central"
-        font-family="'Hiragino Sans','Yu Gothic',system-ui,sans-serif"
-        font-size="19" font-weight="600" fill="#fdf3f1">判</text>
+  <rect x="1.5" y="1.5" width="29" height="29" rx="6.7" fill="#c8402f" />
+  <rect x="3.7" y="3.7" width="24.6" height="24.6" rx="4.8" fill="none" stroke="#fbf5f0" stroke-opacity="0.9" stroke-width="0.9" />
+  <text x="16" y="16.8" text-anchor="middle" dominant-baseline="central"
+        font-family="'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP','Hiragino Sans','Yu Gothic',serif"
+        font-size="19" font-weight="600" fill="#fbf5f0">判</text>
 </svg>

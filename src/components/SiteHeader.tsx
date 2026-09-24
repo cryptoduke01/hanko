@@ -5,8 +5,9 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { ClusterToggle } from "./ClusterToggle";
+import { ClusterSelect } from "./ClusterSelect";
 import { ThemeToggle } from "./ThemeToggle";
+import { HankoMark } from "./HankoMark";
 import { Menu } from "./icons";
 import { explorerUrl, truncate } from "@/lib/solana/config";
 
@@ -77,8 +78,9 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
         <Link
           href="/"
-          className="shrink-0 font-sans text-[15px] font-semibold tracking-tight text-ink"
+          className="flex shrink-0 items-center gap-2 font-sans text-[15px] font-semibold tracking-tight text-ink"
         >
+          <HankoMark size={22} className="rounded-[5px]" />
           Hanko
         </Link>
 
@@ -116,7 +118,7 @@ export function SiteHeader() {
           </button>
 
           {open && (
-            <div className="animate-modal absolute right-0 z-50 mt-2 w-64 rounded-2xl border border-rule bg-paper p-2 shadow-lg shadow-ink/5">
+            <div className="animate-modal absolute right-0 z-50 mt-2 w-72 rounded-2xl border border-rule bg-paper p-3 shadow-xl shadow-ink/10">
               {/* Nav (mobile) */}
               <div className="md:hidden">
                 {LINKS.map((link) => {
@@ -185,20 +187,20 @@ export function SiteHeader() {
                 </div>
               )}
 
-              {/* Network */}
-              <div className="mt-1.5 flex items-center justify-between rounded-lg px-3 py-1.5">
-                <span className="text-[13px] tracking-[0.01em] text-mute">
-                  Network
-                </span>
-                <ClusterToggle />
-              </div>
-
-              {/* Appearance */}
-              <div className="mt-0.5 flex items-center justify-between rounded-lg px-3 py-1.5">
-                <span className="text-[13px] tracking-[0.01em] text-mute">
-                  Appearance
-                </span>
-                <ThemeToggle />
+              {/* Settings */}
+              <div className="mt-3 space-y-0.5 border-t border-rule pt-3">
+                <div className="flex items-center justify-between px-1 py-2">
+                  <span className="text-[13px] tracking-[0.01em] text-mute">
+                    Network
+                  </span>
+                  <ClusterSelect />
+                </div>
+                <div className="flex items-center justify-between px-1 py-2">
+                  <span className="text-[13px] tracking-[0.01em] text-mute">
+                    Appearance
+                  </span>
+                  <ThemeToggle />
+                </div>
               </div>
             </div>
           )}
