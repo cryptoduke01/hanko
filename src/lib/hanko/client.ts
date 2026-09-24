@@ -1,5 +1,6 @@
 import { AnchorProvider, BN, Program, type Idl } from "@coral-xyz/anchor";
 import {
+  type AccountInfo,
   ComputeBudgetProgram,
   Connection,
   Keypair,
@@ -492,56 +493,72 @@ export async function fetchBalances(
   return { underlying, shield, core, edge };
 }
 
-/** Every Hanko share position the wallet currently holds, discovered on-chain from
- *  the owner's token accounts + Metaplex metadata (each share is named "Hanko <SYM> Share").
- *  Lets the portfolio show all refracted stocks, not just the last one in localStorage. */
+/** getMultipleAccountsInfo, chunked to the 100-key RPC limit. */
+async function getMulti(
+  connection: Connection,
+  keys: PublicKey[]
+): Promise<(AccountInfo<Buffer> | null)[]> {
+  const out: (AccountInfo<Buffer> | null)[] = [];
+  for (let i = 0; i < keys.length; i += 100) {
+    out.push(...(await connection.getMultipleAccountsInfo(keys.slice(i, i + 100))));
+  }
+  return out;
+}
+
+/** Every Hanko position the wallet holds, discovered on-chain and independent of both
+ *  balance and token naming. A position is a mint the wallet has a token account for
+ *  AND for which a Hanko vault PDA exists (owned by our program). This catches refracted
+ *  positions too: once refracted the wallet holds 0 of the underlying whole-share mint
+ *  (the balance now lives in Shield/Core/Edge), but its ATA still exists at 0 and its
+ *  vault still exists, so the position is found. Shield/Core/Edge and junk mints have no
+ *  vault of their own and are dropped. The symbol is read from the share's metadata name. */
 export async function discoverPositions(
   connection: Connection,
   owner: PublicKey
 ): Promise<{ mint: PublicKey; sym: string }[]> {
   try {
-    // 1. Every SPL token the wallet holds a nonzero balance of. Cheap and allowed
-    //    on every RPC (unlike getProgramAccounts on the metadata program).
+    // 1. Candidate mints: every mint the wallet has a token account for (any balance).
     const resp = await connection.getParsedTokenAccountsByOwner(owner, {
       programId: TOKEN_PROGRAM_ID,
     });
-    const mints: PublicKey[] = [];
+    const candidates: PublicKey[] = [];
     const seen = new Set<string>();
     for (const { account } of resp.value) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const info = (account.data as any)?.parsed?.info;
-      const amount = Number(info?.tokenAmount?.amount ?? 0);
-      const mintStr: string | undefined = info?.mint;
-      if (!mintStr || amount <= 0 || seen.has(mintStr)) continue;
+      const mintStr: string | undefined = (account.data as any)?.parsed?.info?.mint;
+      if (!mintStr || seen.has(mintStr)) continue;
       seen.add(mintStr);
-      mints.push(new PublicKey(mintStr));
+      candidates.push(new PublicKey(mintStr));
     }
-    if (mints.length === 0) return [];
+    if (candidates.length === 0) return [];
 
-    // 2. Read each token's Metaplex metadata (batched). A Hanko share is named
-    //    "Hanko <SYM> Share"; that name marks a refracted position and its stock.
-    const metaPdas = mints.map(metadataPda);
-    const data: (Buffer | null)[] = [];
-    for (let i = 0; i < metaPdas.length; i += 100) {
-      const chunk = await connection.getMultipleAccountsInfo(metaPdas.slice(i, i + 100));
-      for (const a of chunk) data.push(a ? a.data : null);
-    }
+    // 2. Keep only mints that have a Hanko vault (owned by our program). This is the
+    //    real signal that a mint is a refractable underlying, regardless of balance/name.
+    const vaults = await getMulti(connection, candidates.map((c) => pdas(c).vault));
+    const underlyings = candidates.filter(
+      (_, i) => vaults[i] != null && vaults[i]!.owner.equals(PROGRAM_ID)
+    );
+    if (underlyings.length === 0) return [];
 
-    const out: { mint: PublicKey; sym: string }[] = [];
-    mints.forEach((mint, i) => {
-      const d = data[i];
-      if (!d || d.length < 70) return;
-      const nameLen = d.readUInt32LE(65);
-      if (nameLen === 0 || nameLen > 64 || 69 + nameLen > d.length) return;
-      const name = d
-        .subarray(69, 69 + nameLen)
-        .toString("utf8")
-        .replace(/\0/g, "")
-        .trim();
-      const m = /^Hanko (.+) Share$/.exec(name);
-      if (m) out.push({ mint, sym: m[1].trim() });
+    // 3. Symbol from the share's Metaplex metadata name ("Hanko <SYM> Share").
+    const metas = await getMulti(connection, underlyings.map(metadataPda));
+    return underlyings.map((mint, i) => {
+      let sym = "";
+      const d = metas[i]?.data;
+      if (d && d.length >= 70) {
+        const nameLen = d.readUInt32LE(65);
+        if (nameLen > 0 && nameLen <= 64 && 69 + nameLen <= d.length) {
+          const name = d
+            .subarray(69, 69 + nameLen)
+            .toString("utf8")
+            .replace(/\0/g, "")
+            .trim();
+          const m = /^Hanko (.+) Share$/.exec(name);
+          if (m) sym = m[1].trim();
+        }
+      }
+      return { mint, sym };
     });
-    return out;
   } catch {
     return [];
   }
