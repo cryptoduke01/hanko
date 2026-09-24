@@ -48,6 +48,9 @@ export const metadata: Metadata = {
     description:
       "Split a tokenized stock into a safe part, a balanced part, and an upside part.",
   },
+  other: {
+    "ory-verify": "orynth-2b946f97c19d447bb172e74e47c6d8c2",
+  },
 };
 
 const themeInitScript = `
