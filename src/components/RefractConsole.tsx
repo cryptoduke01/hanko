@@ -37,7 +37,14 @@ const CAP = 115 * ONE;
 const fmt = (n: number) =>
   (n / ONE).toLocaleString(undefined, { maximumFractionDigits: 2 });
 
-export function RefractConsole() {
+export function RefractConsole({
+  symbol,
+  onSymbolChange,
+}: {
+  /** When provided, the picked stock is driven by this shared symbol. */
+  symbol?: string;
+  onSymbolChange?: (symbol: string) => void;
+} = {}) {
   const { connection } = useConnection();
   const wallet = useAnchorWallet();
   const { connected } = useWallet();
@@ -50,7 +57,12 @@ export function RefractConsole() {
   );
 
   const [demoMint, setDemoMint] = useState<PublicKey | null>(null);
-  const [stock, setStock] = useState<RefractableStock>(STOCKS[0]);
+  const [stock, setStock] = useState<RefractableStock>(
+    () =>
+      (symbol && STOCKS.find((s) => s.symbol.toUpperCase() === symbol.toUpperCase())) ||
+      STOCKS.find((s) => s.symbol === "TSLA") ||
+      STOCKS[0],
+  );
   const [balances, setBalances] = useState<Balances | null>(null);
   const [loading, setLoading] = useState(false);
   const [refractAmt, setRefractAmt] = useState("25");
@@ -101,26 +113,36 @@ export function RefractConsole() {
 
   const allStocks = useMemo(() => [...STOCKS, ...preStocks], [preStocks]);
 
-  // The shown stock follows the active demo when one exists (so the label always
-  // matches the minted shares); otherwise it follows the ?stock= param (e.g. a
-  // link from the Pre-IPO board) so the picker opens on the right one.
+  // Selection follows the active mint when one exists (so the label always
+  // matches the minted shares) and pushes that stock up so the model mirrors it.
+  // Otherwise it follows the shared `symbol` (the model dropdown), falling back
+  // to the ?stock= param for standalone use.
   useEffect(() => {
-    if (!owner) return;
     try {
-      if (demoMint) {
+      if (owner && demoMint) {
         const sym = localStorage.getItem(SYM_KEY(owner.toBase58()));
         const found = sym && allStocks.find((s) => s.symbol === sym);
-        if (found) setStock(found);
-      } else {
-        const q = new URLSearchParams(window.location.search).get("stock");
-        const found =
-          q && allStocks.find((s) => s.symbol.toLowerCase() === q.toLowerCase());
-        if (found) setStock(found);
+        if (found) {
+          setStock(found);
+          onSymbolChange?.(found.symbol);
+        }
+        return;
       }
+      if (symbol) {
+        const found = allStocks.find(
+          (s) => s.symbol.toUpperCase() === symbol.toUpperCase()
+        );
+        if (found) setStock(found);
+        return;
+      }
+      const q = new URLSearchParams(window.location.search).get("stock");
+      const found =
+        q && allStocks.find((s) => s.symbol.toLowerCase() === q.toLowerCase());
+      if (found) setStock(found);
     } catch {
       /* storage / query unavailable */
     }
-  }, [owner, demoMint, allStocks]);
+  }, [owner, demoMint, allStocks, symbol, onSymbolChange]);
 
   // Clear the current demo so a different stock (including pre-IPO) can be minted.
   const startOver = () => {
@@ -288,7 +310,14 @@ export function RefractConsole() {
                 Edge. They land in your wallet by name and recombine anytime.
               </p>
             </div>
-            <StockPicker stocks={allStocks} selected={stock} onSelect={setStock} />
+            <StockPicker
+              stocks={allStocks}
+              selected={stock}
+              onSelect={(s) => {
+                setStock(s);
+                onSymbolChange?.(s.symbol);
+              }}
+            />
             <div>
               <ActionButton
                 onClick={getDemo}

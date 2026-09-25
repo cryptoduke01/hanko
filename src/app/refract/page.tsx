@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { RefractConsole } from "@/components/RefractConsole";
-import { SpectrumExplorer } from "@/components/SpectrumExplorer";
+import { RefractWorkspace } from "@/components/RefractWorkspace";
 
 export const metadata: Metadata = {
   title: "Refract a share into three tokens",
@@ -29,19 +28,7 @@ export default function RefractPage() {
         </p>
       </header>
 
-      <div className="mt-14 grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-start">
-        {/* wide side, the economics + charts get the room */}
-        <div className="min-w-0 xl:order-1">
-          <p className="mb-3 text-[12px] font-medium tracking-[0.02em] text-mute">
-            Model the economics
-          </p>
-          <SpectrumExplorer />
-        </div>
-        {/* the mint / trade console hangs around in a narrow rail */}
-        <div className="xl:order-2 xl:sticky xl:top-24 xl:self-start">
-          <RefractConsole />
-        </div>
-      </div>
+      <RefractWorkspace />
     </div>
   );
 }

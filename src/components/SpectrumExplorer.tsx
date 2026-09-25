@@ -66,7 +66,14 @@ const PY0 = 16;
 const PY1 = 344;
 const MAX_MULT = 2;
 
-export function SpectrumExplorer() {
+export function SpectrumExplorer({
+  symbol,
+  onSymbolChange,
+}: {
+  /** When provided, the selected asset is driven by this shared symbol. */
+  symbol?: string;
+  onSymbolChange?: (symbol: string) => void;
+} = {}) {
   const { quotes } = useMarket();
 
   const [slug, setSlug] = useState("tslax");
@@ -115,8 +122,16 @@ export function SpectrumExplorer() {
   const allAssets = useMemo(() => [...ASSETS, ...preAssets], [preAssets]);
   const asset = allAssets.find((a) => a.slug === slug) ?? ASSETS[0];
 
-  // Preselect from ?stock= (e.g. a link from a stock or Pre-IPO page).
+  // When a shared symbol is supplied (the Refract workspace), follow it. Falls
+  // back to the ?stock= param for standalone use.
   useEffect(() => {
+    if (symbol) {
+      const found = allAssets.find(
+        (a) => a.symbol.toUpperCase() === symbol.toUpperCase()
+      );
+      if (found && found.slug !== slug) setSlug(found.slug);
+      return;
+    }
     try {
       const q = new URLSearchParams(window.location.search).get("stock");
       if (!q) return;
@@ -127,7 +142,7 @@ export function SpectrumExplorer() {
     } catch {
       /* no query */
     }
-  }, [allAssets]);
+  }, [allAssets, symbol, slug]);
 
   // Reset vol to the asset's default when the asset changes.
   useEffect(() => {
@@ -232,6 +247,7 @@ export function SpectrumExplorer() {
       aria-selected={a.slug === slug}
       onClick={() => {
         setSlug(a.slug);
+        onSymbolChange?.(a.symbol);
         setPickerOpen(false);
       }}
       className={`flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left transition-colors duration-150 ${

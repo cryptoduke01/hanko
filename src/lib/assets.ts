@@ -398,12 +398,19 @@ export interface RefractableStock {
 /** Stocks offered in the refract picker: those with a clean ticker symbol we
  *  can put on the demo tokens (e.g. TSLA → "Hanko TSLA Shield"). */
 export function getRefractableStocks(): RefractableStock[] {
+  const seen = new Set<string>();
   return assets
     .map((a) => {
+      // Perps reference a price only, they hold no shares, so they cannot be
+      // refracted, exclude them from the picker.
+      if (/-PERP$/i.test(a.ticker) || /price only/i.test(a.underlying)) return null;
       const m = a.underlying.match(/\(([A-Z.]{1,6})\)/);
       if (!m) return null;
+      const symbol = m[1];
+      if (seen.has(symbol)) return null; // one entry per underlying
+      seen.add(symbol);
       const name = a.underlying.replace(/\s*\(.*\)\s*/, "").trim();
-      return { slug: a.slug, ticker: a.ticker, symbol: m[1], name };
+      return { slug: a.slug, ticker: a.ticker, symbol, name };
     })
     .filter((s): s is RefractableStock => s !== null);
 }
