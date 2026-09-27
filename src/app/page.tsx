@@ -2,6 +2,7 @@ import Link from "next/link";
 import { HeroBackdrop } from "@/components/HeroBackdrop";
 import { FeatureCard } from "@/components/FeatureCard";
 import { CutCard } from "@/components/CutCard";
+import { TokenCAPill } from "@/components/TokenCA";
 import { ArrowUpRight, ArrowRight } from "@/components/icons";
 
 const STEPS = [
@@ -98,6 +99,7 @@ export default function HomePage() {
         <HeroBackdrop />
 
         <div className="relative mx-auto flex w-full max-w-3xl flex-col items-center px-6 py-16 text-center">
+          <TokenCAPill className="animate-fade-up mb-8" />
           <h1 className="animate-fade-up font-sans text-[2.7rem] font-bold leading-[0.98] tracking-[-0.04em] text-ink sm:text-7xl sm:leading-[0.96]">
             Own only the part
             <br />
