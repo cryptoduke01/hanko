@@ -12,7 +12,24 @@ Three people, three appetites: the **saver** holds Shield for equity-backed yiel
 
 Named after the seal (判子) a Japanese company presses onto a document to make it real: Hanko reads the hidden structure inside a tokenized stock, lets you separate it, and the seal is what makes each piece authentic.
 
-**Live:** [hankolabs.xyz](https://hankolabs.xyz) · Built for the Solana Foundation **Stocklana** hackathon.
+**Live:** [hankolabs.xyz](https://hankolabs.xyz) · **Token:** $HANKO on [Orynth](https://www.orynth.dev/projects/hanko) · Built for the Solana Foundation **Stocklana** hackathon · [Changelog](CHANGELOG.md)
+
+## Status (October 2026)
+
+| | |
+| --- | --- |
+| **App** | Live on Solana devnet at [hankolabs.xyz](https://hankolabs.xyz) |
+| **Program** | `hanko_vault` on devnet: `EjxYgyiQ6DY8qB69svz6sooP3SRo7jCECHYiEDZG1i9p` |
+| **Token** | **$HANKO**, launched on [Orynth](https://www.orynth.dev/projects/hanko). Fixed supply of 1B, mint and freeze authority revoked |
+| **Contract** | `dw3hRmgybQPvHyp9Bfdu9gQyB1uP2fSHes37CsQMory` ([Solscan](https://solscan.io/token/dw3hRmgybQPvHyp9Bfdu9gQyB1uP2fSHes37CsQMory)). The only official address, also on the site and posted by [@dukedotsol](https://x.com/dukedotsol) |
+| **Hackathon** | Submitted to Stocklana (main track, plus the Pyth and PreStocks bounties). Results pending |
+| **Next** | Mainnet. The blockers are tracked in [docs/mainnet-checklist.md](docs/mainnet-checklist.md) |
+
+### Launch film
+
+30 seconds of the product, rendered entirely from code, no After Effects: one shape morphing through every Hanko state, driven by a cursor, with spring physics and the site's own dither texture. Click to watch.
+
+[![Hanko launch film](docs/screenshots/launch-film.png)](https://github.com/cryptoduke01/hanko/releases/download/v0.2.0/Hanko-launch-1080p.mp4)
 
 ![Hanko](docs/screenshots/hero.png)
 
@@ -40,7 +57,7 @@ Pick a stock or a pre-IPO token, model the economics (floor / cap / vol / maturi
 
 ## Live market data, and Pyth settlement
 
-Every stock page shows a **live Pyth price** (`Equity.US.<TICKER>/USD`, the feed the vault settles from on-chain), a **real candlestick chart and market data** from Tokens.xyz, the underlying stock price next to the on-chain token price, market cap, and a company description.
+Every stock page shows a **real candlestick chart and market data** from Tokens.xyz, the underlying stock price next to the on-chain token price, market cap, and a company description. It also names the **Pyth feed the vault settles from** (`Equity.US.<TICKER>/USD`): settlement reads a signed Pyth price on-chain through `settle_with_oracle`, with confidence and staleness checks. A live Pyth tick appears on the page too when the Pyth Pro key's plan covers US equity feeds.
 
 ![Stock detail](docs/screenshots/stock.png)
 
@@ -52,17 +69,19 @@ Pre-IPO exposure is the purest bundled risk: enormous upside, a real chance of z
 
 ## Portfolio
 
-A dashboard reads your holdings, each tranche's market price, a net value in shares, and your recent on-chain activity, live from devnet. Each transaction is labeled ("Refracted a share", "Traded a tranche", "Redeemed a tranche") rather than shown as a bare hash.
+The dashboard finds every stock you have refracted straight from the chain (any mint you hold that has a Hanko vault, even after you refract all of it) and shows each one as its own block: the stock's logo and name, your whole shares and its three parts, and a USD price for each. A part with an open market is priced from its pool; otherwise it shows an indicative fair value from the same Black/Scholes model the refract page uses, and the three always sum to the share price. Recent on-chain activity is labeled ("Refracted a share", "Traded a tranche", "Redeemed a tranche") rather than shown as a bare hash.
+
+The parts look right in a wallet too: the program names each tranche token per stock ("Hanko TSLA Shield", `TSLA-S`) and points its metadata at per-stock art, the stock's logo with an S, C or E badge, served by `/token/meta` and `/token/img`.
 
 ## Try it in 60 seconds (devnet)
 
 On [hankolabs.xyz](https://hankolabs.xyz):
 
 1. **Connect a wallet** (Phantom or Solflare on devnet).
-2. **Mint demo shares** on `/refract`. The app funds your wallet with a little devnet SOL, then mints you 100 test shares and opens a vault.
+2. **Pick a stock and mint test shares** on `/refract`. The app funds your wallet with a little devnet SOL, then mints you 100 test shares of it and opens a vault.
 3. **Refract** some shares into Shield, Core, and Edge.
 4. **Open a market** for one part and **buy just the Edge** (or sell just the Shield).
-5. Open **`/portfolio`** to see your holdings, prices, and the transactions you just made.
+5. Open **`/portfolio`** to see each stock you refracted, its three parts priced in USD, and the transactions you just made.
 
 ## On-chain
 
@@ -100,19 +119,24 @@ A multi-agent internal [Kensho](https://github.com/cryptoduke01) self-review of 
 hanko/
 ├─ src/                      Next.js app (App Router)
 │  ├─ app/                   routes: /, /refract, /assets/[slug], /prestocks/[symbol], /portfolio, /docs
-│  ├─ components/            UI (RefractConsole, TrancheMarket, Portfolio, SplitExplainer, ...)
+│  │  ├─ api/                server routes: chart, market, prestocks, pyth, faucet
+│  │  └─ token/              per-stock token metadata and art for wallets (/token/meta, /token/img)
+│  ├─ components/            UI (RefractWorkspace, RefractConsole, TrancheMarket, Portfolio, TokenCA, ...)
 │  └─ lib/
-│     ├─ hanko/client.ts     program client: deposit, recombine, swap, fetch balances/pools/activity
-│     └─ spectrum.ts         tranche payoff + Black/Scholes pricing math
+│     ├─ hanko/client.ts     program client: deposit, recombine, swap, position discovery, balances, pools, activity
+│     ├─ hanko/token.ts      the official $HANKO contract address (one constant, used everywhere)
+│     ├─ spectrum.ts         tranche payoff + Black/Scholes pricing math
+│     └─ stockModel.ts       indicative tranche prices for the portfolio
 ├─ hanko_vault/              Anchor workspace
 │  ├─ programs/hanko_vault/  the on-chain program (one file per instruction)
 │  └─ tests/hanko_vault.ts   end-to-end lifecycle + market test
-└─ docs/                     screenshots + security review
+├─ mainnet/                  Raydium + Meteora tranche-liquidity scripts
+└─ docs/                     screenshots, security review, mainnet checklist
 ```
 
 ## Stack
 
-Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Anchor / Solana · wallet-adapter. Live data: **Pyth** (on-chain settlement + Pyth Pro live prices), **Tokens.xyz** (candlestick charts + market data), **PreStocks** (pre-IPO tokens), with DexScreener as a fallback. Tranche math in [`src/lib/spectrum.ts`](src/lib/spectrum.ts).
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Anchor / Solana · wallet-adapter. Live data: **Pyth** (on-chain settlement, plus Pyth Pro live ticks where the plan covers equities), **Tokens.xyz** (candlestick charts + market data), **PreStocks** (pre-IPO tokens), with DexScreener as a fallback. Tranche math in [`src/lib/spectrum.ts`](src/lib/spectrum.ts).
 
 ## Run locally
 
@@ -128,7 +152,7 @@ NEXT_PUBLIC_CLUSTER=devnet
 NEXT_PUBLIC_RPC_URL=https://devnet.helius-rpc.com/?api-key=YOUR_KEY
 # optional, server-side only (the app degrades gracefully without them):
 TOKENS_XYZ_API_KEY=...   # real candlestick charts + market data
-PYTH_API_KEY=...         # live Pyth prices (free at pythdata.app)
+PYTH_API_KEY=...         # live Pyth ticks (needs a Pyth Pro plan with US equity feeds)
 ```
 
 The self-serve demo faucet (`/api/faucet`) funds a new wallet with a little devnet SOL so it can mint demo shares. It needs a funded key server-side, provided as `HANKO_FAUCET_SECRET` (a JSON array of the keypair's secret bytes); in local dev it falls back to `hanko_vault/.deployer.json`. See [`.env.example`](.env.example) for the full list.
