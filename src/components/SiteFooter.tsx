@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { DataIntegrations } from "@/components/DataIntegrations";
 import { HankoMark } from "@/components/HankoMark";
-import { TokenCAFooter } from "@/components/TokenCA";
 
 const PRODUCT = [
   { href: "/refract", label: "Refract" },
@@ -30,7 +29,6 @@ export function SiteFooter() {
               <span className="flex-[0.2]" style={{ background: "var(--edge)" }} />
             </div>
             <DataIntegrations className="mt-6" />
-            <TokenCAFooter className="mt-6" />
           </div>
 
           <div className="flex gap-16">

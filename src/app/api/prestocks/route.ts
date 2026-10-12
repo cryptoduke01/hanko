@@ -35,8 +35,8 @@ export interface PreStock {
   supply: number | null;
 }
 
-/** PreStocks returns asset URLs on www.prestocks.com, which stopped resolving
- *  (Oct 2026); the same files are served from the apex domain. */
+/** PreStocks returns asset URLs on www.prestocks.com, which fails to resolve on
+ *  some networks; the apex domain serves the same files and skips a redirect. */
 const apex = (u?: string | null) =>
   u ? u.replace(/^https?:\/\/www\.prestocks\.com/i, "https://prestocks.com") : null;
 

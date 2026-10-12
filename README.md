@@ -21,8 +21,8 @@ Named after the seal (判子) a Japanese company presses onto a document to make
 | **App** | Live on Solana devnet at [hankolabs.xyz](https://hankolabs.xyz) |
 | **Program** | `hanko_vault` on devnet: `EjxYgyiQ6DY8qB69svz6sooP3SRo7jCECHYiEDZG1i9p` |
 | **Token** | **$HANKO**, launched on [Orynth](https://www.orynth.dev/projects/hanko). Fixed supply of 1B, mint and freeze authority revoked |
-| **Contract** | `dw3hRmgybQPvHyp9Bfdu9gQyB1uP2fSHes37CsQMory` ([Solscan](https://solscan.io/token/dw3hRmgybQPvHyp9Bfdu9gQyB1uP2fSHes37CsQMory)). The only official address, also on the site and posted by [@dukedotsol](https://x.com/dukedotsol) |
 | **Hackathon** | Submitted to Stocklana (main track, plus the Pyth and PreStocks bounties). Results pending |
+| **Pyth** | On-chain settlement works on devnet. The live price on stock pages is off until our key has feed access: [Pyth status](#pyth-status-october-2026) |
 | **Next** | Mainnet. The blockers are tracked in [docs/mainnet-checklist.md](docs/mainnet-checklist.md) |
 
 ### Launch film
@@ -57,9 +57,34 @@ Pick a stock or a pre-IPO token, model the economics (floor / cap / vol / maturi
 
 ## Live market data, and Pyth settlement
 
-Every stock page shows a **real candlestick chart and market data** from Tokens.xyz, the underlying stock price next to the on-chain token price, market cap, and a company description. It also names the **Pyth feed the vault settles from** (`Equity.US.<TICKER>/USD`): settlement reads a signed Pyth price on-chain through `settle_with_oracle`, with confidence and staleness checks. A live Pyth tick appears on the page too when the Pyth Pro key's plan covers US equity feeds.
+Every stock page shows a **real candlestick chart and market data** from Tokens.xyz, the underlying stock price next to the on-chain token price, market cap, and a company description. It also names the **Pyth feed the vault settles from** (`Equity.US.<TICKER>/USD`): settlement reads a signed Pyth price on-chain through `settle_with_oracle`, with confidence and staleness checks. The live Pyth tick on that page is off for now; see [Pyth status](#pyth-status-october-2026).
 
 ![Stock detail](docs/screenshots/stock.png)
+
+## Pyth status (October 2026)
+
+Hanko uses Pyth in two places, and only one of them works right now. **On-chain settlement works. The live Pyth price on the stock pages does not.**
+
+| Piece | Status | Why |
+| --- | --- | --- |
+| Settlement (`settle_with_oracle`) | Works on devnet | Reads a Pyth `PriceUpdateV2` account directly. Proven again on 2026-10-12: [settle tx](https://explorer.solana.com/tx/53nhqfiMzB6pU4BPYxuBPWvS27fVtPHVkEsVf6eV4XpAtccf1JFhjVDYQj7AGH3FG5f1z3ZDLah3c48gTHM29fpt?cluster=devnet) |
+| Live price on stock pages (`/api/pyth`) | No price shown | Our Pyth Pro key returns 403 "Not entitled" for every feed |
+| Fresh signed prices from Hermes | Blocked | Public Hermes now returns 401 on price requests without an API key |
+| US equity prices on-chain | Present but stale | Pyth keeps only a few feeds fresh on-chain; equity accounts update only when someone posts one |
+
+**What we tested** (2026-10-12, from Nigeria and again through a VPN exiting in the Netherlands, with the same results):
+
+- **Pyth Pro** (`pyth.dourolabs.app`) with our key: 403, "no grant accepts this feed", for `Equity.US.TSLA/USD`, `Equity.US.NVDA/USD`, and even `Crypto.SOL/USD`. The key is accepted but has no feed grants on it. That is an entitlement problem on the account, not a bug in our code and not a regional block.
+- **Hermes** (`hermes.pyth.network`): feed metadata (`/v2/price_feeds`) still answers, but every price endpoint (`/v2/updates/price/latest`, the older `/api/latest_price_feeds`, and Benchmarks) returns 401 without a key.
+- **On-chain**, devnet and mainnet: Pyth's sponsored SOL/USD account (`7UVimff…`) updates every few seconds. The US equity accounts exist at their standard addresses (TSLA `E8WFH8br…`, NVDA `2w1Tg1XT…`) and are fully verified, but their last update was hours to months ago.
+
+**What this means for Hanko**
+
+- Stock pages still name the exact feed each vault settles from (`Equity.US.<TICKER>/USD`) and show no number rather than a wrong one. Charts and portfolio values come from Tokens.xyz and are unaffected.
+- `settle_with_oracle` is unchanged and correct. It accepts a `PriceUpdateV2` owned by the Pyth receiver only if it matches the vault's feed, is fully verified, is at most 5 minutes old, and has a confidence band within 2% of the price. The devnet proof, [`hanko_vault/tests/oracle.ts`](hanko_vault/tests/oracle.ts), now settles from the sponsored SOL/USD account, so it no longer depends on Hermes.
+- An equity vault can only settle from Pyth if someone posts a fresh equity price at maturity (fetched with a Hermes or Pyth Pro key and posted through the Pyth receiver), or if Pyth sponsors that feed. Until then, equity vaults on devnet settle through the authority-signed `settle`, and the stale on-chain prices are correctly rejected.
+
+**What fixes it.** A Pyth Pro key with US equity grants, or a Hermes API key. With either, the live price comes back with no code change (set `PYTH_API_KEY`), and a keeper can post fresh equity prices for settlement at maturity.
 
 ## Pre-IPO, via PreStocks
 
@@ -107,6 +132,7 @@ The end-to-end integration test proves the full lifecycle **and** the tranche ma
 cd hanko_vault
 anchor build
 RPC_URL="<your devnet rpc>" npm test
+RPC_URL="<your devnet rpc>" npx ts-node --transpile-only tests/oracle.ts   # settle from Pyth
 ```
 
 ## Security
@@ -121,22 +147,21 @@ hanko/
 │  ├─ app/                   routes: /, /refract, /assets/[slug], /prestocks/[symbol], /portfolio, /docs
 │  │  ├─ api/                server routes: chart, market, prestocks, pyth, faucet
 │  │  └─ token/              per-stock token metadata and art for wallets (/token/meta, /token/img)
-│  ├─ components/            UI (RefractWorkspace, RefractConsole, TrancheMarket, Portfolio, TokenCA, ...)
+│  ├─ components/            UI (RefractWorkspace, RefractConsole, TrancheMarket, Portfolio, ...)
 │  └─ lib/
 │     ├─ hanko/client.ts     program client: deposit, recombine, swap, position discovery, balances, pools, activity
-│     ├─ hanko/token.ts      the official $HANKO contract address (one constant, used everywhere)
 │     ├─ spectrum.ts         tranche payoff + Black/Scholes pricing math
 │     └─ stockModel.ts       indicative tranche prices for the portfolio
 ├─ hanko_vault/              Anchor workspace
 │  ├─ programs/hanko_vault/  the on-chain program (one file per instruction)
-│  └─ tests/hanko_vault.ts   end-to-end lifecycle + market test
+│  └─ tests/                 hanko_vault.ts: lifecycle + market test; oracle.ts: Pyth settlement proof
 ├─ mainnet/                  Raydium + Meteora tranche-liquidity scripts
 └─ docs/                     screenshots, security review, mainnet checklist
 ```
 
 ## Stack
 
-Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Anchor / Solana · wallet-adapter. Live data: **Pyth** (on-chain settlement, plus Pyth Pro live ticks where the plan covers equities), **Tokens.xyz** (candlestick charts + market data), **PreStocks** (pre-IPO tokens), with DexScreener as a fallback. Tranche math in [`src/lib/spectrum.ts`](src/lib/spectrum.ts).
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Anchor / Solana · wallet-adapter. Live data: **Pyth** (on-chain settlement; live ticks pending feed access, see [Pyth status](#pyth-status-october-2026)), **Tokens.xyz** (candlestick charts + market data), **PreStocks** (pre-IPO tokens), with DexScreener as a fallback. Tranche math in [`src/lib/spectrum.ts`](src/lib/spectrum.ts).
 
 ## Run locally
 

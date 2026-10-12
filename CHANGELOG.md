@@ -2,15 +2,26 @@
 
 What changed in Hanko, newest first. Dates are when the change shipped to [hankolabs.xyz](https://hankolabs.xyz).
 
+## v0.2.1, post-launch fixes (2026-10-12)
+
+### Removed
+- **The $HANKO contract address from the site and README.** The home pill, the footer block, and the README row are gone, along with `TokenCA.tsx` and `src/lib/hanko/token.ts`. The address is posted by [@dukedotsol](https://x.com/dukedotsol) and on [Orynth](https://www.orynth.dev/projects/hanko).
+
+### Fixed
+- **Pyth settlement proof runs again.** `hanko_vault/tests/oracle.ts` fetched a fresh price from Hermes, which now returns 401 without an API key. It now settles from Pyth's sponsored SOL/USD account, which is receiver-owned and refreshed every few seconds, so it needs no Hermes call and no extra dependencies. Re-run on devnet: [settle tx](https://explorer.solana.com/tx/53nhqfiMzB6pU4BPYxuBPWvS27fVtPHVkEsVf6eV4XpAtccf1JFhjVDYQj7AGH3FG5f1z3ZDLah3c48gTHM29fpt?cluster=devnet).
+
+### Docs
+- **Pyth status** in the README: what works (on-chain settlement), what does not (the live price on stock pages: our Pyth Pro key returns 403 for every feed, and Hermes price endpoints return 401), what we tested, and what fixes it.
+
 ## v0.2.0, $HANKO launch (2026-10-12)
 
 ### Added
-- **$HANKO on the site.** A copyable contract address pill above the home hero (full address on desktop, shortened on phones) and a footer block on every page with the full address, copy, and a Solscan link. The address lives in one constant, `src/lib/hanko/token.ts`, so every surface shows the same string. (Sep 27)
+- **$HANKO on the site.** A copyable contract address pill above the home hero and a footer block on every page with a Solscan link. (Sep 27, removed in v0.2.1)
 - **Launch film.** A 30 second, 60fps film of the product rendered entirely from code (a pure `seek(t)` page, cursor driven, spring physics, the site's own dither texture), with an ElevenLabs voiceover. Attached to this release.
 - **CHANGELOG** and a current status section in the README.
 
 ### Fixed
-- **Pre-IPO logos.** PreStocks returns asset URLs on `www.prestocks.com`, which stopped resolving; the API route now serves them from the apex domain, so the Pre-IPO page and picker show company logos again instead of letter placeholders.
+- **Pre-IPO logos.** PreStocks returns asset URLs on `www.prestocks.com`, which fails to resolve on some networks; the API route now serves them from the apex domain, which resolves everywhere and skips a redirect, so the Pre-IPO page and picker show company logos instead of letter placeholders.
 
 ## v0.1.0, Stocklana submission (2026-09-25)
 
