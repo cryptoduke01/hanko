@@ -35,6 +35,11 @@ export interface PreStock {
   supply: number | null;
 }
 
+/** PreStocks returns asset URLs on www.prestocks.com, which stopped resolving
+ *  (Oct 2026); the same files are served from the apex domain. */
+const apex = (u?: string | null) =>
+  u ? u.replace(/^https?:\/\/www\.prestocks\.com/i, "https://prestocks.com") : null;
+
 export async function GET() {
   try {
     const res = await fetch("https://prestocks.com/api/prestocks", {
@@ -52,8 +57,8 @@ export async function GET() {
         typeof t.impliedValuation === "number"
           ? t.impliedValuation
           : t.markValuation ?? null,
-      image: t.image ?? null,
-      url: t.external_url ?? null,
+      image: apex(t.image),
+      url: apex(t.external_url),
       description: t.description ?? null,
       supply: typeof t.supply === "number" ? t.supply : null,
     }));
